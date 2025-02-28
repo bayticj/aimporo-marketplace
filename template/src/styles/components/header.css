@@ -1,0 +1,17 @@
+.logo-container {
+  padding: 1rem;
+}
+
+.logo {
+  display: block;
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .logo {
+    filter: brightness(0.9);
+  }
+} 

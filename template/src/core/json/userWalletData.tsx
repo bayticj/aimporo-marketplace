@@ -1,0 +1,38 @@
+export const userWalletData = [
+  {
+    ids: "#118",
+    key:1,
+    reason: "I will do designing and executing targeted email campaigns",
+    dateTime: "22 May 2023 10:50PM",
+    type: "Debit",
+    amount: "-$154",
+    img: "assets/img/gigs/gigs-09.jpg",
+  },
+  {
+    ids: "#117",
+    key:2,
+    reason: "I will develop openai, dalle, chat gpt app for mobile",
+    dateTime: "21 May 2023 11:25 PM",
+    type: "Credit",
+    amount: "+$1154",
+    img: "assets/img/gigs/gigs-03.jpg",
+  },
+  {
+    ids: "#116",
+    key:3,
+    reason: "I will do professional lifestyle and product photography",
+    dateTime: "17 May 2023 12:16 AM",
+    type: "Credit",
+    amount: "+$6547",
+    img: "assets/img/gigs/gigs-02.jpg",
+  },
+  {
+    ids: "#115",
+    key:4,
+    reason: "Embedded Android & AOSP customizations",
+    dateTime: "15 May 2023 11:21 PM",
+    type: "Credit",
+    amount: "+$1454",
+    img: "assets/img/gigs/gigs-04.jpg",
+  },
+];

@@ -1,0 +1,135 @@
+/* Header Styles */
+.header {
+  position: sticky;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 1001;
+  background: #fff;
+  transition: ease all 0.5s;
+  -webkit-transition: ease all 0.5s;
+  -ms-transition: ease all 0.5s;
+}
+
+.header.fixed {
+  position: fixed;
+  box-shadow: 0px 3px 53px rgb(197 197 197 / 27%);
+  transition: ease all 0.5s;
+  -webkit-transition: ease all 0.5s;
+  -ms-transition: ease all 0.5s;
+  background: #fff;
+}
+
+.navbar-brand.logo {
+  margin-right: 0;
+  display: inline-block;
+  max-width: 200px; /* Constrain logo width */
+  flex-shrink: 0; /* Prevent logo from shrinking */
+}
+
+.logo img {
+  height: auto;
+  max-width: 100%;
+  max-height: 40px;
+  width: auto;
+  object-fit: contain;
+  display: block; /* Ensure proper display */
+}
+
+.header-nav {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: space-between;
+  position: relative;
+  height: 70px;
+  padding: 0 30px;
+  margin-bottom: 0;
+}
+
+.navbar-header {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0; /* Prevent header from shrinking */
+  width: auto; /* Allow natural width */
+  max-width: 200px; /* Maximum width */
+}
+
+.main-menu-wrapper {
+  flex-grow: 1; /* Allow menu to grow */
+  display: flex;
+  justify-content: center;
+}
+
+.main-nav {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.main-nav > li + li {
+  margin-left: 30px;
+}
+
+.main-nav > li > a {
+  color: #1D1D1D;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.header-navbar-rht {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  list-style: none;
+  flex-shrink: 0; /* Prevent right menu from shrinking */
+}
+
+.header-navbar-rht > li {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  padding-right: 15px;
+  justify-content: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+}
+
+.header-navbar-rht > li:last-child {
+  padding-right: 0px;
+}
+
+/* Responsive styles */
+@media (max-width: 991px) {
+  .main-menu-wrapper {
+    display: none;
+  }
+  
+  .header-navbar-rht {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .navbar-brand.logo {
+    max-width: 150px;
+  }
+  
+  .header-nav {
+    padding: 0 15px;
+  }
+} 

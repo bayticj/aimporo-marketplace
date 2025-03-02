@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "@/style/css/header.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import "slick-carousel/slick/slick.css";

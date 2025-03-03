@@ -87,7 +87,7 @@ const SignUp = () => {
         <div className="authentication-wrapper">
           <div className="authentication-content">
             <div className="login-carousel">
-              <Slider {...loginslideroption} className="login-bg">
+              <Slider {...loginslideroption}>
                 <div className="login-slider">
                   <Image
                     src="/assets/img/login-card-01.svg"
@@ -113,55 +113,57 @@ const SignUp = () => {
               </Slider>
             </div>
           </div>
-          <Image
-            src="/assets/img/bg/shape-01.png"
-            alt="shape"
-            className="shape-01"
-            width={100}
-            height={100}
-          />
-          <Image
-            src="/assets/img/bg/shape-02.png"
-            alt="shape"
-            className="shape-02"
-            width={100}
-            height={100}
-          />
-          <Image
-            src="/assets/img/bg/shape-03.png"
-            alt="shape"
-            className="shape-03"
-            width={100}
-            height={100}
-          />
-          <Image
-            src="/assets/img/bg/shape-04.png"
-            alt="shape"
-            className="shape-04"
-            width={100}
-            height={100}
-          />
-          <Image
-            src="/assets/img/bg/shape-05.png"
-            alt="shape"
-            className="shape-05 bx-spin"
-            width={100}
-            height={100}
-          />
-          <Image
-            src="/assets/img/bg/shape-06.png"
-            alt="shape"
-            className="shape-06"
-            width={100}
-            height={100}
-          />
-          <Image
-            src="/assets/img/bg/shape-07.png"
-            alt="shape"
-            className="shape-07"
-            width={100}
-            height={100}
-          />
+          <div className="login-bg">
+            <Image
+              src="/assets/img/bg/shape-01.png"
+              alt="shape"
+              width={100}
+              height={100}
+              className="shape-01"
+            />
+            <Image
+              src="/assets/img/bg/shape-02.png"
+              alt="shape"
+              width={100}
+              height={100}
+              className="shape-02"
+            />
+            <Image
+              src="/assets/img/bg/shape-03.png"
+              alt="shape"
+              width={100}
+              height={100}
+              className="shape-03"
+            />
+            <Image
+              src="/assets/img/bg/shape-04.png"
+              alt="shape"
+              width={100}
+              height={100}
+              className="shape-04"
+            />
+            <Image
+              src="/assets/img/bg/shape-05.png"
+              alt="shape"
+              width={100}
+              height={100}
+              className="shape-05"
+            />
+            <Image
+              src="/assets/img/bg/shape-06.png"
+              alt="shape"
+              width={100}
+              height={100}
+              className="shape-06"
+            />
+            <Image
+              src="/assets/img/bg/shape-07.png"
+              alt="shape"
+              width={100}
+              height={100}
+              className="shape-07"
+            />
+          </div>
         </div>
       </div>
 

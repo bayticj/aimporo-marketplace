@@ -180,8 +180,8 @@ const SignUp = () => {
                 </div>
                 <div className="login-card">
                   <div className="login-heading">
-                    <h3>Hi, Welcome!</h3>
-                    <p>Register to get access to Aimporo Philippines</p>
+                    <h3>Create Account!</h3>
+                    <p>Fill the fields to create your account</p>
                   </div>
                   <div className={`form-wrap form-focus ${
                     isFocused[0] || inputValue1.length > 0 ? "focused" : ""
@@ -197,7 +197,7 @@ const SignUp = () => {
                       onChange={handleChange}
                       value={inputValue1}
                     />
-                    <label className="focus-label">Name *</label>
+                    <label className="focus-label">Full Name</label>
                   </div>
                   <div className={`form-wrap form-focus ${
                     isFocused[1] || inputValue2.length > 0 ? "focused" : ""
@@ -213,7 +213,7 @@ const SignUp = () => {
                       onChange={handleChange1}
                       value={inputValue2}
                     />
-                    <label className="focus-label">Email *</label>
+                    <label className="focus-label">Email</label>
                   </div>
                   <div className={`form-wrap form-focus pass-group ${
                     isFocused[2] || inputValue3.length > 0 ? "focused" : ""
@@ -237,7 +237,7 @@ const SignUp = () => {
                       onChange={handleChange3}
                       value={inputValue3}
                     />
-                    <label className="focus-label">Password *</label>
+                    <label className="focus-label">Password</label>
                   </div>
                   <div className={`form-wrap form-focus pass-group ${
                     isFocused[3] || inputValue4.length > 0 ? "focused" : ""
@@ -261,16 +261,20 @@ const SignUp = () => {
                       onChange={handleChange4}
                       value={inputValue4}
                     />
-                    <label className="focus-label">Confirm Password *</label>
+                    <label className="focus-label">Confirm Password</label>
                   </div>
                   <div className="form-wrap">
                     <label className="custom_check mb-0">
-                      By login you agree to our{" "}
-                      <Link href="/terms-condition">Terms of Use</Link> and{" "}
-                      <Link href="/privacy-policy">Privacy Policy</Link>
+                      I agree to the <Link href="/terms-condition">Terms of Service</Link> and <Link href="/privacy-policy">Privacy Policy</Link>
                       <input type="checkbox" name="remeber" />
                       <span className="checkmark" />
                     </label>
+                  </div>
+                  <div className="form-wrap mantadory-info d-none">
+                    <p>
+                      <i className="feather icon-alert-triangle" />
+                      Fill all the fields to submit
+                    </p>
                   </div>
                   <Link href="/" className="btn btn-primary w-100">
                     Sign Up

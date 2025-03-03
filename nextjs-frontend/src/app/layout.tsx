@@ -26,6 +26,7 @@ export default function RootLayout({
       <head>
         <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.css" rel="stylesheet" />
       </head>
       <body className={inter.className}>
         <AuthProvider>
@@ -35,6 +36,7 @@ export default function RootLayout({
         </AuthProvider>
         
         <Script src="https://unpkg.com/aos@2.3.1/dist/aos.js" strategy="beforeInteractive" />
+        <Script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" strategy="beforeInteractive" />
         
         <Script id="aos-init">
           {`
@@ -49,6 +51,13 @@ export default function RootLayout({
                 console.log('AOS initialized from layout');
               } else {
                 console.error('AOS library not loaded properly');
+              }
+              
+              if (typeof feather !== 'undefined') {
+                feather.replace();
+                console.log('Feather icons initialized');
+              } else {
+                console.error('Feather library not loaded properly');
               }
             });
           `}

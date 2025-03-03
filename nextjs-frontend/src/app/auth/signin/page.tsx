@@ -18,7 +18,7 @@ export default function SignInPage() {
     if (typeof window !== 'undefined' && typeof (window as any).feather !== 'undefined') {
       (window as any).feather.replace();
     }
-  }, []);
+  }, [isPassword]);
 
   const handleFocus = (index: number) => {
     const newFocusState = [...isFocused];
@@ -48,6 +48,13 @@ export default function SignInPage() {
     const newPasswordState = [...isPassword];
     newPasswordState[index] = !newPasswordState[index];
     setIsPassword(newPasswordState);
+    
+    // Ensure icons are updated immediately
+    setTimeout(() => {
+      if (typeof window !== 'undefined' && typeof (window as any).feather !== 'undefined') {
+        (window as any).feather.replace();
+      }
+    }, 0);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

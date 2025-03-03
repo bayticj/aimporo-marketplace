@@ -1,0 +1,12 @@
+{
+  "name": "react-workspace",
+  "version": "1.0.0",
+  "description": "Workspace for React applications",
+  "scripts": {
+    "dev": "cd nextjs-frontend && npm run dev",
+    "build": "cd nextjs-frontend && npm run build",
+    "start": "cd nextjs-frontend && npm run start",
+    "lint": "cd nextjs-frontend && npm run lint"
+  },
+  "private": true
+} 

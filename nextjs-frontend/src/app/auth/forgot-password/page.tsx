@@ -149,12 +149,19 @@ const ForgotPassword = () => {
             <form>
               <div className="login-userset">
                 <div className="login-logo">
-                  <Image
-                    src="/assets/img/logo.svg"
-                    alt="logo"
-                    width={200}
-                    height={50}
-                  />
+                  <Link href="/">
+                    <img 
+                      src="/assets/img/aimporo-logo.png" 
+                      alt="Aimporo Logo" 
+                      className="img-fluid"
+                      style={{ 
+                        maxHeight: '40px', 
+                        width: 'auto', 
+                        objectFit: 'contain',
+                        display: 'block'
+                      }}
+                    />
+                  </Link>
                 </div>
                 <div className="login-card">
                   <div className="login-heading text-start">

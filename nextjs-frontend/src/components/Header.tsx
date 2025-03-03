@@ -30,15 +30,42 @@ const Header: React.FC = () => {
               <li className="nav-item">
                 <Link href="/services" className="nav-link">Services</Link>
               </li>
+              <li className="nav-item">
+                <Link href="/api-test" className="nav-link">API Test</Link>
+              </li>
             </ul>
           </div>
           
           <ul className="nav header-navbar-rht">
             <li className="nav-item">
-              <Link href="/signin" className="btn btn-secondary">Sign In</Link>
+              <Link 
+                href="/auth/signin" 
+                className="btn btn-secondary"
+                style={{ 
+                  padding: '10px 25px',
+                  borderRadius: '8px',
+                  fontWeight: '500',
+                  minWidth: '120px',
+                  textAlign: 'center'
+                }}
+              >
+                Sign In
+              </Link>
             </li>
             <li className="nav-item">
-              <Link href="/signup" className="btn btn-primary">Get Started</Link>
+              <Link 
+                href="/auth/signup" 
+                className="btn btn-primary"
+                style={{ 
+                  padding: '10px 25px',
+                  borderRadius: '8px',
+                  fontWeight: '500',
+                  minWidth: '120px',
+                  textAlign: 'center'
+                }}
+              >
+                Get Started
+              </Link>
             </li>
           </ul>
         </nav>

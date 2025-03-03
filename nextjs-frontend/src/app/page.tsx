@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Slider from 'react-slick';
 import GigCard from '../components/GigCard';
+import SlideableGigCards from '../components/SlideableGigCards';
 
 // Add AOS type declaration
 declare global {
@@ -40,7 +41,7 @@ export default function Home() {
     { id: 6, name: 'Mobile Apps', icon: '/assets/img/aimporo-logo.png' },
   ];
 
-  // Example gigs
+  // Example gigs with updated image paths to use existing images
   const gigs = [
     {
       id: 1,
@@ -48,7 +49,7 @@ export default function Home() {
       price: 49.99,
       rating: 4.8,
       reviews: 124,
-      images: ['/assets/img/banner-img.png', '/assets/img/banner-img.png'],
+      images: ['/assets/img/gigs/gigs-01.jpg', '/assets/img/gigs/gigs-02.jpg'],
       seller: 'CreativeStudio',
       location: 'New York',
       badge: 'Programming & Tech',
@@ -62,7 +63,7 @@ export default function Home() {
       price: 199.99,
       rating: 4.9,
       reviews: 89,
-      images: ['/assets/img/banner-img.png', '/assets/img/banner-img.png'],
+      images: ['/assets/img/gigs/gigs-03.jpg', '/assets/img/gigs/gigs-04.jpg'],
       seller: 'WebWizards',
       location: 'London',
       badge: 'Videography',
@@ -75,7 +76,7 @@ export default function Home() {
       price: 149.99,
       rating: 4.7,
       reviews: 67,
-      images: ['/assets/img/banner-img.png', '/assets/img/banner-img.png'],
+      images: ['/assets/img/gigs/gigs-05.jpg', '/assets/img/gigs/gigs-06.jpg'],
       seller: 'RankBooster',
       location: 'Canada',
       badge: 'Music & Audio',
@@ -88,12 +89,68 @@ export default function Home() {
       price: 99.99,
       rating: 4.6,
       reviews: 52,
-      images: ['/assets/img/banner-img.png', '/assets/img/banner-img.png'],
+      images: ['/assets/img/gigs/gigs-07.jpg', '/assets/img/gigs/gigs-08.jpg'],
       seller: 'ViralVision',
       location: 'Australia',
       badge: 'Digital Marketing',
       delivery: '3 days'
     },
+    // Adding more gigs for better filter demonstration
+    {
+      id: 5,
+      title: 'Mobile App Development',
+      price: 299.99,
+      rating: 5.0,
+      reviews: 42,
+      images: ['/assets/img/gigs/gigs-01.jpg', '/assets/img/gigs/gigs-02.jpg'],
+      seller: 'AppMasters',
+      location: 'San Francisco',
+      badge: 'Programming & Tech',
+      featured: true,
+      hot: true,
+      delivery: '7 days'
+    },
+    {
+      id: 6,
+      title: 'E-commerce Store Setup',
+      price: 249.99,
+      rating: 4.5,
+      reviews: 78,
+      images: ['/assets/img/gigs/gigs-03.jpg', '/assets/img/gigs/gigs-04.jpg'],
+      seller: 'ShopifyPro',
+      location: 'Toronto',
+      badge: 'Digital Marketing',
+      hot: false,
+      delivery: '3 days'
+    },
+    {
+      id: 7,
+      title: 'Video Editing & Production',
+      price: 149.99,
+      rating: 4.9,
+      reviews: 105,
+      images: ['/assets/img/gigs/gigs-05.jpg', '/assets/img/gigs/gigs-06.jpg'],
+      seller: 'VisualCraft',
+      location: 'Los Angeles',
+      badge: 'Videography',
+      featured: false,
+      hot: true,
+      delivery: '2 days'
+    },
+    {
+      id: 8,
+      title: 'Content Writing Services',
+      price: 79.99,
+      rating: 4.7,
+      reviews: 93,
+      images: ['/assets/img/gigs/gigs-07.jpg', '/assets/img/gigs/gigs-08.jpg'],
+      seller: 'WordSmith',
+      location: 'Chicago',
+      badge: 'Writing & Translation',
+      featured: false,
+      hot: false,
+      delivery: '1 day'
+    }
   ];
 
   // State for favorites
@@ -241,62 +298,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Test Slider to make sure it's working */}
-      <section className="py-12 bg-gray-100">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">Test Slider</h2>
-          <div className="max-w-6xl mx-auto">
-            <Slider {...sliderSettings}>
-              {colors.map((color, index) => (
-                <div key={index} className="px-2">
-                  <div 
-                    style={{ backgroundColor: color }}
-                    className="h-64 rounded-lg flex items-center justify-center text-white text-2xl font-bold"
-                  >
-                    Slide {index + 1}
-                  </div>
-                </div>
-              ))}
-            </Slider>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Gigs Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="section-heading text-center mb-12">
-            <h2 className="text-3xl font-bold mb-2">Explore Our <span className="text-orange-500">Gigs.</span></h2>
-            <div className="flex justify-center gap-4 mt-6">
-              <button className="px-6 py-2 bg-orange-500 text-white rounded-full">Popular</button>
-              <button className="px-6 py-2 text-gray-700 hover:bg-gray-100 rounded-full">Latest</button>
-              <button className="px-6 py-2 text-gray-700 hover:bg-gray-100 rounded-full">Top Ratings</button>
-              <button className="px-6 py-2 text-gray-700 hover:bg-gray-100 rounded-full">Trending</button>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {gigs.map((gig, index) => (
-              <GigCard
-                key={gig.id}
-                id={gig.id}
-                title={gig.title}
-                price={gig.price}
-                rating={gig.rating}
-                reviews={gig.reviews}
-                images={gig.images}
-                seller={gig.seller}
-                location={gig.location}
-                badge={gig.badge}
-                featured={gig.featured}
-                hot={gig.hot}
-                delivery={gig.delivery}
-                isFavorite={favorites[index]}
-                onToggleFavorite={() => toggleFavorite(index)}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Featured Gigs Section - Using fixed SlideableGigCards */}
+      <SlideableGigCards 
+        gigs={gigs} 
+        title="Explore Our <span>Gigs.</span>"
+        subtitle="Find the perfect services for your business from our diverse range of categories"
+      />
 
       {/* Categories Section */}
       <section className="py-16 bg-gray-50">

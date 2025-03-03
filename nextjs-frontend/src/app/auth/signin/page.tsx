@@ -181,18 +181,20 @@ export default function SignInPage() {
               <form onSubmit={handleSubmit}>
                 <div className="login-userset">
                   <div className="login-logo">
-                    <Image 
-                      src="/assets/img/aimporo-logo.png" 
-                      alt="Aimporo Logo" 
-                      width={150} 
-                      height={40}
-                      style={{ 
-                        maxHeight: '40px', 
-                        width: 'auto', 
-                        objectFit: 'contain',
-                        display: 'block'
-                      }}
-                    />
+                    <Link href="/">
+                      <Image 
+                        src="/assets/img/aimporo-logo.png" 
+                        alt="Aimporo Logo" 
+                        width={150} 
+                        height={40}
+                        style={{ 
+                          maxHeight: '40px', 
+                          width: 'auto', 
+                          objectFit: 'contain',
+                          display: 'block'
+                        }}
+                      />
+                    </Link>
                   </div>
                   <div className="login-card">
                     <div className="login-heading">

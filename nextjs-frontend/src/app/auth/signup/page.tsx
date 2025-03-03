@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import './signup.css';
 
 const SignUp = () => {
   const [isFocused, setIsFocused] = useState([false, false, false, false]);
@@ -172,10 +173,16 @@ const SignUp = () => {
               <div className="login-userset">
                 <div className="login-logo">
                   <Image
-                    src="/assets/img/logo.svg"
-                    alt="logo"
-                    width={200}
-                    height={50}
+                    src="/assets/img/aimporo-logo.png" 
+                    alt="Aimporo Logo" 
+                    width={150} 
+                    height={40}
+                    style={{ 
+                      maxHeight: '40px', 
+                      width: 'auto', 
+                      objectFit: 'contain',
+                      display: 'block'
+                    }}
                   />
                 </div>
                 <div className="login-card">
@@ -186,9 +193,6 @@ const SignUp = () => {
                   <div className={`form-wrap form-focus ${
                     isFocused[0] || inputValue1.length > 0 ? "focused" : ""
                   }`}>
-                    <span className="form-icon">
-                      <i className="feather icon-user" />
-                    </span>
                     <input
                       type="text"
                       className="form-control floating"
@@ -198,13 +202,16 @@ const SignUp = () => {
                       value={inputValue1}
                     />
                     <label className="focus-label">Full Name</label>
+                    <span className="toggle-password">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather-icon">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    </span>
                   </div>
                   <div className={`form-wrap form-focus ${
                     isFocused[1] || inputValue2.length > 0 ? "focused" : ""
                   }`}>
-                    <span className="form-icon">
-                      <i className="feather icon-mail" />
-                    </span>
                     <input
                       type="email"
                       className="form-control floating"
@@ -214,23 +221,18 @@ const SignUp = () => {
                       value={inputValue2}
                     />
                     <label className="focus-label">Email</label>
+                    <span className="toggle-password">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather-icon">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                    </span>
                   </div>
                   <div className={`form-wrap form-focus pass-group ${
                     isFocused[2] || inputValue3.length > 0 ? "focused" : ""
                   }`}>
-                    <span className="form-icon">
-                      <i className="feather icon-lock" />
-                    </span>
-                    <span
-                      className="toggle-password"
-                      onClick={() => togglePassword(0)}
-                    >
-                      <i className={`feather ${
-                        isPassword[0] ? "icon-eye" : "icon-eye-off"
-                      }`} />
-                    </span>
                     <input
-                      type={isPassword[0] ? "text" : "password"}
+                      type="password"
                       className="pass-input form-control floating"
                       onFocus={() => handleFocus(2)}
                       onBlur={() => handleBlur(2)}
@@ -238,23 +240,18 @@ const SignUp = () => {
                       value={inputValue3}
                     />
                     <label className="focus-label">Password</label>
+                    <span className="toggle-password">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather-icon">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </span>
                   </div>
                   <div className={`form-wrap form-focus pass-group ${
                     isFocused[3] || inputValue4.length > 0 ? "focused" : ""
                   }`}>
-                    <span className="form-icon">
-                      <i className="feather icon-lock" />
-                    </span>
-                    <span
-                      className="toggle-password"
-                      onClick={() => togglePassword(1)}
-                    >
-                      <i className={`feather ${
-                        isPassword[1] ? "icon-eye" : "icon-eye-off"
-                      }`} />
-                    </span>
                     <input
-                      type={isPassword[1] ? "text" : "password"}
+                      type="password"
                       className="pass-input form-control floating"
                       onFocus={() => handleFocus(3)}
                       onBlur={() => handleBlur(3)}
@@ -262,6 +259,12 @@ const SignUp = () => {
                       value={inputValue4}
                     />
                     <label className="focus-label">Confirm Password</label>
+                    <span className="toggle-password">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather-icon">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </span>
                   </div>
                   <div className="form-wrap">
                     <label className="custom_check mb-0">

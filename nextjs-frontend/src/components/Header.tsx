@@ -41,10 +41,10 @@ const Header: React.FC = () => {
           
           <ul className="nav header-navbar-rht">
             <li className="nav-item">
-              <Link href="/auth/signin" className="btn btn-secondary">Sign In</Link>
+              <Link href="/auth/login" className="btn btn-secondary">Sign In</Link>
             </li>
             <li className="nav-item">
-              <Link href="/auth/signup" className="btn btn-primary">Get Started</Link>
+              <Link href="/auth/register" className="btn btn-primary">Get Started</Link>
             </li>
           </ul>
         </nav>

@@ -239,9 +239,6 @@ export default function SignInPage() {
                           ? "focused"
                           : ""
                       }`}>
-                      <span className="form-icon">
-                        <i data-feather="mail" className="feather-icon"></i>
-                      </span>
                       <input
                         type="email"
                         className="pass-input form-control floating"
@@ -251,6 +248,14 @@ export default function SignInPage() {
                         value={inputValue2}
                       />
                       <label className="focus-label">Email</label>
+                      <span
+                        className="toggle-password"
+                        tabIndex={0}
+                        role="img"
+                        aria-label="Email icon"
+                      >
+                        <i data-feather="mail" className="feather-icon"></i>
+                      </span>
                     </div>
                     <div
                       className={`form-wrap form-focus pass-group ${
@@ -259,9 +264,6 @@ export default function SignInPage() {
                           : ""
                       }`}
                     >
-                      <span className="form-icon">
-                        <i data-feather="lock" className="feather-icon"></i>
-                      </span>
                       <input
                         type={isPassword[1] ? "text" : "password"}
                         className="pass-input form-control floating"

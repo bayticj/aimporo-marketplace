@@ -1,0 +1,22 @@
+/* Hide footer on auth pages */
+body.auth-page footer {
+  display: none !important;
+}
+
+/* Ensure the auth pages take full height without footer */
+body.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body.auth-page .auth-layout {
+  flex: 1;
+}
+
+/* Hide header on auth pages if needed */
+/* Uncomment this if you want to hide the header as well
+body.auth-page header {
+  display: none !important;
+}
+*/ 

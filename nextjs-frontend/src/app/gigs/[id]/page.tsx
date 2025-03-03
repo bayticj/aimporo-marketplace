@@ -307,7 +307,7 @@ export default function GigDetailPage() {
                     {!user && !authLoading && (
                       <p className="text-center mt-4 text-sm text-gray-600">
                         Please{' '}
-                        <Link href="/auth/login" className="text-orange-600 hover:underline">
+                        <Link href="/auth/signin" className="text-orange-600 hover:underline">
                           sign in
                         </Link>{' '}
                         to place an order

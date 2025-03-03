@@ -28,17 +28,23 @@ const Header: React.FC = () => {
                 <Link href="/" className="nav-link">Home</Link>
               </li>
               <li className="nav-item">
+                <Link href="/about" className="nav-link">About Us</Link>
+              </li>
+              <li className="nav-item">
                 <Link href="/services" className="nav-link">Services</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/contact" className="nav-link">Contact</Link>
               </li>
             </ul>
           </div>
           
           <ul className="nav header-navbar-rht">
             <li className="nav-item">
-              <Link href="/signin" className="btn btn-secondary">Sign In</Link>
+              <Link href="/auth/signin" className="btn btn-secondary">Sign In</Link>
             </li>
             <li className="nav-item">
-              <Link href="/signup" className="btn btn-primary">Get Started</Link>
+              <Link href="/auth/signup" className="btn btn-primary">Get Started</Link>
             </li>
           </ul>
         </nav>

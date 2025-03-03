@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\TokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -11,6 +12,24 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+    /**
+     * The token service instance.
+     *
+     * @var TokenService
+     */
+    protected $tokenService;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param TokenService $tokenService
+     * @return void
+     */
+    public function __construct(TokenService $tokenService)
+    {
+        $this->tokenService = $tokenService;
+    }
+
     /**
      * Register a new user
      * 
@@ -38,12 +57,18 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Assign default role
+        $user->assignRole('user');
+
+        $tokens = $this->tokenService->createTokenWithRefreshToken($user);
 
         return response()->json([
             'message' => 'User registered successfully',
             'user' => $user,
-            'token' => $token
+            'access_token' => $tokens['access_token'],
+            'refresh_token' => $tokens['refresh_token'],
+            'token_type' => $tokens['token_type'],
+            'expires_in' => $tokens['expires_in']
         ], 201);
     }
 
@@ -74,12 +99,51 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request->email)->firstOrFail();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $tokens = $this->tokenService->createTokenWithRefreshToken($user);
 
         return response()->json([
             'message' => 'Login successful',
             'user' => $user,
-            'token' => $token
+            'access_token' => $tokens['access_token'],
+            'refresh_token' => $tokens['refresh_token'],
+            'token_type' => $tokens['token_type'],
+            'expires_in' => $tokens['expires_in']
+        ]);
+    }
+
+    /**
+     * Refresh token
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function refresh(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'refresh_token' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $tokens = $this->tokenService->refreshToken($request->refresh_token);
+
+        if (!$tokens) {
+            return response()->json([
+                'message' => 'Invalid refresh token'
+            ], 401);
+        }
+
+        return response()->json([
+            'message' => 'Token refreshed successfully',
+            'access_token' => $tokens['access_token'],
+            'refresh_token' => $tokens['refresh_token'],
+            'token_type' => $tokens['token_type'],
+            'expires_in' => $tokens['expires_in']
         ]);
     }
 
@@ -91,7 +155,7 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $this->tokenService->revokeAllTokens($request->user());
 
         return response()->json([
             'message' => 'Successfully logged out'

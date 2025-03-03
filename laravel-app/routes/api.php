@@ -19,7 +19,17 @@ use App\Http\Controllers\API\ReviewController;
 |
 */
 
-// CORS preflight
+// API Version 1 Routes
+Route::prefix('v1')->group(function () {
+    require base_path('routes/api/v1.php');
+});
+
+// Default API version (currently v1)
+Route::any('{any}', function (Request $request) {
+    return redirect('/api/v1/' . $request->path());
+})->where('any', '.*');
+
+// Global CORS preflight for non-versioned routes
 Route::options('/{any}', function() {
     return response('', 200)
         ->header('Access-Control-Allow-Origin', '*')
@@ -27,22 +37,58 @@ Route::options('/{any}', function() {
         ->header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, X-Token-Auth, Authorization');
 })->where('any', '.*');
 
-// Public routes
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+// Public routes with rate limiting
+Route::middleware('throttle:public')->group(function () {
+    // Test endpoint for API connection
+    Route::get('/test', function () {
+        return response()->json([
+            'status' => 'success',
+            'message' => 'API connection successful',
+            'timestamp' => now()->toIso8601String(),
+            'environment' => app()->environment(),
+        ]);
+    });
 
-// Gig routes - public access for viewing
-Route::get('/gigs', [GigController::class, 'index']);
-Route::get('/gigs/{gig}', [GigController::class, 'show']);
+    // Gig routes - public access for viewing
+    Route::get('/gigs', [GigController::class, 'index']);
+    Route::get('/gigs/{gig}', [GigController::class, 'show']);
 
-// Public review routes
-Route::get('/reviews/gig/{gigId}', [ReviewController::class, 'getGigReviews']);
-Route::get('/reviews/user/{userId}', [ReviewController::class, 'getUserReviews']);
+    // Public review routes
+    Route::get('/reviews/gig/{gigId}', [ReviewController::class, 'getGigReviews']);
+    Route::get('/reviews/user/{userId}', [ReviewController::class, 'getUserReviews']);
+});
+
+// Authentication routes with stricter rate limiting
+Route::middleware('throttle:auth')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
+});
 
 // Protected routes
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:user_actions'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
+    });
+    
+    // Two-factor authentication
+    Route::prefix('2fa')->group(function () {
+        Route::post('/enable', [App\Http\Controllers\API\TwoFactorAuthController::class, 'enable']);
+        Route::post('/confirm', [App\Http\Controllers\API\TwoFactorAuthController::class, 'confirm']);
+        Route::post('/disable', [App\Http\Controllers\API\TwoFactorAuthController::class, 'disable']);
+        Route::post('/verify', [App\Http\Controllers\API\TwoFactorAuthController::class, 'verify']);
+    });
+    
+    // Role management (admin only)
+    Route::middleware(['role:admin'])->prefix('roles')->group(function () {
+        Route::get('/', [App\Http\Controllers\API\RoleController::class, 'index']);
+        Route::post('/', [App\Http\Controllers\API\RoleController::class, 'store']);
+        Route::get('/{id}', [App\Http\Controllers\API\RoleController::class, 'show']);
+        Route::put('/{id}', [App\Http\Controllers\API\RoleController::class, 'update']);
+        Route::delete('/{id}', [App\Http\Controllers\API\RoleController::class, 'destroy']);
+        Route::get('/permissions', [App\Http\Controllers\API\RoleController::class, 'permissions']);
+        Route::post('/assign', [App\Http\Controllers\API\RoleController::class, 'assignRole']);
+        Route::post('/remove', [App\Http\Controllers\API\RoleController::class, 'removeRole']);
     });
     
     // Gig management

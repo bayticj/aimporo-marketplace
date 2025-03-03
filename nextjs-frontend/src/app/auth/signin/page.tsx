@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
@@ -12,6 +12,13 @@ export default function SignInPage() {
   const [inputValue2, setInputValue2] = useState('');
   const [isPassword, setIsPassword] = useState([false, false]);
   const { login, loading, error, clearError } = useAuth();
+
+  useEffect(() => {
+    // Initialize feather icons
+    if (typeof window !== 'undefined' && typeof (window as any).feather !== 'undefined') {
+      (window as any).feather.replace();
+    }
+  }, []);
 
   const handleFocus = (index: number) => {
     const newFocusState = [...isFocused];
@@ -233,7 +240,7 @@ export default function SignInPage() {
                           : ""
                       }`}>
                       <span className="form-icon">
-                        <i className="feather icon-mail" />
+                        <i data-feather="mail" className="feather-icon"></i>
                       </span>
                       <input
                         type="email"
@@ -253,7 +260,7 @@ export default function SignInPage() {
                       }`}
                     >
                       <span className="form-icon">
-                        <i className="feather icon-eye" />
+                        <i data-feather="lock" className="feather-icon"></i>
                       </span>
                       <input
                         type={isPassword[1] ? "text" : "password"}
@@ -277,9 +284,8 @@ export default function SignInPage() {
                         aria-label={isPassword[1] ? "Hide password" : "Show password"}
                       >
                         <i
-                          className={`feather ${
-                            isPassword[1] ? "icon-eye" : "icon-eye-off"
-                          }`}
+                          data-feather={isPassword[1] ? "eye-off" : "eye"}
+                          className="feather-icon"
                         ></i>
                       </span>
                     </div>

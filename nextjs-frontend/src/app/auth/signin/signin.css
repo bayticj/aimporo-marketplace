@@ -211,9 +211,11 @@
   z-index: 1;
 }
 
-.form-icon i {
-  font-size: 18px;
+.form-icon .feather-icon {
+  width: 18px;
+  height: 18px;
   color: #ff6b00;
+  stroke-width: 2;
 }
 
 .form-focus .form-control {
@@ -260,9 +262,11 @@
   z-index: 10;
 }
 
-.toggle-password i {
-  font-size: 18px;
+.toggle-password .feather-icon {
+  width: 18px;
+  height: 18px;
   color: #ff6b00;
+  stroke-width: 2;
 }
 
 /* Custom checkbox */

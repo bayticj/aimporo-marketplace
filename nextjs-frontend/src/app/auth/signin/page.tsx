@@ -232,6 +232,9 @@ export default function SignInPage() {
                           ? "focused"
                           : ""
                       }`}>
+                      <span className="form-icon">
+                        <i className="feather icon-mail" />
+                      </span>
                       <input
                         type="email"
                         className="pass-input form-control floating"
@@ -249,6 +252,9 @@ export default function SignInPage() {
                           : ""
                       }`}
                     >
+                      <span className="form-icon">
+                        <i className="feather icon-eye" />
+                      </span>
                       <input
                         type={isPassword[1] ? "text" : "password"}
                         className="pass-input form-control floating"
@@ -268,7 +274,7 @@ export default function SignInPage() {
                         }}
                         tabIndex={0}
                         role="button"
-                        aria-label="Toggle password visibility"
+                        aria-label={isPassword[1] ? "Hide password" : "Show password"}
                       >
                         <i
                           className={`feather ${

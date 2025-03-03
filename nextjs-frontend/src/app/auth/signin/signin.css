@@ -1,0 +1,542 @@
+/* Login Page Styles */
+
+/* Main layout */
+.row.gx-0 {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.col-lg-6 {
+  padding: 0;
+  height: 100vh;
+}
+
+/* Left side - Orange background */
+.authentication-wrapper {
+  background-color: #ff6b00;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.authentication-content {
+  position: relative;
+  z-index: 2;
+  max-width: 500px;
+  padding: 30px;
+}
+
+.login-carousel {
+  text-align: center;
+}
+
+.login-slider {
+  background-color: white;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transform: rotate(-5deg);
+  margin: 20px;
+  max-width: 400px;
+}
+
+.login-slider h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 20px;
+  color: #333;
+}
+
+.login-slider p {
+  font-size: 16px;
+  color: #666;
+  margin-top: 10px;
+}
+
+/* Background shapes */
+.login-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.login-bg img {
+  position: absolute;
+}
+
+.shape-01 {
+  top: 10%;
+  left: 10%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.shape-02 {
+  top: 20%;
+  right: 10%;
+  animation: float 8s ease-in-out infinite;
+}
+
+.shape-03 {
+  bottom: 20%;
+  left: 15%;
+  animation: float 7s ease-in-out infinite;
+}
+
+.shape-04 {
+  bottom: 10%;
+  right: 20%;
+  animation: float 5s ease-in-out infinite;
+}
+
+.shape-05 {
+  top: 40%;
+  left: 5%;
+  animation: float 9s ease-in-out infinite;
+}
+
+.shape-06 {
+  top: 50%;
+  right: 5%;
+  animation: float 7s ease-in-out infinite;
+}
+
+.shape-07 {
+  bottom: 30%;
+  right: 30%;
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Right side - Login form */
+.login-wrapper {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+}
+
+.login-content {
+  width: 100%;
+  max-width: 450px;
+  padding: 30px;
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-logo img {
+  max-height: 40px;
+  width: auto;
+}
+
+.login-card {
+  padding: 24px;
+  border-radius: 10px;
+  border: 1px solid #CDCDCD;
+  background-color: #fff;
+}
+
+.login-heading {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-heading h3 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.login-heading p {
+  font-size: 16px;
+  color: #666;
+}
+
+/* Form elements */
+.form-wrap {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.form-focus {
+  position: relative;
+}
+
+.form-control {
+  height: 50px;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 100%;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.form-control:focus {
+  border-color: #ff6b00;
+  box-shadow: 0 0 0 0.2rem rgba(255, 107, 0, 0.25);
+  outline: none;
+}
+
+.form-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  z-index: 1;
+}
+
+.focus-label {
+  font-size: 14px;
+  font-weight: 400;
+  pointer-events: none;
+  position: absolute;
+  -webkit-transform: translate3d(0, -50%, 0) scale(1);
+  -ms-transform: translate3d(0, -50%, 0) scale(1);
+  -o-transform: translate3d(0, -50%, 0) scale(1);
+  transform: translate3d(0, -50%, 0) scale(1);
+  transform-origin: left top;
+  transition: 240ms;
+  left: 15px;
+  top: 50%;
+  color: #999;
+}
+
+.form-focus.focused .focus-label {
+  top: 0;
+  font-size: 12px;
+  background-color: white;
+  padding: 0 5px;
+  color: #ff6b00;
+  transform: translateY(-50%);
+  z-index: 5;
+}
+
+.pass-group {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #999;
+  z-index: 10;
+}
+
+/* Custom checkbox */
+.custom_check {
+  color: #666;
+  display: inline-block;
+  position: relative;
+  padding-left: 30px;
+  cursor: pointer;
+  font-size: 14px;
+  user-select: none;
+  line-height: 20px;
+  margin-bottom: 0;
+}
+
+.custom_check input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+.custom_check:hover input ~ .checkmark {
+  background-color: #f7f7f7;
+}
+
+.custom_check input:checked ~ .checkmark {
+  background-color: #ff6b00;
+  border-color: #ff6b00;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.custom_check input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.custom_check .checkmark:after {
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.forgot-link {
+  color: #ff6b00;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+/* Button */
+.btn-primary {
+  background-color: #ff6b00;
+  border-color: #ff6b00;
+  color: white;
+  height: 50px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 5px;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #e05e00;
+  border-color: #e05e00;
+}
+
+.btn-primary:disabled {
+  background-color: #ffb380;
+  border-color: #ffb380;
+}
+
+/* Or divider */
+.login-or {
+  position: relative;
+  text-align: center;
+  margin: 30px 0;
+}
+
+.span-or {
+  display: inline-block;
+  position: relative;
+  padding: 0 15px;
+  background-color: white;
+  color: #999;
+  font-size: 14px;
+}
+
+.login-or:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: #ddd;
+  z-index: -1;
+}
+
+/* Social login buttons */
+.login-social-link {
+  display: flex;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  gap: 15px;
+}
+
+.login-social-link li {
+  flex: 1;
+}
+
+.login-social-link li a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 45px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  color: #333;
+  border: 1px solid #ddd;
+  background-color: #fff;
+}
+
+.login-social-link li a:hover {
+  background-color: #f5f5f5;
+}
+
+.login-social-link li:first-child a {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.login-social-link li:last-child a {
+  background-color: #3b5998;
+  border: 1px solid #3b5998;
+  color: white;
+}
+
+.login-social-link li:last-child a:hover {
+  background-color: #2d4373;
+}
+
+.login-social-link li a img {
+  margin-right: 10px;
+}
+
+/* Account signup link */
+.acc-in {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.acc-in a {
+  color: #ff6b00;
+  text-decoration: none;
+}
+
+.acc-in a:hover {
+  text-decoration: underline;
+}
+
+/* Alert */
+.alert {
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.close-alert {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Responsive styles */
+@media (max-width: 991px) {
+  .row.gx-0 {
+    height: auto;
+    overflow: visible;
+  }
+  
+  .col-lg-6 {
+    height: auto;
+  }
+  
+  .authentication-wrapper {
+    height: 300px;
+  }
+  
+  .login-wrapper {
+    padding: 40px 20px;
+  }
+  
+  .login-social-link {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 767px) {
+  .authentication-wrapper {
+    height: 250px;
+  }
+  
+  .login-slider {
+    transform: none;
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .login-slider h2 {
+    font-size: 20px;
+  }
+  
+  .login-slider p {
+    font-size: 14px;
+  }
+  
+  .login-heading h3 {
+    font-size: 24px;
+  }
+  
+  .login-heading p {
+    font-size: 14px;
+  }
+  
+  .login-social-link {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 575px) {
+  .authentication-wrapper {
+    height: 200px;
+  }
+  
+  .login-social-link {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+.pass-input.form-control.floating {
+  z-index: 2;
+  background: transparent;
+}
+
+.form-focus.focused .pass-input.form-control.floating {
+  padding-top: 15px;
+} 

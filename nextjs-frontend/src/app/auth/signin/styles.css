@@ -1,0 +1,90 @@
+/* Login Page Styles */
+
+/* Main layout */
+.row.gx-0 {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.col-lg-6 {
+  padding: 0;
+  height: 100vh;
+}
+
+/* Form elements */
+.form-control {
+  height: 50px;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 100%;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.form-control:focus {
+  border-color: #ff6b00;
+  box-shadow: 0 0 0 0.2rem rgba(255, 107, 0, 0.25);
+  outline: none;
+}
+
+/* Buttons */
+.btn-primary {
+  color: #fff;
+  background-color: #ff6b00;
+  border-color: #ff6b00;
+}
+
+.btn-primary:hover {
+  color: #fff;
+  background-color: #e05e00;
+  border-color: #d35800;
+}
+
+/* Card styling */
+.card {
+  border-radius: 10px;
+  border: 1px solid #CDCDCD;
+  background-color: #fff;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+/* Text styling */
+h3 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+p {
+  font-size: 16px;
+  color: #666;
+}
+
+/* Links */
+a {
+  color: #ff6b00;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .col-lg-6 {
+    height: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .row.gx-0 {
+    flex-direction: column;
+  }
+} 

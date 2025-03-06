@@ -7,6 +7,8 @@ use App\Http\Controllers\API\GigController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\MessageController;
 use App\Http\Controllers\API\ReviewController;
+use App\Http\Controllers\API\PasswordResetController;
+use App\Http\Controllers\API\DisputeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +51,9 @@ Route::middleware('throttle:public')->group(function () {
         ]);
     });
 
+    // Health check endpoint
+    Route::get('/health', [App\Http\Controllers\API\HealthCheckController::class, 'check']);
+
     // Gig routes - public access for viewing
     Route::get('/gigs', [GigController::class, 'index']);
     Route::get('/gigs/{gig}', [GigController::class, 'show']);
@@ -63,13 +68,16 @@ Route::middleware('throttle:auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
+    
+    // Password reset routes
+    Route::post('/password/email', [PasswordResetController::class, 'sendResetLinkEmail']);
+    Route::post('/password/reset', [PasswordResetController::class, 'reset']);
 });
 
 // Protected routes
 Route::middleware(['auth:sanctum', 'throttle:user_actions'])->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    // User profile
+    Route::get('/user', [AuthController::class, 'user']);
     
     // Two-factor authentication
     Route::prefix('2fa')->group(function () {
@@ -110,6 +118,21 @@ Route::middleware(['auth:sanctum', 'throttle:user_actions'])->group(function () 
     Route::post('/reviews/order/{orderId}', [ReviewController::class, 'createReview']);
     Route::put('/reviews/{reviewId}', [ReviewController::class, 'updateReview']);
     Route::delete('/reviews/{reviewId}', [ReviewController::class, 'deleteReview']);
+    
+    // Dispute system
+    Route::get('/disputes', [DisputeController::class, 'index']);
+    Route::post('/disputes', [DisputeController::class, 'store']);
+    Route::get('/disputes/{id}', [DisputeController::class, 'show']);
+    Route::post('/disputes/{id}/comments', [DisputeController::class, 'addComment']);
+    Route::post('/disputes/{id}/evidence', [DisputeController::class, 'addEvidence']);
+    Route::post('/disputes/{id}/escalate', [DisputeController::class, 'escalate']);
+    
+    // Admin-only dispute routes
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/admin/disputes', [DisputeController::class, 'adminIndex']);
+        Route::put('/admin/disputes/{id}/status', [DisputeController::class, 'updateStatus']);
+        Route::get('/admin/disputes/statistics', [DisputeController::class, 'statistics']);
+    });
     
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);

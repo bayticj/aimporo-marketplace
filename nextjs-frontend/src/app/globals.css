@@ -51,158 +51,138 @@ body {
 
 /* Updated Card Styles for GigCard component */
 .gigs-card {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  background-color: #fff;
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
   height: 100%;
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
-  width: 100%;
-}
-
-.gigs-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
 }
 
 .gigs-img {
   position: relative;
-  padding-bottom: 65%; /* Adjusted aspect ratio to match screenshot */
+  height: 200px;
   overflow: hidden;
-}
-
-.gigs-img img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .gigs-badges {
   position: absolute;
-  top: 15px;
-  left: 15px;
+  top: 10px;
+  left: 10px;
   display: flex;
-  gap: 6px;
-  z-index: 2;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 5;
+}
+
+.gigs-badges .featured,
+.gigs-badges .hot,
+.gigs-badges .seller-level {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .gigs-badges .featured {
-  background-color: #FFC107;
+  background-color: #ffc107;
   color: #000;
-  display: flex;
-  align-items: center;
-  padding: 5px 10px;
-  border-radius: 50px;
-  font-size: 12px;
-  font-weight: 500;
 }
 
 .gigs-badges .hot {
-  background-color: #dc3545;
+  background-color: #ff5722;
   color: #fff;
-  display: flex;
-  align-items: center;
-  padding: 5px 10px;
-  border-radius: 50px;
-  font-size: 12px;
-  font-weight: 500;
+}
+
+.gigs-badges .seller-level {
+  color: #fff;
+  font-size: 10px;
 }
 
 .gig-actions {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: 10px;
+  right: 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  z-index: 2;
+  gap: 5px;
+  z-index: 5;
 }
 
 .action-btn {
-  background: white;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
   border: none;
   cursor: pointer;
-  color: #6c757d;
+  color: #666;
+  transition: all 0.2s ease;
 }
 
 .action-btn:hover {
-  background: #f8f9fa;
+  background-color: #fff;
+  color: #ff6900;
+  transform: scale(1.05);
 }
 
 .action-btn.fav-btn.active {
-  color: #dc3545;
+  background-color: #ff6900;
+  color: #fff;
 }
 
 .seller-avatar {
   position: absolute;
-  bottom: 15px;
-  right: 15px;
-  z-index: 2;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  bottom: -22px;
+  left: 15px;
+  z-index: 10;
 }
 
 .seller-avatar img {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  background: white;
-  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .avatar-fallback {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #e9ecef;
-  color: #495057;
+  background-color: #ff6900;
+  color: #fff;
+  font-weight: 600;
   display: none;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  border: 2px solid white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .gigs-content {
-  padding: 16px; /* Reduced from 20px to 16px to match template */
+  padding: 15px;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
 
 .gigs-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px; /* Reduced from 10px to 8px */
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-.gigs-info .badge {
-  background-color: rgba(255, 125, 0, 0.1);
-  color: #ff7d00;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 5px 10px;
-  border-radius: 50px;
-  display: flex;
+.badge {
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
+  font-size: 12px;
+  color: #666;
 }
 
 .badge-dot {
@@ -210,69 +190,58 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #ff7d00;
+  background-color: #ff6900;
+  margin-right: 5px;
 }
 
-.gigs-info .location {
-  font-size: 13px;
-  color: #6c757d;
-  display: flex;
+.location {
+  display: inline-flex;
   align-items: center;
+  font-size: 12px;
+  color: #666;
 }
 
 .gigs-title {
-  margin-bottom: 8px; /* Reduced from 10px to 8px */
+  margin-bottom: 10px;
 }
 
 .gigs-title h3 {
-  font-size: 15px; /* Adjusted from 16px to 15px */
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.4;
-  margin: 0;
-}
-
-.gigs-title h3 a {
-  color: #212529;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.gigs-title h3 a:hover {
-  color: #ff7d00;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 44px;
 }
 
 .star-rate {
-  margin-bottom: 12px; /* Reduced from 15px to 12px */
-}
-
-.star-rate span {
   display: flex;
   align-items: center;
-  font-size: 13px;
-  color: #6c757d;
+  font-size: 14px;
+  margin-bottom: 10px;
 }
 
 .gigs-card-footer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   margin-top: auto;
-  padding-top: 12px; /* Reduced from 15px to 12px */
-  border-top: 1px solid #e9ecef;
 }
 
 .delivery {
+  font-size: 12px;
+  color: #666;
   display: flex;
   align-items: center;
-  font-size: 13px;
-  color: #6c757d;
 }
 
 .gigs-card-footer h5 {
-  font-size: 18px;
-  font-weight: 700;
-  color: #212529;
-  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
 }
 
 /* Slider Styles */

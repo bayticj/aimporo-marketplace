@@ -6,14 +6,20 @@ import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import './signup.css';
+import { useAuth } from '@/context/AuthContext';
 
 const SignUp = () => {
-  const [isFocused, setIsFocused] = useState([false, false, false, false]);
-  const [inputValue1, setInputValue1] = useState("");
-  const [inputValue2, setInputValue2] = useState("");
-  const [inputValue3, setInputValue3] = useState("");
-  const [inputValue4, setInputValue4] = useState("");
+  const [isFocused, setIsFocused] = useState([false, false, false, false, false]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [accountType, setAccountType] = useState("buyer");
   const [isPassword, setIsPassword] = useState([false, false]);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  
+  const { register, loading, error, clearError } = useAuth();
 
   const handleFocus = (index: number) => {
     const newFocusState = [...isFocused];
@@ -27,26 +33,54 @@ const SignUp = () => {
     setIsFocused(newFocusState);
   };
 
-  const handleChange = (event: { target: { value: string } }) => {
-    setInputValue1(event.target.value);
+  const handleNameChange = (event: { target: { value: string } }) => {
+    setName(event.target.value);
   };
 
-  const handleChange1 = (event: { target: { value: string } }) => {
-    setInputValue2(event.target.value);
+  const handleEmailChange = (event: { target: { value: string } }) => {
+    setEmail(event.target.value);
   };
 
-  const handleChange3 = (event: { target: { value: string } }) => {
-    setInputValue3(event.target.value);
+  const handlePasswordChange = (event: { target: { value: string } }) => {
+    setPassword(event.target.value);
   };
 
-  const handleChange4 = (event: { target: { value: string } }) => {
-    setInputValue4(event.target.value);
+  const handleConfirmPasswordChange = (event: { target: { value: string } }) => {
+    setConfirmPassword(event.target.value);
+  };
+  
+  const handleAccountTypeChange = (event: { target: { value: string } }) => {
+    setAccountType(event.target.value);
   };
 
   const togglePassword = (index: number) => {
     const newPasswordState = [...isPassword];
     newPasswordState[index] = !newPasswordState[index];
     setIsPassword(newPasswordState);
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+    
+    // Validate form
+    if (!name || !email || !password || !confirmPassword) {
+      setFormError("All fields are required");
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      setFormError("Passwords do not match");
+      return;
+    }
+    
+    if (!agreeTerms) {
+      setFormError("You must agree to the Terms of Service and Privacy Policy");
+      return;
+    }
+    
+    // Register user
+    await register(name, email, password, confirmPassword, accountType);
   };
 
   const loginslideroption = {
@@ -171,7 +205,7 @@ const SignUp = () => {
       <div className="col-lg-6">
         <div className="login-wrapper">
           <div className="login-content">
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="login-userset">
                 <div className="login-logo">
                   <Link href="/">
@@ -194,86 +228,134 @@ const SignUp = () => {
                     <h3>Create Account!</h3>
                     <p>Fill the fields to create your account</p>
                   </div>
-                  <div className={`form-wrap form-focus ${
-                    isFocused[0] || inputValue1.length > 0 ? "focused" : ""
-                  }`}>
-                    <input
-                      type="text"
-                      className="form-control floating"
-                      onFocus={() => handleFocus(0)}
-                      onBlur={() => handleBlur(0)}
-                      onChange={handleChange}
-                      value={inputValue1}
-                    />
-                    <label className="focus-label">Full Name</label>
-                    <span className="toggle-password">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather-icon">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                      </svg>
-                    </span>
+                  
+                  {(error || formError) && (
+                    <div className="alert alert-danger" style={{
+                      backgroundColor: "#f8d7da",
+                      color: "#721c24",
+                      padding: "10px 15px",
+                      borderRadius: "5px",
+                      marginBottom: "20px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center"
+                    }}>
+                      <p style={{ margin: 0 }}>{formError || error}</p>
+                      <button 
+                        onClick={() => {
+                          clearError();
+                          setFormError(null);
+                        }} 
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: "20px",
+                          color: "#721c24"
+                        }}
+                        type="button"
+                      >
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                  )}
+                  
+                  <div className="form-group">
+                    <div className={`form-control ${isFocused[0] ? 'focused' : ''}`}>
+                      <label htmlFor="name">Full Name</label>
+                      <input
+                        type="text"
+                        id="name"
+                        value={name}
+                        onChange={handleNameChange}
+                        onFocus={() => handleFocus(0)}
+                        onBlur={() => handleBlur(0)}
+                        required
+                      />
+                    </div>
                   </div>
-                  <div className={`form-wrap form-focus ${
-                    isFocused[1] || inputValue2.length > 0 ? "focused" : ""
-                  }`}>
-                    <input
-                      type="email"
-                      className="form-control floating"
-                      onFocus={() => handleFocus(1)}
-                      onBlur={() => handleBlur(1)}
-                      onChange={handleChange1}
-                      value={inputValue2}
-                    />
-                    <label className="focus-label">Email</label>
-                    <span className="toggle-password">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather-icon">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                        <polyline points="22,6 12,13 2,6"></polyline>
-                      </svg>
-                    </span>
+                  <div className="form-group">
+                    <div className={`form-control ${isFocused[1] ? 'focused' : ''}`}>
+                      <label htmlFor="email">Email Address</label>
+                      <input
+                        type="email"
+                        id="email"
+                        value={email}
+                        onChange={handleEmailChange}
+                        onFocus={() => handleFocus(1)}
+                        onBlur={() => handleBlur(1)}
+                        required
+                      />
+                    </div>
                   </div>
-                  <div className={`form-wrap form-focus pass-group ${
-                    isFocused[2] || inputValue3.length > 0 ? "focused" : ""
-                  }`}>
-                    <input
-                      type="password"
-                      className="pass-input form-control floating"
-                      onFocus={() => handleFocus(2)}
-                      onBlur={() => handleBlur(2)}
-                      onChange={handleChange3}
-                      value={inputValue3}
-                    />
-                    <label className="focus-label">Password</label>
-                    <span className="toggle-password">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather-icon">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                      </svg>
-                    </span>
+                  <div className="form-group">
+                    <div className={`form-control ${isFocused[2] ? 'focused' : ''}`}>
+                      <label htmlFor="password">Password</label>
+                      <input
+                        type={isPassword[0] ? 'text' : 'password'}
+                        id="password"
+                        value={password}
+                        onChange={handlePasswordChange}
+                        onFocus={() => handleFocus(2)}
+                        onBlur={() => handleBlur(2)}
+                        required
+                      />
+                      <span className="toggle-password" onClick={() => togglePassword(0)}>
+                        {isPassword[0] ? (
+                          <i className="fa-solid fa-eye-slash"></i>
+                        ) : (
+                          <i className="fa-solid fa-eye"></i>
+                        )}
+                      </span>
+                    </div>
                   </div>
-                  <div className={`form-wrap form-focus pass-group ${
-                    isFocused[3] || inputValue4.length > 0 ? "focused" : ""
-                  }`}>
-                    <input
-                      type="password"
-                      className="pass-input form-control floating"
-                      onFocus={() => handleFocus(3)}
-                      onBlur={() => handleBlur(3)}
-                      onChange={handleChange4}
-                      value={inputValue4}
-                    />
-                    <label className="focus-label">Confirm Password</label>
-                    <span className="toggle-password">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather-icon">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                      </svg>
-                    </span>
+                  <div className="form-group">
+                    <div className={`form-control ${isFocused[3] ? 'focused' : ''}`}>
+                      <label htmlFor="confirmPassword">Confirm Password</label>
+                      <input
+                        type={isPassword[1] ? 'text' : 'password'}
+                        id="confirmPassword"
+                        value={confirmPassword}
+                        onChange={handleConfirmPasswordChange}
+                        onFocus={() => handleFocus(3)}
+                        onBlur={() => handleBlur(3)}
+                        required
+                      />
+                      <span className="toggle-password" onClick={() => togglePassword(1)}>
+                        {isPassword[1] ? (
+                          <i className="fa-solid fa-eye-slash"></i>
+                        ) : (
+                          <i className="fa-solid fa-eye"></i>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className={`form-control ${isFocused[4] ? 'focused' : ''}`}>
+                      <label htmlFor="accountType">Account Type</label>
+                      <select
+                        id="accountType"
+                        value={accountType}
+                        onChange={handleAccountTypeChange}
+                        onFocus={() => handleFocus(4)}
+                        onBlur={() => handleBlur(4)}
+                        required
+                      >
+                        <option value="buyer">Buyer</option>
+                        <option value="seller">Seller</option>
+                        <option value="both">Both (Buyer & Seller)</option>
+                      </select>
+                    </div>
                   </div>
                   <div className="form-wrap">
                     <label className="custom_check mb-0">
                       I agree to the <Link href="/terms-condition">Terms of Service</Link> and <Link href="/privacy-policy">Privacy Policy</Link>
-                      <input type="checkbox" name="remeber" />
+                      <input 
+                        type="checkbox" 
+                        name="agreeTerms" 
+                        checked={agreeTerms}
+                        onChange={(e) => setAgreeTerms(e.target.checked)}
+                      />
                       <span className="checkmark" />
                     </label>
                   </div>
@@ -283,9 +365,9 @@ const SignUp = () => {
                       Fill all the fields to submit
                     </p>
                   </div>
-                  <Link href="/" className="btn btn-primary w-100">
-                    Sign Up
-                  </Link>
+                  <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+                    {loading ? 'Signing Up...' : 'Sign Up'}
+                  </button>
                   <div className="login-or">
                     <span className="span-or">or sign up with</span>
                   </div>

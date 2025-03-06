@@ -42,6 +42,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'account_type' => 'required|string|in:buyer,seller,both',
         ]);
 
         if ($validator->fails()) {
@@ -57,14 +58,24 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Assign default role
-        $user->assignRole('user');
+        // Assign role based on account type
+        if ($request->account_type === 'buyer') {
+            $user->assignRole('buyer');
+        } elseif ($request->account_type === 'seller') {
+            $user->assignRole('seller');
+        } else {
+            // For 'both' account type, assign both roles
+            $user->assignRole(['buyer', 'seller']);
+        }
 
         $tokens = $this->tokenService->createTokenWithRefreshToken($user);
 
+        // Get user with roles and permissions
+        $userData = $this->getUserWithRolesAndPermissions($user);
+
         return response()->json([
             'message' => 'User registered successfully',
-            'user' => $user,
+            'user' => $userData,
             'access_token' => $tokens['access_token'],
             'refresh_token' => $tokens['refresh_token'],
             'token_type' => $tokens['token_type'],
@@ -101,9 +112,12 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->firstOrFail();
         $tokens = $this->tokenService->createTokenWithRefreshToken($user);
 
+        // Get user with roles and permissions
+        $userData = $this->getUserWithRolesAndPermissions($user);
+
         return response()->json([
             'message' => 'Login successful',
-            'user' => $user,
+            'user' => $userData,
             'access_token' => $tokens['access_token'],
             'refresh_token' => $tokens['refresh_token'],
             'token_type' => $tokens['token_type'],
@@ -160,5 +174,35 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Successfully logged out'
         ]);
+    }
+
+    /**
+     * Get the authenticated user
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function user(Request $request)
+    {
+        $userData = $this->getUserWithRolesAndPermissions($request->user());
+
+        return response()->json([
+            'user' => $userData
+        ]);
+    }
+
+    /**
+     * Get user with roles and permissions
+     * 
+     * @param User $user
+     * @return array
+     */
+    protected function getUserWithRolesAndPermissions(User $user)
+    {
+        $userData = $user->toArray();
+        $userData['roles'] = $user->getRoleNames();
+        $userData['permissions'] = $user->getAllPermissions()->pluck('name');
+        
+        return $userData;
     }
 }

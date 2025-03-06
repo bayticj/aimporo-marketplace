@@ -11,23 +11,16 @@ class CheckRole
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string  ...$roles
-     * @return mixed
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, ...$roles): Response
+    public function handle(Request $request, Closure $next, string $role): Response
     {
-        if (!$request->user()) {
-            return response()->json(['error' => 'Unauthenticated'], 401);
+        if (!$request->user() || !$request->user()->hasRole($role)) {
+            return response()->json([
+                'message' => 'Unauthorized. You do not have the required role to access this resource.',
+            ], 403);
         }
 
-        foreach ($roles as $role) {
-            if ($request->user()->hasRole($role)) {
-                return $next($request);
-            }
-        }
-
-        return response()->json(['error' => 'Unauthorized. You do not have the required role.'], 403);
+        return $next($request);
     }
 } 

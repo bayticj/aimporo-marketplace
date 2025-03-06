@@ -13,11 +13,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Call seeders in the correct order
         $this->call([
-            UsersTableSeeder::class,      // First create users
-            CategoriesTableSeeder::class, // Then create categories
-            GigsTableSeeder::class,       // Then create gigs using users and categories
+            CategorySeeder::class,
+            TestDataSeeder::class,
         ]);
     }
 }

@@ -12,12 +12,14 @@ use Illuminate\Support\Facades\Validator;
 class OrderController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the orders.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
         $user = Auth::user();
-        $query = Order::query();
+        $query = Order::with(['gig', 'seller', 'buyer']);
         
         // Filter by role (buyer or seller)
         if ($request->has('role') && $request->role === 'buyer') {
@@ -25,7 +27,7 @@ class OrderController extends Controller
         } elseif ($request->has('role') && $request->role === 'seller') {
             $query->where('seller_id', $user->id);
         } else {
-            // Default: show both buyer and seller orders
+            // If no role specified, show both buyer and seller orders
             $query->where(function($q) use ($user) {
                 $q->where('buyer_id', $user->id)
                   ->orWhere('seller_id', $user->id);
@@ -42,9 +44,6 @@ class OrderController extends Controller
         $sortOrder = $request->sort_order ?? 'desc';
         $query->orderBy($sortBy, $sortOrder);
         
-        // Load relationships
-        $query->with(['gig', 'buyer', 'seller']);
-        
         $orders = $query->paginate(10);
         
         return response()->json([
@@ -53,22 +52,17 @@ class OrderController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Store a newly created order.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'gig_id' => 'required|exists:gigs,id',
-            'requirements' => 'nullable|string',
-            'buyer_instructions' => 'nullable|string',
+            'details' => 'required|string',
+            'quantity' => 'required|integer|min:1',
         ]);
 
         if ($validator->fails()) {
@@ -81,48 +75,44 @@ class OrderController extends Controller
         // Get the gig
         $gig = Gig::findOrFail($request->gig_id);
         
-        // Check if gig is active
-        if (!$gig->is_active) {
-            return response()->json([
-                'message' => 'This gig is not currently available'
-            ], 400);
-        }
+        // Calculate total price
+        $totalPrice = $gig->price * $request->quantity;
         
         // Create the order
         $order = new Order();
         $order->gig_id = $gig->id;
-        $order->buyer_id = Auth::id();
         $order->seller_id = $gig->user_id;
-        $order->total_amount = $gig->price;
+        $order->buyer_id = Auth::id();
+        $order->details = $request->details;
+        $order->quantity = $request->quantity;
+        $order->price = $gig->price;
+        $order->total_price = $totalPrice;
         $order->status = 'pending';
         $order->delivery_date = now()->addDays($gig->delivery_time);
-        $order->requirements = $request->requirements;
-        $order->buyer_instructions = $request->buyer_instructions;
-        $order->revisions_allowed = 3; // Default value, can be customized
-        $order->revisions_used = 0;
-        $order->is_completed = false;
         $order->save();
-        
+
         return response()->json([
             'message' => 'Order created successfully',
-            'order' => $order->load(['gig', 'buyer', 'seller'])
+            'order' => $order->load(['gig', 'seller', 'buyer'])
         ], 201);
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified order.
+     *
+     * @param  \App\Models\Order  $order
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show(string $id)
+    public function show(Order $order)
     {
-        $order = Order::with(['gig', 'buyer', 'seller', 'messages', 'review'])->findOrFail($id);
-        
-        // Check if user is authorized to view this order
-        $user = Auth::user();
-        if ($user->id !== $order->buyer_id && $user->id !== $order->seller_id) {
+        // Check if the authenticated user is the buyer or seller
+        if (Auth::id() !== $order->buyer_id && Auth::id() !== $order->seller_id) {
             return response()->json([
                 'message' => 'Unauthorized'
             ], 403);
         }
+        
+        $order->load(['gig', 'seller', 'buyer', 'deliverables', 'messages']);
         
         return response()->json([
             'order' => $order
@@ -130,32 +120,23 @@ class OrderController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Update the specified order status.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Order  $order
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(string $id)
+    public function updateStatus(Request $request, Order $order)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $order = Order::findOrFail($id);
-        
-        // Check if user is authorized to update this order
-        $user = Auth::user();
-        if ($user->id !== $order->buyer_id && $user->id !== $order->seller_id) {
+        // Check if the authenticated user is the buyer or seller
+        if (Auth::id() !== $order->buyer_id && Auth::id() !== $order->seller_id) {
             return response()->json([
                 'message' => 'Unauthorized'
             ], 403);
         }
-        
+
         $validator = Validator::make($request->all(), [
-            'status' => 'sometimes|required|string|in:pending,in_progress,delivered,completed,cancelled,disputed',
-            'seller_notes' => 'nullable|string',
-            'is_completed' => 'sometimes|boolean',
+            'status' => 'required|string|in:pending,in_progress,delivered,completed,cancelled,revision_requested',
         ]);
 
         if ($validator->fails()) {
@@ -164,103 +145,87 @@ class OrderController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-        
-        // Update order status
-        if ($request->has('status')) {
-            // Validate status transitions
-            $validTransition = $this->validateStatusTransition($order->status, $request->status, $user->id === $order->buyer_id);
-            
-            if (!$validTransition) {
-                return response()->json([
-                    'message' => 'Invalid status transition'
-                ], 400);
-            }
-            
-            $order->status = $request->status;
-            
-            // If status is completed, update completion fields
-            if ($request->status === 'completed') {
-                $order->is_completed = true;
-                $order->completed_at = now();
-            }
 
+        // Check if the status change is allowed
+        $allowedTransitions = [
+            'pending' => ['in_progress', 'cancelled'],
+            'in_progress' => ['delivered', 'cancelled'],
+            'delivered' => ['completed', 'revision_requested'],
+            'revision_requested' => ['in_progress', 'delivered', 'cancelled'],
+            'completed' => [],
+            'cancelled' => [],
+        ];
+
+        if (!in_array($request->status, $allowedTransitions[$order->status])) {
+            return response()->json([
+                'message' => 'Invalid status transition'
+            ], 422);
         }
+
+        // Check if the user is allowed to make this status change
+        $sellerOnlyTransitions = ['in_progress', 'delivered'];
+        $buyerOnlyTransitions = ['completed', 'revision_requested'];
+
+        if (in_array($request->status, $sellerOnlyTransitions) && Auth::id() !== $order->seller_id) {
+            return response()->json([
+                'message' => 'Only the seller can change to this status'
+            ], 403);
+        }
+
+        if (in_array($request->status, $buyerOnlyTransitions) && Auth::id() !== $order->buyer_id) {
+            return response()->json([
+                'message' => 'Only the buyer can change to this status'
+            ], 403);
+        }
+
+        // Update the order status
+        $order->status = $request->status;
         
-        // Update other fields
-        if ($request->has('seller_notes')) {
-            $order->seller_notes = $request->seller_notes;
+        // If the order is completed, set the completion date
+        if ($request->status === 'completed') {
+            $order->completed_at = now();
         }
         
         $order->save();
-        
+
         return response()->json([
-            'message' => 'Order updated successfully',
-            'order' => $order->load(['gig', 'buyer', 'seller'])
+            'message' => 'Order status updated successfully',
+            'order' => $order->load(['gig', 'seller', 'buyer'])
         ]);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Cancel an order.
+     *
+     * @param  \App\Models\Order  $order
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(string $id)
+    public function cancel(Order $order)
     {
-        $order = Order::findOrFail($id);
-        
-        // Check if user is authorized to delete this order
-        $user = Auth::user();
-        if ($user->id !== $order->buyer_id && $user->id !== $order->seller_id) {
+        // Check if the authenticated user is the buyer or seller
+        if (Auth::id() !== $order->buyer_id && Auth::id() !== $order->seller_id) {
             return response()->json([
                 'message' => 'Unauthorized'
             ], 403);
         }
-        
-        // Only allow deletion of pending orders
-        if ($order->status !== 'pending') {
+
+        // Check if the order can be cancelled
+        if (!in_array($order->status, ['pending', 'in_progress'])) {
             return response()->json([
-                'message' => 'Only pending orders can be deleted'
-            ], 400);
+                'message' => 'This order cannot be cancelled'
+            ], 422);
         }
-        
-        $order->delete();
-        
+
+        // Update the order status
+        $order->status = 'cancelled';
+        $order->cancelled_at = now();
+        $order->cancelled_by = Auth::id();
+        $order->save();
+
         return response()->json([
-            'message' => 'Order deleted successfully'
+            'message' => 'Order cancelled successfully',
+            'order' => $order->load(['gig', 'seller', 'buyer'])
         ]);
-    }
-    
-    /**
-     * Validate status transition based on current status and user role.
-     */
-    private function validateStatusTransition($currentStatus, $newStatus, $isBuyer)
-    {
-        $validTransitions = [
-            'pending' => ['in_progress', 'cancelled'],
-            'in_progress' => ['delivered', 'cancelled', 'disputed'],
-            'delivered' => ['completed', 'disputed'],
-            'completed' => [],
-            'cancelled' => [],
-            'disputed' => ['completed', 'cancelled'],
-        ];
-        
-        // Role-based restrictions
-        $buyerOnlyTransitions = ['completed', 'disputed'];
-        $sellerOnlyTransitions = ['in_progress', 'delivered'];
-        
-        // Check if transition is valid
-        if (!in_array($newStatus, $validTransitions[$currentStatus])) {
-            return false;
-        }
-        
-        // Check role-based restrictions
-        if ($isBuyer && in_array($newStatus, $sellerOnlyTransitions)) {
-            return false;
-        }
-        
-        if (!$isBuyer && in_array($newStatus, $buyerOnlyTransitions)) {
-            return false;
-        }
-        
-        return true;
     }
 }
 

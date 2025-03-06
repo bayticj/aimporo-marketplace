@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
@@ -72,7 +74,7 @@ class Order extends Model
     /**
      * Get the review associated with the order.
      */
-    public function review()
+    public function review(): HasOne
     {
         return $this->hasOne(Review::class);
     }
@@ -80,7 +82,7 @@ class Order extends Model
     /**
      * Get the messages associated with the order.
      */
-    public function messages()
+    public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
     }
@@ -88,9 +90,25 @@ class Order extends Model
     /**
      * Get the transactions associated with the order.
      */
-    public function transactions()
+    public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
+    }
+    
+    /**
+     * Get the disputes associated with the order.
+     */
+    public function disputes(): HasMany
+    {
+        return $this->hasMany(Dispute::class);
+    }
+    
+    /**
+     * Get the active dispute for the order, if any.
+     */
+    public function activeDispute(): HasOne
+    {
+        return $this->hasOne(Dispute::class)->whereIn('status', ['open', 'under_review']);
     }
     
     /**
@@ -115,5 +133,15 @@ class Order extends Model
     public function scopeActive($query)
     {
         return $query->where('is_completed', false);
+    }
+    
+    /**
+     * Scope a query to only include orders with active disputes.
+     */
+    public function scopeWithActiveDisputes($query)
+    {
+        return $query->whereHas('disputes', function($q) {
+            $q->whereIn('status', ['open', 'under_review']);
+        });
     }
 }

@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Gig;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class GigController extends Controller
 {
@@ -20,8 +22,8 @@ class GigController extends Controller
         $query = Gig::query()->with('user')->where('is_active', true);
         
         // Apply filters if provided
-        if ($request->has('category')) {
-            $query->where('category', $request->category);
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->category_id);
         }
         
         if ($request->has('search')) {
@@ -56,15 +58,15 @@ class GigController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'category' => 'required|string',
+            'category_id' => 'required|string',
             'subcategory' => 'nullable|string',
             'price' => 'required|numeric|min:1',
             'delivery_time' => 'required|integer|min:1',
             'requirements' => 'nullable|string',
             'location' => 'nullable|string',
-            'thumbnail' => 'nullable|string',
-            'images' => 'nullable|array',
-            'tags' => 'nullable|array',
+            'thumbnail' => 'nullable|image|max:2048',
+            'images.*' => 'nullable|image|max:2048',
+            'tags' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -74,8 +76,45 @@ class GigController extends Controller
             ], 422);
         }
 
-        $gig = new Gig($request->all());
+        // Handle thumbnail upload
+        $thumbnailPath = null;
+        if ($request->hasFile('thumbnail')) {
+            $thumbnailPath = $request->file('thumbnail')->store('gigs/thumbnails', 'public');
+        }
+
+        // Handle multiple image uploads
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imagePaths[] = $image->store('gigs/images', 'public');
+            }
+        }
+
+        // Parse tags from JSON string if provided
+        $tags = [];
+        if ($request->has('tags')) {
+            $tags = json_decode($request->tags, true) ?? [];
+        }
+
+        // Create the gig
+        $gig = new Gig();
         $gig->user_id = Auth::id();
+        $gig->title = $request->title;
+        $gig->description = $request->description;
+        $gig->category_id = $request->category_id;
+        $gig->subcategory = $request->subcategory;
+        $gig->price = $request->price;
+        $gig->delivery_time = $request->delivery_time;
+        $gig->requirements = $request->requirements;
+        $gig->location = $request->location;
+        $gig->thumbnail = $thumbnailPath;
+        $gig->images = $imagePaths;
+        $gig->tags = $tags;
+        $gig->is_active = true;
+        $gig->is_featured = false;
+        $gig->average_rating = 0;
+        $gig->rating = 0;
+        $gig->reviews_count = 0;
         $gig->save();
 
         return response()->json([
@@ -118,16 +157,16 @@ class GigController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
-            'category' => 'sometimes|required|string',
+            'category_id' => 'sometimes|required|string',
             'subcategory' => 'nullable|string',
             'price' => 'sometimes|required|numeric|min:1',
             'delivery_time' => 'sometimes|required|integer|min:1',
             'requirements' => 'nullable|string',
             'location' => 'nullable|string',
             'is_active' => 'sometimes|boolean',
-            'thumbnail' => 'nullable|string',
-            'images' => 'nullable|array',
-            'tags' => 'nullable|array',
+            'thumbnail' => 'nullable|image|max:2048',
+            'images.*' => 'nullable|image|max:2048',
+            'tags' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -137,7 +176,48 @@ class GigController extends Controller
             ], 422);
         }
 
-        $gig->update($request->all());
+        // Handle thumbnail upload if provided
+        if ($request->hasFile('thumbnail')) {
+            // Delete old thumbnail if exists
+            if ($gig->thumbnail) {
+                Storage::disk('public')->delete($gig->thumbnail);
+            }
+            $gig->thumbnail = $request->file('thumbnail')->store('gigs/thumbnails', 'public');
+        }
+
+        // Handle multiple image uploads if provided
+        if ($request->hasFile('images')) {
+            // Delete old images if exists
+            if (!empty($gig->images)) {
+                foreach ($gig->images as $image) {
+                    Storage::disk('public')->delete($image);
+                }
+            }
+            
+            $imagePaths = [];
+            foreach ($request->file('images') as $image) {
+                $imagePaths[] = $image->store('gigs/images', 'public');
+            }
+            $gig->images = $imagePaths;
+        }
+
+        // Parse tags from JSON string if provided
+        if ($request->has('tags')) {
+            $gig->tags = json_decode($request->tags, true) ?? [];
+        }
+
+        // Update other fields
+        if ($request->has('title')) $gig->title = $request->title;
+        if ($request->has('description')) $gig->description = $request->description;
+        if ($request->has('category_id')) $gig->category_id = $request->category_id;
+        if ($request->has('subcategory')) $gig->subcategory = $request->subcategory;
+        if ($request->has('price')) $gig->price = $request->price;
+        if ($request->has('delivery_time')) $gig->delivery_time = $request->delivery_time;
+        if ($request->has('requirements')) $gig->requirements = $request->requirements;
+        if ($request->has('location')) $gig->location = $request->location;
+        if ($request->has('is_active')) $gig->is_active = $request->is_active;
+
+        $gig->save();
 
         return response()->json([
             'message' => 'Gig updated successfully',
@@ -158,6 +238,17 @@ class GigController extends Controller
             return response()->json([
                 'message' => 'Unauthorized'
             ], 403);
+        }
+
+        // Delete associated files
+        if ($gig->thumbnail) {
+            Storage::disk('public')->delete($gig->thumbnail);
+        }
+        
+        if (!empty($gig->images)) {
+            foreach ($gig->images as $image) {
+                Storage::disk('public')->delete($image);
+            }
         }
 
         $gig->delete();

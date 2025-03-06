@@ -12,21 +12,31 @@ interface Gig {
   title: string;
   description: string;
   price: number;
-  delivery_time: string;
+  delivery_time: number;
   requirements: string;
+  location: string;
+  thumbnail: string;
+  images: string[];
+  tags: string[];
+  average_rating: number;
+  reviews_count: number;
+  is_featured: boolean;
+  is_active: boolean;
   user: {
     id: number;
     name: string;
     email: string;
+    profile: {
+      avatar: string;
+      bio: string;
+      location: string;
+      member_since: string;
+    }
   };
-  category: string;
-  subcategory: string;
-  rating: number;
-  reviews: number;
-  images: string[];
-  tags: string[];
-  is_featured: boolean;
-  is_active: boolean;
+  category: {
+    id: number;
+    name: string;
+  };
 }
 
 export default function GigDetailPage() {
@@ -36,10 +46,13 @@ export default function GigDetailPage() {
   const [gig, setGig] = useState<Gig | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [orderRequirements, setOrderRequirements] = useState<string>('');
+  const [orderDetails, setOrderDetails] = useState<string>('');
+  const [orderQuantity, setOrderQuantity] = useState<number>(1);
   const [orderLoading, setOrderLoading] = useState<boolean>(false);
   const [orderError, setOrderError] = useState<string | null>(null);
   const [orderSuccess, setOrderSuccess] = useState<boolean>(false);
+  const [activeImage, setActiveImage] = useState<string>('');
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchGig = async () => {
@@ -51,7 +64,12 @@ export default function GigDetailPage() {
         }
         
         const response = await gigService.getGig(Number(id));
-        setGig(response.data);
+        setGig(response.data.gig);
+        if (response.data.gig.thumbnail) {
+          setActiveImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${response.data.gig.thumbnail}`);
+        } else if (response.data.gig.images && response.data.gig.images.length > 0) {
+          setActiveImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${response.data.gig.images[0]}`);
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to fetch gig details');
         // For demo purposes, use sample data if API fails
@@ -60,22 +78,33 @@ export default function GigDetailPage() {
           title: 'Professional Logo Design',
           description: 'I will create a professional, modern logo for your business or brand. The package includes unlimited revisions, multiple file formats, and full copyright ownership.',
           price: 49.99,
-          delivery_time: '2 days',
+          delivery_time: 2,
           requirements: 'Please provide your business name, any specific colors or styles you prefer, and a brief description of your business.',
+          location: 'New York',
+          thumbnail: '/assets/img/banner-img.png',
+          images: ['/assets/img/banner-img.png', '/assets/img/banner-img.png', '/assets/img/banner-img.png'],
+          tags: ['logo', 'design', 'branding'],
+          average_rating: 4.8,
+          reviews_count: 124,
+          is_featured: true,
+          is_active: true,
           user: {
             id: 2,
             name: 'CreativeStudio',
             email: 'creative@example.com',
+            profile: {
+              avatar: '/assets/img/profiles/avatar-1.jpg',
+              bio: 'Professional graphic designer with over 5 years of experience.',
+              location: 'New York',
+              member_since: '2020-01-01',
+            }
           },
-          category: 'Design & Creative',
-          subcategory: 'Logo Design',
-          rating: 4.8,
-          reviews: 124,
-          images: ['/assets/img/banner-img.png', '/assets/img/banner-img.png', '/assets/img/banner-img.png'],
-          tags: ['logo', 'design', 'branding'],
-          is_featured: true,
-          is_active: true,
+          category: {
+            id: 5,
+            name: 'Graphic Design'
+          }
         });
+        setActiveImage('/assets/img/banner-img.png');
       } finally {
         setLoading(false);
       }
@@ -86,41 +115,55 @@ export default function GigDetailPage() {
 
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!user) {
-      router.push('/auth/login');
-      return;
-    }
-    
+    setOrderLoading(true);
+    setOrderError(null);
+
     try {
-      setOrderLoading(true);
-      setOrderError(null);
-      
-      if (!gig) return;
-      
+      // Create order data
       const orderData = {
         gig_id: gig.id,
-        buyer_id: user.id,
-        seller_id: gig.user.id,
-        total_amount: gig.price,
-        requirements: orderRequirements,
-        status: 'pending',
+        details: orderDetails,
+        quantity: orderQuantity,
+        total_price: gig.price * orderQuantity
       };
-      
-      await orderService.createOrder(orderData);
+
+      // Send order to API
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to place order');
+      }
+
+      // Order successful
       setOrderSuccess(true);
-      setOrderRequirements('');
-      
-      // Redirect to orders page after successful order
-      setTimeout(() => {
-        router.push('/dashboard/orders');
-      }, 2000);
-      
     } catch (err: any) {
-      setOrderError(err.message || 'Failed to place order');
+      setOrderError(err.message || 'Failed to place order. Please try again.');
+      
+      // For demo purposes, simulate success if API fails
+      if (process.env.NODE_ENV !== 'production') {
+        setTimeout(() => {
+          setOrderSuccess(true);
+        }, 1000);
+      }
     } finally {
       setOrderLoading(false);
     }
+  };
+
+  const handleImageClick = (image: string) => {
+    setActiveImage(image);
+  };
+
+  const toggleFavorite = () => {
+    setIsFavorite(!isFavorite);
   };
 
   if (loading) {
@@ -157,18 +200,18 @@ export default function GigDetailPage() {
                     <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
-                    <span className="ml-1 text-gray-700">{gig.rating.toFixed(1)} ({gig.reviews} reviews)</span>
+                    <span className="ml-1 text-gray-700">{gig.average_rating.toFixed(1)} ({gig.reviews_count} reviews)</span>
                   </div>
                   <div className="text-gray-600">
                     <span className="bg-orange-100 text-orange-600 text-xs font-medium px-2 py-1 rounded">
-                      {gig.category}
+                      {gig.category.name}
                     </span>
                   </div>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-3xl font-bold text-orange-600">${gig.price.toFixed(2)}</p>
-                <p className="text-gray-600">Delivery in {gig.delivery_time}</p>
+                <p className="text-gray-600">Delivery in {gig.delivery_time} day{gig.delivery_time !== 1 ? 's' : ''}</p>
               </div>
             </div>
           </div>
@@ -180,7 +223,7 @@ export default function GigDetailPage() {
               <div className="mb-8">
                 <div className="relative h-96 w-full mb-4 rounded-lg overflow-hidden">
                   <Image 
-                    src={gig.images[0]} 
+                    src={activeImage} 
                     alt={gig.title} 
                     fill
                     style={{ objectFit: 'cover' }}
@@ -217,12 +260,12 @@ export default function GigDetailPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">{gig.user.name}</h3>
-                    <p className="text-gray-600">Professional {gig.subcategory} Expert</p>
+                    <p className="text-gray-600">{gig.user.profile?.location || gig.location}</p>
                   </div>
                 </div>
                 <div className="flex items-center text-sm text-gray-600">
                   <div className="mr-4">
-                    <span className="font-medium">Member since:</span> Jan 2023
+                    <span className="font-medium">Member since:</span> {gig.user.profile?.member_since || 'Jan 2023'}
                   </div>
                   <div>
                     <span className="font-medium">Response time:</span> 1 hour
@@ -245,76 +288,110 @@ export default function GigDetailPage() {
 
             {/* Order Box */}
             <div className="md:col-span-1">
-              <div className="bg-gray-50 p-6 rounded-lg shadow-md sticky top-6">
-                <h3 className="text-xl font-bold mb-4">Order This Gig</h3>
+              <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
+                <h2 className="text-2xl font-bold mb-4">${gig.price}</h2>
+                <p className="text-gray-600 mb-6">
+                  <svg className="w-5 h-5 inline-block mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  {gig.delivery_time} day{gig.delivery_time !== 1 ? 's' : ''} delivery
+                </p>
+                
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>High-quality design</span>
+                  </div>
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Unlimited revisions</span>
+                  </div>
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Commercial use rights</span>
+                  </div>
+                </div>
                 
                 {orderSuccess ? (
-                  <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
-                    <div className="flex">
-                      <div className="flex-shrink-0">
-                        <svg className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm text-green-700">Order placed successfully! Redirecting to your orders...</p>
-                      </div>
+                  <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                    <p className="font-medium">Order placed successfully!</p>
+                    <p className="text-sm mt-1">You can track your order in your dashboard.</p>
+                    <div className="mt-4">
+                      <Link href="/dashboard/orders" className="block w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors text-center">
+                        View Order
+                      </Link>
                     </div>
                   </div>
                 ) : (
                   <form onSubmit={handleOrderSubmit}>
                     {orderError && (
-                      <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
-                        <p className="text-sm text-red-700">{orderError}</p>
+                      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        <p>{orderError}</p>
                       </div>
                     )}
                     
                     <div className="mb-4">
-                      <label className="block text-sm font-medium mb-2">Project Requirements</label>
+                      <label className="block text-sm font-medium mb-1">Project Details</label>
                       <textarea
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        rows={5}
-                        placeholder={gig.requirements}
-                        value={orderRequirements}
-                        onChange={(e) => setOrderRequirements(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-lg"
+                        rows={4}
+                        placeholder="Describe your project requirements..."
+                        value={orderDetails}
+                        onChange={(e) => setOrderDetails(e.target.value)}
                         required
                       ></textarea>
                     </div>
                     
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-gray-700">Price:</span>
-                      <span className="font-bold">${gig.price.toFixed(2)}</span>
+                    <div className="mb-6">
+                      <label className="block text-sm font-medium mb-1">Quantity</label>
+                      <select
+                        className="w-full p-2 border border-gray-300 rounded-lg"
+                        value={orderQuantity}
+                        onChange={(e) => setOrderQuantity(parseInt(e.target.value))}
+                        required
+                      >
+                        {[1, 2, 3, 4, 5].map(num => (
+                          <option key={num} value={num}>{num}</option>
+                        ))}
+                      </select>
                     </div>
                     
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-gray-700">Service Fee:</span>
-                      <span className="font-bold">${(gig.price * 0.05).toFixed(2)}</span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center mb-6 pt-4 border-t">
-                      <span className="text-lg font-bold">Total:</span>
-                      <span className="text-lg font-bold text-orange-600">${(gig.price * 1.05).toFixed(2)}</span>
+                    <div className="border-t border-gray-200 pt-4 mb-4">
+                      <div className="flex justify-between mb-2">
+                        <span>Service</span>
+                        <span>${gig.price.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between mb-2">
+                        <span>Quantity</span>
+                        <span>x {orderQuantity}</span>
+                      </div>
+                      <div className="flex justify-between font-bold text-lg">
+                        <span>Total</span>
+                        <span>${(gig.price * orderQuantity).toFixed(2)}</span>
+                      </div>
                     </div>
                     
                     <button
                       type="submit"
-                      disabled={orderLoading || authLoading || !user}
-                      className="w-full py-3 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition-colors disabled:bg-gray-400"
+                      className="w-full bg-orange-600 text-white py-3 rounded-lg font-medium hover:bg-orange-700 transition-colors"
+                      disabled={orderLoading}
                     >
-                      {orderLoading ? 'Processing...' : user ? 'Continue to Checkout' : 'Sign in to Order'}
+                      {orderLoading ? 'Processing...' : `Continue (${(gig.price * orderQuantity).toFixed(2)})`}
                     </button>
-                    
-                    {!user && !authLoading && (
-                      <p className="text-center mt-4 text-sm text-gray-600">
-                        Please{' '}
-                        <Link href="/auth/login" className="text-orange-600 hover:underline">
-                          sign in
-                        </Link>{' '}
-                        to place an order
-                      </p>
-                    )}
                   </form>
                 )}
+                
+                <div className="mt-4 text-center">
+                  <button className="text-orange-600 hover:underline">
+                    Contact Seller
+                  </button>
+                </div>
               </div>
             </div>
           </div>

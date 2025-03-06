@@ -4,8 +4,8 @@ return [
 
     'dsn' => env('SENTRY_LARAVEL_DSN', env('SENTRY_DSN')),
 
-    // capture release as git sha
-    // 'release' => trim(exec('git --git-dir ' . base_path('.git') . ' log --pretty="%h" -n1 HEAD')),
+    // capture release as git sha or use the environment variable
+    'release' => env('SENTRY_RELEASE', null),
 
     // When left empty or `null` the Laravel environment will be used
     'environment' => env('SENTRY_ENVIRONMENT'),
@@ -28,10 +28,29 @@ return [
     ],
 
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#send-default-pii
-    'send_default_pii' => false,
+    'send_default_pii' => env('SENTRY_SEND_DEFAULT_PII', false),
 
     'traces_sample_rate' => (float)(env('SENTRY_TRACES_SAMPLE_RATE', 0.0)),
+    
+    // Set a sampling rate for performance monitoring
+    'profiles_sample_rate' => (float)(env('SENTRY_PERFORMANCE_SAMPLE_RATE', 0.0)),
 
     'controllers_base_namespace' => env('SENTRY_CONTROLLERS_BASE_NAMESPACE', 'App\\Http\\Controllers'),
-
+    
+    // Capture exceptions in specific environments
+    'in_app_exclude' => [
+        base_path('vendor'),
+    ],
+    
+    // Configure the error types to be captured
+    'error_types' => E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED,
+    
+    // Configure the maximum length of the request body
+    'max_request_body_size' => 'medium',
+    
+    // Configure the maximum number of breadcrumbs
+    'max_breadcrumbs' => 100,
+    
+    // Configure the maximum value length
+    'max_value_length' => 1000,
 ]; 

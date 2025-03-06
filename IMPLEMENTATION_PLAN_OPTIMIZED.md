@@ -29,6 +29,7 @@
 - ~~Scalable from day one~~
 - ~~Cost-efficient infrastructure choices~~
 - **Hybrid Implementation Approach**: Implement core functionality first, then enhance UI using HTML templates
+- **Implementation Plan as Source of Truth**: Always refer to IMPLEMENTATION_PLAN_OPTIMIZED.md as the definitive guide for development priorities, progress tracking, and architectural decisions
 
 ## Phase 0: Development Environment Setup (2-3 days)
 1. **Local Development Setup**
@@ -338,6 +339,17 @@
    - Test with accessibility tools
 
 ## Development Approach
+
+### Implementation Plan Adherence
+1. **Regular Review**
+   - Begin each development session by reviewing IMPLEMENTATION_PLAN_OPTIMIZED.md
+   - Align all development work with the priorities and phases outlined in the plan
+   - Update the plan when changes to the approach are needed
+
+2. **Progress Tracking**
+   - Use the plan to track completed items and next steps
+   - Mark items as completed with dates when finished
+   - Ensure all team members are working from the same plan
 
 ### Hybrid Implementation Strategy:
 1. **Basic Functionality First**

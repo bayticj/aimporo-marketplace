@@ -8,7 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Permission\Traits\HasRoles;
+use App\Notifications\ResetPasswordNotification;
 
 class User extends Authenticatable
 {
@@ -50,9 +52,20 @@ class User extends Authenticatable
     }
     
     /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
+    
+    /**
      * Get the user's profile.
      */
-    public function profile()
+    public function profile(): HasOne
     {
         return $this->hasOne(UserProfile::class);
     }
@@ -60,7 +73,7 @@ class User extends Authenticatable
     /**
      * Get the gigs created by the user.
      */
-    public function gigs()
+    public function gigs(): HasMany
     {
         return $this->hasMany(Gig::class);
     }
@@ -68,7 +81,7 @@ class User extends Authenticatable
     /**
      * Get the orders where the user is the buyer.
      */
-    public function buyerOrders()
+    public function buyerOrders(): HasMany
     {
         return $this->hasMany(Order::class, 'buyer_id');
     }
@@ -76,7 +89,7 @@ class User extends Authenticatable
     /**
      * Get the orders where the user is the seller.
      */
-    public function sellerOrders()
+    public function sellerOrders(): HasMany
     {
         return $this->hasMany(Order::class, 'seller_id');
     }
@@ -84,7 +97,7 @@ class User extends Authenticatable
     /**
      * Get the reviews written by the user.
      */
-    public function reviewsWritten()
+    public function reviewsWritten(): HasMany
     {
         return $this->hasMany(Review::class, 'reviewer_id');
     }
@@ -92,7 +105,7 @@ class User extends Authenticatable
     /**
      * Get the reviews received by the user.
      */
-    public function reviewsReceived()
+    public function reviewsReceived(): HasMany
     {
         return $this->hasMany(Review::class, 'reviewee_id');
     }
@@ -100,7 +113,7 @@ class User extends Authenticatable
     /**
      * Get the messages sent by the user.
      */
-    public function messagesSent()
+    public function messagesSent(): HasMany
     {
         return $this->hasMany(Message::class, 'sender_id');
     }
@@ -108,7 +121,7 @@ class User extends Authenticatable
     /**
      * Get the messages received by the user.
      */
-    public function messagesReceived()
+    public function messagesReceived(): HasMany
     {
         return $this->hasMany(Message::class, 'recipient_id');
     }
@@ -116,7 +129,7 @@ class User extends Authenticatable
     /**
      * Get the transactions where the user is the buyer.
      */
-    public function buyerTransactions()
+    public function buyerTransactions(): HasMany
     {
         return $this->hasMany(Transaction::class, 'buyer_id');
     }
@@ -124,7 +137,7 @@ class User extends Authenticatable
     /**
      * Get the transactions where the user is the seller.
      */
-    public function sellerTransactions()
+    public function sellerTransactions(): HasMany
     {
         return $this->hasMany(Transaction::class, 'seller_id');
     }
@@ -132,8 +145,40 @@ class User extends Authenticatable
     /**
      * Get the refresh tokens for the user.
      */
-    public function refreshTokens()
+    public function refreshTokens(): HasMany
     {
         return $this->hasMany(RefreshToken::class);
+    }
+    
+    /**
+     * Get the disputes filed by the user.
+     */
+    public function disputes(): HasMany
+    {
+        return $this->hasMany(Dispute::class);
+    }
+    
+    /**
+     * Get the disputes resolved by the user (as admin).
+     */
+    public function resolvedDisputes(): HasMany
+    {
+        return $this->hasMany(Dispute::class, 'resolved_by');
+    }
+    
+    /**
+     * Get the dispute evidence uploaded by the user.
+     */
+    public function disputeEvidence(): HasMany
+    {
+        return $this->hasMany(DisputeEvidence::class);
+    }
+    
+    /**
+     * Get the dispute comments made by the user.
+     */
+    public function disputeComments(): HasMany
+    {
+        return $this->hasMany(DisputeComment::class);
     }
 }

@@ -11,23 +11,16 @@ class CheckPermission
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string  ...$permissions
-     * @return mixed
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, ...$permissions): Response
+    public function handle(Request $request, Closure $next, string $permission): Response
     {
-        if (!$request->user()) {
-            return response()->json(['error' => 'Unauthenticated'], 401);
+        if (!$request->user() || !$request->user()->hasPermissionTo($permission)) {
+            return response()->json([
+                'message' => 'Unauthorized. You do not have the required permission to access this resource.',
+            ], 403);
         }
 
-        foreach ($permissions as $permission) {
-            if ($request->user()->hasPermissionTo($permission)) {
-                return $next($request);
-            }
-        }
-
-        return response()->json(['error' => 'Unauthorized. You do not have the required permission.'], 403);
+        return $next($request);
     }
 } 

@@ -54,7 +54,9 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => env('LOG_STACK', 'single') === 'single' 
+                ? ['single'] 
+                : ['single', 'daily', 'sentry', 'papertrail'],
             'ignore_exceptions' => false,
         ],
 
@@ -100,6 +102,21 @@ return [
                 'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
             ],
             'processors' => [PsrLogMessageProcessor::class],
+        ],
+
+        'sentry' => [
+            'driver' => 'sentry',
+            'level' => env('LOG_LEVEL', 'error'),
+        ],
+
+        'loggly' => [
+            'driver' => 'monolog',
+            'handler' => \Monolog\Handler\LogglyHandler::class,
+            'handler_with' => [
+                'token' => env('LOGGLY_TOKEN'),
+                'tag' => env('LOGGLY_TAG', 'AimporoMarketplace'),
+            ],
+            'level' => env('LOG_LEVEL', 'debug'),
         ],
 
         'stderr' => [

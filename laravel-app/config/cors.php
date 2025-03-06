@@ -19,8 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    // Allow multiple origins by splitting the comma-separated env variable
-    'allowed_origins' => explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost:3000')),
+    'allowed_origins' => ['http://localhost:3000'],
 
     'allowed_origins_patterns' => [],
 

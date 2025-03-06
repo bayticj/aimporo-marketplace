@@ -32,6 +32,9 @@ class UsersTableSeeder extends Seeder
             'skills' => json_encode(['Administration', 'Customer Support', 'Technical Support']),
             'languages' => json_encode(['English']),
         ]);
+        
+        // Assign admin role
+        $admin->assignRole('admin');
 
         // Create seller user
         $seller = User::create([
@@ -50,6 +53,9 @@ class UsersTableSeeder extends Seeder
             'skills' => json_encode(['Graphic Design', 'Logo Design', 'Illustration', 'Photoshop', 'Illustrator']),
             'languages' => json_encode(['English', 'Spanish']),
         ]);
+        
+        // Assign seller role
+        $seller->assignRole('seller');
 
         // Create buyer user
         $buyer = User::create([
@@ -67,6 +73,9 @@ class UsersTableSeeder extends Seeder
             'skills' => json_encode(['Project Management', 'Marketing', 'Business Development']),
             'languages' => json_encode(['English']),
         ]);
+        
+        // Assign buyer role
+        $buyer->assignRole('buyer');
 
         // Create additional users
         User::factory(10)->create()->each(function ($user) {
@@ -81,6 +90,16 @@ class UsersTableSeeder extends Seeder
                 'skills' => json_encode(['Skill 1', 'Skill 2', 'Skill 3']),
                 'languages' => json_encode(['English']),
             ]);
+            
+            // Assign role based on account type
+            if ($accountType === 'buyer') {
+                $user->assignRole('buyer');
+            } elseif ($accountType === 'seller') {
+                $user->assignRole('seller');
+            } else {
+                // For 'both' account type, assign both roles
+                $user->assignRole(['buyer', 'seller']);
+            }
         });
     }
 }

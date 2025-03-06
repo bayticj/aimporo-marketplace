@@ -7,6 +7,7 @@ use App\Http\Controllers\API\V1\GigController;
 use App\Http\Controllers\API\V1\OrderController;
 use App\Http\Controllers\API\V1\MessageController;
 use App\Http\Controllers\API\V1\ReviewController;
+use App\Http\Controllers\API\PasswordResetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,9 @@ Route::middleware('throttle:public')->group(function () {
         ]);
     });
 
+    // Health check endpoint
+    Route::get('/health', [App\Http\Controllers\API\HealthCheckController::class, 'check']);
+
     // Gig routes - public access for viewing
     Route::get('/gigs', [GigController::class, 'index']);
     Route::get('/gigs/{gig}', [GigController::class, 'show']);
@@ -51,6 +55,10 @@ Route::middleware('throttle:public')->group(function () {
 Route::middleware('throttle:auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+    
+    // Password reset routes
+    Route::post('/password/email', [PasswordResetController::class, 'sendResetLinkEmail']);
+    Route::post('/password/reset', [PasswordResetController::class, 'reset']);
 });
 
 // Protected routes

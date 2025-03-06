@@ -8,6 +8,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Script from "next/script";
 import { AuthProvider } from "@/context/AuthContext";
+import { SocketProvider } from "@/context/SocketContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,9 +31,11 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <AuthProvider>
-          <Header />
-          {children}
-          <Footer />
+          <SocketProvider>
+            <Header />
+            {children}
+            <Footer />
+          </SocketProvider>
         </AuthProvider>
         
         <Script src="https://unpkg.com/aos@2.3.1/dist/aos.js" strategy="beforeInteractive" />

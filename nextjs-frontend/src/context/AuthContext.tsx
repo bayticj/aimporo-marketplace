@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useRouter } from 'next/navigation';
 import { authService } from '@/services/api';
 import { mockAuthService } from '@/services/mockAuth';
+import { setAuthToken, removeAuthToken } from '@/utils/auth';
 
 // Use mock service for development
 const auth = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true' ? mockAuthService : authService;
@@ -44,13 +45,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('auth_token');
         if (token) {
           const response = await auth.getUser();
           setUser(response.data.user);
         }
       } catch (err) {
-        localStorage.removeItem('token');
+        localStorage.removeItem('auth_token');
         setUser(null);
       } finally {
         setLoading(false);
@@ -88,8 +89,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await auth.login({ email, password });
       
-      // Store token in localStorage for client-side access
-      localStorage.setItem('token', response.data.access_token);
+      // Store token using the utility function
+      setAuthToken(response.data.access_token);
       
       // Also set a cookie for middleware access
       document.cookie = `token=${response.data.access_token}; path=/; max-age=3600; SameSite=Strict`;
@@ -113,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const response = await auth.register({ name, email, password, password_confirmation, account_type });
-      localStorage.setItem('token', response.data.access_token);
+      setAuthToken(response.data.access_token);
       setUser(response.data.user);
       router.push('/dashboard');
     } catch (err: any) {
@@ -130,8 +131,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
-      // Clear localStorage
-      localStorage.removeItem('token');
+      // Clear localStorage using the utility function
+      removeAuthToken();
       localStorage.removeItem('activeRole');
       
       // Clear the token cookie

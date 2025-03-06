@@ -310,7 +310,7 @@
 
 ### Core Services:
 - Vercel (Frontend Hosting)
-- Stripe (Payments)
+- Xendit (Payments)
 - Meilisearch (Search)
 
 ## Cost Management:
@@ -376,4 +376,20 @@
 - Database query performance
 - Cache effectiveness
 - CDN performance
-- Error handling under load 
+- Error handling under load
+
+## Payment Integration
+
+### Xendit Integration
+- Direct charges
+- Recurring billing
+- Payment methods:
+  - Credit/debit cards
+  - Bank transfers
+  - E-wallets
+  - QR code payments
+  - Virtual accounts
+- Multi-currency support
+- Fraud detection
+- Automated reconciliation
+- Escrow capabilities for marketplace 

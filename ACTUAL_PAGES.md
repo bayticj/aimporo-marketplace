@@ -65,7 +65,8 @@
 
 2. **Profile Management** (`/dashboard/profile`)
    - User profile settings
-   - File: `nextjs-frontend/src/app/dashboard/profile/page.tsx`
+   - **Note: This page is referenced in the navigation but not yet implemented**
+   - Directory exists but page.tsx file is missing
 
 3. **Orders Management** (`/dashboard/orders`)
    - List and manage orders
@@ -110,11 +111,12 @@
 
 ## Current Status
 
-As of March 12, 2025, all these pages are implemented and functional. The next phase of development focuses on:
+As of March 12, 2025, most pages are implemented and functional, with a few exceptions noted above. The next phase of development focuses on:
 
-1. Search & Discovery System
-2. Digital Downloads Extension
-3. Software License System
+1. Completing missing pages (like the profile page)
+2. Search & Discovery System
+3. Digital Downloads Extension
+4. Software License System
 
 The marketplace currently supports:
 - User authentication and role-based access
@@ -122,4 +124,10 @@ The marketplace currently supports:
 - Order processing and delivery
 - Real-time messaging
 - Dispute resolution
-- Basic admin functionality 
+- Basic admin functionality
+
+## Pages Planned But Not Yet Implemented
+
+1. **Profile Management** (`/dashboard/profile`)
+   - The directory exists but the page.tsx file is missing
+   - Referenced in navigation but returns 404 when accessed 

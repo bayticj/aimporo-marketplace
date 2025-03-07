@@ -154,6 +154,14 @@ export default function DashboardLayout({
                 </span>
                 <span>Order Management</span>
               </Link>
+              
+              {/* Software License System Navigation */}
+              <Link href="/dashboard/software" className="flex items-center px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50">
+                <span className="mr-3">
+                  <i className="fas fa-key"></i>
+                </span>
+                <span>Software Licenses</span>
+              </Link>
             </RoleBasedAccess>
             
             <button 

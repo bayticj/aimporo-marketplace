@@ -44,6 +44,7 @@ Route::middleware('throttle:public')->group(function () {
 
     // Gig routes - public access for viewing
     Route::get('/gigs', [GigController::class, 'index']);
+    Route::get('/gigs/search', [GigController::class, 'search']);
     Route::get('/gigs/{gig}', [GigController::class, 'show']);
 
     // Public review routes

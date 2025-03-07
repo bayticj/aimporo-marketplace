@@ -24,6 +24,7 @@ Route::post('/login', [AuthController::class, 'login']);
 // Gig public routes
 Route::get('/gigs', [GigController::class, 'index']);
 Route::get('/gigs/{gig}', [GigController::class, 'show']);
+Route::get('/search/gigs', [GigController::class, 'search']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {

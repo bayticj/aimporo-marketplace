@@ -9,6 +9,14 @@ use App\Http\Controllers\API\MessageController;
 use App\Http\Controllers\API\ReviewController;
 use App\Http\Controllers\API\PasswordResetController;
 use App\Http\Controllers\API\DisputeController;
+use App\Http\Controllers\DigitalProductController;
+use App\Http\Controllers\DigitalProductCategoryController;
+use App\Http\Controllers\DigitalProductPurchaseController;
+use App\Http\Controllers\PartnerController;
+use App\Http\Controllers\RedemptionController;
+use App\Http\Controllers\SoftwareProductController;
+use App\Http\Controllers\SoftwarePlanController;
+use App\Http\Controllers\SoftwarePurchaseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +64,7 @@ Route::middleware('throttle:public')->group(function () {
 
     // Gig routes - public access for viewing
     Route::get('/gigs', [GigController::class, 'index']);
+    Route::get('/gigs/search', [GigController::class, 'search']);
     Route::get('/gigs/{gig}', [GigController::class, 'show']);
 
     // Public review routes
@@ -136,4 +145,63 @@ Route::middleware(['auth:sanctum', 'throttle:user_actions'])->group(function () 
     
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+// Digital Product Routes
+Route::prefix('digital-products')->group(function () {
+    // Public routes
+    Route::get('/', [DigitalProductController::class, 'index']);
+    Route::get('/{digitalProduct}', [DigitalProductController::class, 'show']);
+    Route::get('/{digitalProduct}/preview', [DigitalProductPurchaseController::class, 'preview']);
+    
+    // Categories
+    Route::get('/categories', [DigitalProductCategoryController::class, 'index']);
+    Route::get('/categories/{category}', [DigitalProductCategoryController::class, 'show']);
+    
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
+        // Digital Product Management
+        Route::post('/', [DigitalProductController::class, 'store']);
+        Route::put('/{digitalProduct}', [DigitalProductController::class, 'update']);
+        Route::delete('/{digitalProduct}', [DigitalProductController::class, 'destroy']);
+        Route::patch('/{digitalProduct}/publish', [DigitalProductController::class, 'publish']);
+        Route::patch('/{digitalProduct}/archive', [DigitalProductController::class, 'archive']);
+        Route::get('/my/products', [DigitalProductController::class, 'myDigitalProducts']);
+        
+        // Category Management (Admin only)
+        Route::post('/categories', [DigitalProductCategoryController::class, 'store']);
+        Route::put('/categories/{category}', [DigitalProductCategoryController::class, 'update']);
+        Route::delete('/categories/{category}', [DigitalProductCategoryController::class, 'destroy']);
+        
+        // Purchase and Download
+        Route::post('/{digitalProduct}/purchase', [DigitalProductPurchaseController::class, 'purchase']);
+        Route::get('/purchases', [DigitalProductPurchaseController::class, 'myPurchases']);
+        Route::get('/purchases/{purchase}', [DigitalProductPurchaseController::class, 'show']);
+        Route::get('/purchases/{purchase}/download', [DigitalProductPurchaseController::class, 'download']);
+    });
+});
+
+// Software License System Routes
+Route::prefix('software')->group(function () {
+    // Public routes
+    Route::post('redemption/verify', [RedemptionController::class, 'verify']);
+    Route::post('redemption/mark-as-redeemed', [RedemptionController::class, 'markAsRedeemed']);
+    
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
+        // Partner routes
+        Route::apiResource('partners', PartnerController::class);
+        
+        // Software Product routes
+        Route::apiResource('products', SoftwareProductController::class);
+        
+        // Software Plan routes
+        Route::apiResource('plans', SoftwarePlanController::class);
+        
+        // Software Purchase routes
+        Route::apiResource('purchases', SoftwarePurchaseController::class);
+        
+        // Account Provisioning
+        Route::post('provision', [RedemptionController::class, 'provisionAccount']);
+    });
 }); 

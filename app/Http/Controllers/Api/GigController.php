@@ -15,20 +15,19 @@ class GigController extends Controller
      */
     public function index(Request $request)
     {
+        // Use Meilisearch if search parameter is provided
+        if ($request->has('search')) {
+            $search = $request->search;
+            $gigs = Gig::search($search)->paginate(10);
+            return response()->json($gigs);
+        }
+        
+        // Otherwise use traditional query
         $query = Gig::query();
         
         // Filter by category if provided
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
-        }
-        
-        // Search by title or description
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
         }
         
         // Sort by price or created date
@@ -138,5 +137,60 @@ class GigController extends Controller
         return response()->json([
             'message' => 'Gig deleted successfully'
         ]);
+    }
+
+    /**
+     * Advanced search for gigs using Meilisearch.
+     */
+    public function search(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'query' => 'required|string|min:2',
+            'category_id' => 'sometimes|exists:categories,id',
+            'min_price' => 'sometimes|numeric|min:0',
+            'max_price' => 'sometimes|numeric|min:0',
+            'sort' => 'sometimes|in:price,created_at',
+            'direction' => 'sometimes|in:asc,desc',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $searchQuery = $request->query('query');
+        
+        // Build search options
+        $options = [];
+        
+        // Add filters if provided
+        $filters = [];
+        
+        if ($request->has('category_id')) {
+            $filters[] = "category_id = {$request->category_id}";
+        }
+        
+        if ($request->has('min_price')) {
+            $filters[] = "price >= {$request->min_price}";
+        }
+        
+        if ($request->has('max_price')) {
+            $filters[] = "price <= {$request->max_price}";
+        }
+        
+        if (!empty($filters)) {
+            $options['filter'] = implode(' AND ', $filters);
+        }
+        
+        // Add sorting if provided
+        if ($request->has('sort')) {
+            $sortField = $request->sort;
+            $sortDirection = $request->has('direction') ? $request->direction : 'asc';
+            $options['sort'] = ["{$sortField}:{$sortDirection}"];
+        }
+        
+        // Perform the search
+        $results = Gig::search($searchQuery, $options)->paginate(10);
+        
+        return response()->json($results);
     }
 } 

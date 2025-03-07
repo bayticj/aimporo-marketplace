@@ -257,4 +257,47 @@ class GigController extends Controller
             'message' => 'Gig deleted successfully'
         ]);
     }
+
+    /**
+     * Search for gigs using Meilisearch.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'query' => 'required|string|min:2',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $searchQuery = $request->query('query');
+        
+        try {
+            // Perform a direct search using Meilisearch
+            $client = new \Meilisearch\Client('http://localhost:7700', 'masterKey');
+            
+            // Get the gigs index
+            $index = $client->index('gigs');
+            
+            // Perform the search
+            $searchResults = $index->search($searchQuery);
+            
+            return response()->json([
+                'message' => 'Search results',
+                'results' => $searchResults->getHits()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Search failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

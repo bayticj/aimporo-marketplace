@@ -70,6 +70,15 @@ const Header: React.FC = () => {
               <Link href="/gigs" className="mr-6 text-gray-700 hover:text-orange-600">
                 Gigs
               </Link>
+              <Link href="/digital-products" className="mr-6 text-gray-700 hover:text-orange-600">
+                Digital Products
+              </Link>
+              <Link href="/software" className="mr-6 text-gray-700 hover:text-orange-600">
+                Software
+              </Link>
+              <Link href="/search" className="mr-6 text-gray-700 hover:text-orange-600">
+                Search
+              </Link>
               <Link href="/about" className="mr-6 text-gray-700 hover:text-orange-600">
                 About
               </Link>
@@ -171,6 +180,15 @@ const Header: React.FC = () => {
             </Link>
             <Link href="/gigs" className="block py-2 text-gray-700 hover:text-orange-600">
               Gigs
+            </Link>
+            <Link href="/digital-products" className="block py-2 text-gray-700 hover:text-orange-600">
+              Digital Products
+            </Link>
+            <Link href="/software" className="block py-2 text-gray-700 hover:text-orange-600">
+              Software
+            </Link>
+            <Link href="/search" className="block py-2 text-gray-700 hover:text-orange-600">
+              Search
             </Link>
             <Link href="/about" className="block py-2 text-gray-700 hover:text-orange-600">
               About

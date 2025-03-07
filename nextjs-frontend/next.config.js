@@ -9,7 +9,6 @@ const { withSentryConfig } = require('@sentry/nextjs');
 
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     domains: ['localhost', 'aimporo-marketplace-six.vercel.app'],
     unoptimized: process.env.NODE_ENV === 'development',

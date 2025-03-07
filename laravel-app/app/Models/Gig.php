@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Laravel\Scout\Searchable;
 
 class Gig extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
     
     /**
      * The attributes that are mass assignable.
@@ -51,6 +52,36 @@ class Gig extends Model
         'rating' => 'integer',
         'reviews_count' => 'integer',
     ];
+    
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        $array = $this->toArray();
+        
+        // Customize the data array...
+        $array = [
+            'id' => $this->id,
+            'title' => $this->title,
+            'description' => $this->description,
+            'category_id' => $this->category_id,
+            'subcategory' => $this->subcategory,
+            'price' => $this->price,
+            'delivery_time' => $this->delivery_time,
+            'location' => $this->location,
+            'tags' => $this->tags,
+            'user_id' => $this->user_id,
+            'rating' => $this->rating,
+            'is_featured' => $this->is_featured,
+            'is_active' => $this->is_active,
+            'created_at' => $this->created_at,
+        ];
+        
+        return $array;
+    }
     
     /**
      * Get the user that owns the gig.

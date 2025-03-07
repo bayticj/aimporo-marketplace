@@ -181,4 +181,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(DisputeComment::class);
     }
+
+    /**
+     * Get the digital products created by the user.
+     */
+    public function digitalProducts(): HasMany
+    {
+        return $this->hasMany(DigitalProduct::class);
+    }
+
+    /**
+     * Get the digital product purchases made by the user.
+     */
+    public function digitalProductPurchases(): HasMany
+    {
+        return $this->hasMany(DigitalProductPurchase::class);
+    }
 }

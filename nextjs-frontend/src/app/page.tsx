@@ -39,11 +39,13 @@ export default function Home() {
     setIsClient(true);
   }, []);
   
-  // State for category slider
-  const [activeCategorySet, setActiveCategorySet] = useState(0);
+  // State for category slider - start with a high index in the middle of our array
+  const [activeCategorySet, setActiveCategorySet] = useState(15); // Start in the middle of our array
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
   
   // Main categories only
@@ -53,7 +55,7 @@ export default function Home() {
       title: 'Growth Hacking Services', 
       description: 'Find top-rated freelancers for any project',
       name: 'Gigs',
-      image: '/assets/img/gigs/gigs-01.jpg',
+      image: '/assets/img/categories/growth-hacking.png',
       link: '/gigs'
     },
     { 
@@ -61,7 +63,7 @@ export default function Home() {
       title: 'Digital Products', 
       description: 'Pay once. Download instantly, use forever.',
       name: 'Digital Products',
-      image: '/assets/img/gigs/gigs-05.jpg',
+      image: '/assets/img/categories/digital-products.png',
       link: '/digital-products'
     },
     { 
@@ -69,24 +71,29 @@ export default function Home() {
       title: 'Business Software', 
       description: 'Streamline your business operations',
       name: 'Software',
-      image: '/assets/img/gigs/gigs-11.jpg',
+      image: '/assets/img/categories/business-software.png',
       link: '/software'
     }
   ];
   
-  // Function to change category set with transition
+  // Create a much longer array for truly infinite scrolling
+  // We'll create 10 copies of the array to ensure we never reach the end
+  const continuousCarouselItems = Array(10).fill(null).flatMap(() => [...mainCategories]);
+  
+  // Function to handle carousel navigation
   const changeCategorySet = (index: number) => {
     if (isTransitioning) return;
     
-    // Handle infinite scrolling
+    setIsTransitioning(true);
+    
+    // Handle infinite scrolling at edges
     let targetIndex = index;
     if (index < 0) {
-      targetIndex = mainCategories.length - 1;
-    } else if (index >= mainCategories.length) {
+      targetIndex = continuousCarouselItems.length - 1;
+    } else if (index >= continuousCarouselItems.length) {
       targetIndex = 0;
     }
     
-    setIsTransitioning(true);
     setActiveCategorySet(targetIndex);
     
     if (sliderRef.current) {
@@ -100,10 +107,18 @@ export default function Home() {
       });
     }
     
-    // Shorter transition time for better responsiveness
     setTimeout(() => {
       setIsTransitioning(false);
     }, 300);
+  };
+  
+  // Handle arrow navigation with infinite scroll
+  const handlePrevClick = () => {
+    changeCategorySet(activeCategorySet - 1);
+  };
+  
+  const handleNextClick = () => {
+    changeCategorySet(activeCategorySet + 1);
   };
   
   // Handle touch events for swipe
@@ -113,8 +128,16 @@ export default function Home() {
   
   const handleTouchMove = (e: React.TouchEvent) => {
     setTouchEnd(e.touches[0].clientX);
+    
+    // Also update scroll position for direct feedback during touch
+    if (sliderRef.current && touchStart) {
+      const distance = touchStart - e.touches[0].clientX;
+      sliderRef.current.scrollLeft += distance / 5;
+      setTouchStart(e.touches[0].clientX);
+    }
   };
   
+  // Handle touch events for swipe with infinite scroll
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
     
@@ -123,36 +146,109 @@ export default function Home() {
     const isRightSwipe = distance < -50;
     
     if (isLeftSwipe) {
-      changeCategorySet(activeCategorySet + 1);
+      // Handle infinite scrolling for touch swipe
+      let newIndex = activeCategorySet + 1;
+      if (newIndex >= continuousCarouselItems.length) {
+        newIndex = 0;
+      }
+      changeCategorySet(newIndex);
     }
     
     if (isRightSwipe) {
-      changeCategorySet(activeCategorySet - 1);
+      // Handle infinite scrolling for touch swipe
+      let newIndex = activeCategorySet - 1;
+      if (newIndex < 0) {
+        newIndex = continuousCarouselItems.length - 1;
+      }
+      changeCategorySet(newIndex);
     }
     
     setTouchStart(0);
     setTouchEnd(0);
   };
   
-  // Handle arrow navigation with infinite scrolling
-  const handlePrevClick = () => {
-    changeCategorySet(activeCategorySet - 1);
-  };
+  // Set initial position to the middle of the array
+  useEffect(() => {
+    if (sliderRef.current && isClient) {
+      // Start in the middle of our very long array to ensure we have room to scroll in both directions
+      const initialIndex = Math.floor(continuousCarouselItems.length / 2);
+      setActiveCategorySet(initialIndex);
+      
+      const cardWidth = sliderRef.current.querySelector('.appsumo-category-card')?.clientWidth || 0;
+      const gap = 24;
+      const scrollPosition = initialIndex * (cardWidth + gap);
+      
+      sliderRef.current.scrollTo({
+        left: scrollPosition,
+        behavior: 'auto' // No animation for initial position
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isClient, continuousCarouselItems.length]);
   
-  const handleNextClick = () => {
-    changeCategorySet(activeCategorySet + 1);
-  };
+  // Add global mouse up event to handle cases where mouse is released outside the slider
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        handleMouseUp();
+      }
+    };
+    
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDragging]);
   
-  // Handle scroll events to update active dot
+  // Handle scroll events to detect when we need to implement infinite scrolling
+  useEffect(() => {
+    const handleInfiniteScroll = () => {
+      if (sliderRef.current && !isTransitioning) {
+        const scrollPosition = sliderRef.current.scrollLeft;
+        const maxScroll = sliderRef.current.scrollWidth - sliderRef.current.clientWidth;
+        
+        // If we're at the beginning or end, implement infinite scrolling
+        if (scrollPosition <= 0 && activeCategorySet === 0) {
+          // We're at the beginning, jump to the end
+          const newIndex = continuousCarouselItems.length - 1;
+          setTimeout(() => {
+            changeCategorySet(newIndex);
+          }, 50);
+        } else if (scrollPosition >= maxScroll && activeCategorySet === continuousCarouselItems.length - 1) {
+          // We're at the end, jump to the beginning
+          setTimeout(() => {
+            changeCategorySet(0);
+          }, 50);
+        }
+      }
+    };
+    
+    const sliderElement = sliderRef.current;
+    if (sliderElement) {
+      sliderElement.addEventListener('scroll', handleInfiniteScroll);
+    }
+    
+    return () => {
+      if (sliderElement) {
+        sliderElement.removeEventListener('scroll', handleInfiniteScroll);
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCategorySet, isTransitioning, continuousCarouselItems.length]);
+  
+  // Handle scroll events
   useEffect(() => {
     const handleScroll = () => {
       if (sliderRef.current && !isTransitioning) {
         const scrollPosition = sliderRef.current.scrollLeft;
         const cardWidth = sliderRef.current.querySelector('.appsumo-category-card')?.clientWidth || 0;
-        const gap = 24; // 1.5rem gap
+        const gap = 24;
         
         if (cardWidth > 0) {
           const newIndex = Math.round(scrollPosition / (cardWidth + gap));
+          
           if (newIndex !== activeCategorySet) {
             setActiveCategorySet(newIndex);
           }
@@ -450,8 +546,66 @@ export default function Home() {
     ],
   };
 
+  // Handle mouse events for drag-to-swipe
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (sliderRef.current) {
+      setIsDragging(true);
+      setDragStart(e.clientX);
+      // Prevent default behavior to avoid text selection during drag
+      e.preventDefault();
+    }
+  };
+  
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && sliderRef.current) {
+      e.preventDefault(); // Prevent any default behavior during drag
+      const currentPosition = e.clientX;
+      const distance = dragStart - currentPosition;
+      
+      // Directly update the scroll position based on mouse movement
+      sliderRef.current.scrollLeft += distance;
+      
+      // Update drag start position for next move event
+      setDragStart(currentPosition);
+    }
+  };
+  
+  const handleMouseUp = () => {
+    if (isDragging && sliderRef.current) {
+      setIsDragging(false);
+      
+      // After releasing, snap to the nearest card
+      if (sliderRef.current) {
+        const scrollPosition = sliderRef.current.scrollLeft;
+        const cardWidth = sliderRef.current.querySelector('.appsumo-category-card')?.clientWidth || 0;
+        const gap = 24; // 1.5rem gap
+        
+        if (cardWidth > 0) {
+          // Calculate the index based on scroll position
+          let newIndex = Math.round(scrollPosition / (cardWidth + gap));
+          
+          // Handle infinite scrolling for mouse drag
+          if (newIndex < 0) {
+            newIndex = continuousCarouselItems.length - 1;
+          } else if (newIndex >= continuousCarouselItems.length) {
+            newIndex = 0;
+          }
+          
+          changeCategorySet(newIndex);
+        }
+      }
+    }
+  };
+  
+  // Handle mouse leave to prevent stuck dragging state
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      handleMouseUp(); // Use the same logic as mouse up
+    }
+  };
+
   return (
-    <main className="overflow-x-hidden">
+    <main className="overflow-x-hidden overflow-y-auto">
       {/* Hero Section - AppSumo Style */}
       <section className="appsumo-hero">
         {/* Floating elements for visual appeal */}
@@ -459,21 +613,21 @@ export default function Home() {
         <div className="hero-floating-element hero-floating-element-2"></div>
         <div className="hero-floating-element hero-floating-element-3"></div>
         
-        <div className="container mx-auto px-4 py-12 md:py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+        <div className="container mx-auto px-4 py-6 md:py-10 h-full flex items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 w-full">
             {/* Left side - Headline */}
-            <div className="lg:col-span-5 flex flex-col justify-center mb-8 lg:mb-0" data-aos="fade-right">
+            <div className="lg:col-span-5 flex flex-col justify-center mb-6 lg:mb-0" data-aos="fade-right">
               {/* Main Headline and Subheadline */}
-              <div className="mb-8 md:mb-10">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+              <div className="mb-6 md:mb-8">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold text-white mb-4 leading-tight">
                   Find the <span className="text-orange-500">perfect talent</span> for your business
                 </h1>
-                <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-8">
+                <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-6">
                   Connect with top professionals, digital products, and software solutions all in one place
                 </p>
               </div>
               
-              <Link href="/gigs" className="appsumo-button inline-block text-center text-lg py-4 px-8">
+              <Link href="/gigs" className="appsumo-button inline-block text-center text-lg py-3 px-6 sm:py-4 sm:px-8">
                 SHOP NOW
               </Link>
             </div>
@@ -481,14 +635,40 @@ export default function Home() {
             {/* Right side - Featured Categories */}
             <div className="lg:col-span-7 flex items-center">
               <div className="relative appsumo-categories-container w-full">
+                {/* Swipeable slider with navigation arrows */}
+                <div className="appsumo-slider-navigation">
+                  <button 
+                    className="appsumo-slider-arrow appsumo-slider-prev" 
+                    aria-label="Previous slide"
+                    onClick={handlePrevClick}
+                  >
+                    <svg width="12" height="20" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 1L1 9L9 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <button 
+                    className="appsumo-slider-arrow appsumo-slider-next" 
+                    aria-label="Next slide"
+                    onClick={handleNextClick}
+                  >
+                    <svg width="12" height="20" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1L9 9L1 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+                
                 <div 
                   ref={sliderRef}
-                  className="appsumo-categories-slider"
+                  className={`appsumo-categories-slider ${isDragging ? 'dragging' : ''}`}
                   onTouchStart={handleTouchStart}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseLeave}
                 >
-                  {mainCategories.map((category, index) => (
+                  {continuousCarouselItems.map((category, index) => (
                     <div 
                       key={category.id}
                       className="appsumo-category-card" 
@@ -513,53 +693,45 @@ export default function Home() {
                         <Image
                           src={category.image}
                           alt={category.name}
-                          width={400}
-                          height={300}
-                          style={{ objectFit: 'cover', objectPosition: 'center' }}
-                          className="w-full h-full"
+                          width={600}
+                          height={400}
+                          style={{ 
+                            objectFit: 'cover' as 'cover', 
+                            objectPosition: 'center',
+                            width: '100%',
+                            height: '100%'
+                          }}
+                          className="w-full h-full rounded-b-xl"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          loading={index === 0 ? "eager" : "lazy"}
-                          quality={85}
+                          priority={index < 3} // Prioritize loading the first few images
                         />
                       </div>
                     </div>
                   ))}
                 </div>
                 
-                {/* Navigation controls - moved below the slider */}
-                <div className="appsumo-navigation-controls">
-                  {/* Slider navigation arrows */}
-                  <button 
-                    className="appsumo-slider-arrow appsumo-slider-prev" 
-                    aria-label="Previous slide"
-                    onClick={handlePrevClick}
-                  >
-                    <svg width="12" height="20" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M9 1L1 9L9 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                  
-                  {/* Slider pagination dots */}
-                  <div className="appsumo-slider-dots">
-                    {[0, 1, 2, 3].map((_, index) => (
-                      <button 
-                        key={index} 
-                        className={`appsumo-slider-dot ${index === activeCategorySet ? 'active' : ''}`}
-                        onClick={() => changeCategorySet(index)}
-                        aria-label={`Go to slide ${index + 1}`}
-                      ></button>
-                    ))}
+                {/* Custom navigation buttons below the cards */}
+                <div className="category-arrows-container">
+                  <div className="category-arrows-wrapper">
+                    <button 
+                      className="category-arrow-btn" 
+                      onClick={handlePrevClick}
+                      aria-label="Previous slide"
+                    >
+                      <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 1L1 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                    <button 
+                      className="category-arrow-btn" 
+                      onClick={handleNextClick}
+                      aria-label="Next slide"
+                    >
+                      <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1L7 7L1 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
                   </div>
-                  
-                  <button 
-                    className="appsumo-slider-arrow appsumo-slider-next" 
-                    aria-label="Next slide"
-                    onClick={handleNextClick}
-                  >
-                    <svg width="12" height="20" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M1 1L9 9L1 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
                 </div>
               </div>
             </div>

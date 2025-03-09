@@ -32,6 +32,8 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-family);
+  overflow-y: auto !important;
+  height: auto !important;
 }
 
 /* Header Styles */
@@ -44,6 +46,7 @@ body {
   background-color: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   overflow: visible; /* Ensure dropdowns can appear */
+  height: 80px; /* Fixed header height */
 }
 
 .header-nav {
@@ -51,9 +54,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  height: 70px;
-  position: relative;
-  overflow: visible; /* Ensure dropdowns can appear */
+  height: 100%;
 }
 
 .navbar-header {
@@ -173,6 +174,7 @@ body {
 /* Fix for scrollbar issues */
 html, body {
   overflow-x: hidden;
+  overflow-y: auto; /* Explicitly allow vertical scrolling */
   width: 100%;
   position: relative;
   margin: 0;
@@ -274,6 +276,10 @@ html, body {
 }
 
 @media (max-width: 768px) {
+  .header {
+    height: 70px; /* Smaller header on mobile */
+  }
+  
   .header-nav {
     padding: 0.5rem 1rem;
   }
@@ -330,47 +336,29 @@ html, body {
     transform: scale(1.3);
   }
   
-  /* Improve card appearance on mobile */
-  .appsumo-category-card {
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  }
-  
   /* Adjust hero section for better mobile experience */
   .appsumo-hero {
-    overflow-x: hidden;
+    padding: 1.5rem 0;
+    min-height: calc(100vh - 70px); /* Adjusted for mobile header height */
+    height: auto;
   }
   
-  /* Hide floating elements on small screens for better performance */
-  .hero-floating-element {
-    opacity: 0.5;
+  .appsumo-hero h1 {
+    font-size: 2.25rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
   }
   
-  /* Add a subtle gradient to indicate more content */
-  .appsumo-categories-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 40px;
-    background: linear-gradient(to right, rgba(18, 18, 18, 0) 0%, rgba(18, 18, 18, 0.8) 100%);
-    z-index: 10;
-    pointer-events: none;
+  .appsumo-hero p {
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    max-width: 100%;
   }
   
-  /* Add a subtle animation to the next card */
-  .appsumo-category-card:not(:first-child) {
-    animation: subtle-pulse 2s infinite alternate ease-in-out;
-  }
-  
-  @keyframes subtle-pulse {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-5px);
-    }
+  .appsumo-button {
+    width: 100%;
+    text-align: center;
+    padding: 0.875rem;
   }
 }
 
@@ -1089,23 +1077,36 @@ html, body {
   position: relative;
   background: linear-gradient(135deg, #121212 0%, #1a1a1a 40%, #252525 100%);
   color: white;
-  overflow: hidden;
-  padding: 3rem 0 4rem;
+  overflow: visible;
+  padding: 2rem 0 3rem;
   position: relative;
-  min-height: 90vh;
+  min-height: calc(100vh - 80px); /* Subtract header height to fit in viewport */
+  height: auto;
   display: flex;
   align-items: center;
+  z-index: 1;
+}
+
+/* Fix for main container to ensure scrolling works */
+main {
+  overflow-y: visible !important;
+  height: auto !important;
 }
 
 /* Mobile-specific hero section adjustments */
 @media (max-width: 768px) {
+  .header {
+    height: 70px; /* Smaller header on mobile */
+  }
+  
   .appsumo-hero {
-    padding: 2rem 0;
-    min-height: auto;
+    padding: 1.5rem 0;
+    min-height: calc(100vh - 70px); /* Adjusted for mobile header height */
+    height: auto;
   }
   
   .appsumo-hero h1 {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
     line-height: 1.2;
     margin-bottom: 1rem;
   }
@@ -1119,7 +1120,27 @@ html, body {
   .appsumo-button {
     width: 100%;
     text-align: center;
-    padding: 1rem;
+    padding: 0.875rem;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .header {
+    height: 60px; /* Even smaller header on small devices */
+  }
+  
+  .appsumo-hero {
+    padding: 1rem 0;
+    min-height: calc(100vh - 60px); /* Further adjusted for smaller devices */
+  }
+  
+  .appsumo-hero h1 {
+    font-size: 1.875rem;
+  }
+  
+  .appsumo-hero p {
+    font-size: 1rem;
   }
 }
 
@@ -1150,12 +1171,9 @@ html, body {
   
   /* Adjust card sizing for mobile */
   .appsumo-category-card {
-    flex: 0 0 80%; /* Card takes 80% of container width */
-    min-width: 80%; /* Ensures consistent sizing */
-    height: auto;
-    min-height: 380px;
-    margin: 0 0.5rem;
-    scroll-snap-align: start; /* Snap to start of card */
+    flex: 0 0 calc(80% - 1rem);
+    min-width: calc(80% - 1rem);
+    height: 400px; /* Increased height to accommodate the full image */
     border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   }
@@ -1176,7 +1194,7 @@ html, body {
   }
   
   .appsumo-category-image {
-    height: 160px;
+    height: 250px; /* Increased height for better image display */
   }
   
   /* Improve pagination visibility on mobile */
@@ -1419,62 +1437,288 @@ html, body {
   }
 }
 
-/* Add floating elements to the hero section */
+/* Floating elements in hero section */
 .hero-floating-element {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle at center, rgba(255, 105, 0, 0.2), transparent);
-  filter: blur(20px);
+  background: linear-gradient(135deg, rgba(255, 105, 0, 0.2), rgba(255, 105, 0, 0.05));
+  filter: blur(40px);
   z-index: 0;
-  animation: float-element 20s infinite alternate ease-in-out;
+  animation: float-element 8s infinite ease-in-out;
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .hero-floating-element-1 {
-  width: 200px;
-  height: 200px;
-  top: 10%;
-  right: 5%;
+  width: 300px;
+  height: 300px;
+  top: -50px;
+  right: 10%;
   animation-delay: 0s;
+  animation-duration: 10s;
 }
 
 .hero-floating-element-2 {
-  width: 150px;
-  height: 150px;
-  bottom: 15%;
-  left: 10%;
-  background: radial-gradient(circle at center, rgba(0, 102, 255, 0.1), transparent);
-  animation-delay: 5s;
+  width: 200px;
+  height: 200px;
+  bottom: 10%;
+  left: 5%;
+  animation-delay: 2s;
+  animation-duration: 12s;
 }
 
 .hero-floating-element-3 {
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
   top: 30%;
-  left: 20%;
-  background: radial-gradient(circle at center, rgba(0, 204, 102, 0.1), transparent);
-  animation-delay: 10s;
+  left: 30%;
+  animation-delay: 4s;
+  animation-duration: 9s;
+}
+
+@media (max-width: 768px) {
+  .hero-floating-element {
+    opacity: 0.4;
+    filter: blur(30px);
+  }
+  
+  .hero-floating-element-1 {
+    width: 200px;
+    height: 200px;
+    top: -30px;
+    right: 5%;
+  }
+  
+  .hero-floating-element-2 {
+    width: 150px;
+    height: 150px;
+    bottom: 5%;
+    left: 2%;
+  }
+  
+  .hero-floating-element-3 {
+    width: 100px;
+    height: 100px;
+    top: 20%;
+    left: 20%;
+  }
 }
 
 @keyframes float-element {
   0% {
     transform: translate(0, 0) scale(1);
-    opacity: 0.5;
+    opacity: 0.6;
   }
   50% {
-    transform: translate(20px, -20px) scale(1.1);
-    opacity: 0.7;
+    transform: translate(15px, -15px) scale(1.05);
+    opacity: 0.8;
   }
   100% {
-    transform: translate(-20px, 20px) scale(0.9);
-    opacity: 0.5;
+    transform: translate(-15px, 15px) scale(0.95);
+    opacity: 0.6;
   }
 }
 
-/* Categories container */
+/* Enhanced category card styling */
+.appsumo-category-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  scroll-snap-align: start;
+  margin-right: 1.5rem;
+  height: 420px; /* Adjusted for perfect balance */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Add a subtle glow effect on hover */
+.appsumo-category-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, rgba(255, 105, 0, 0.15), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 1;
+}
+
+/* Add a subtle border glow */
+.appsumo-category-card::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: linear-gradient(135deg, rgba(255, 105, 0, 0.5) 0%, transparent 50%, rgba(0, 102, 255, 0.3) 100%);
+  border-radius: 1rem;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.appsumo-category-card:hover::before {
+  opacity: 1;
+}
+
+.appsumo-category-card:hover::after {
+  opacity: 0.5;
+}
+
+.appsumo-category-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 105, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Add a subtle shine effect to the category cards */
+.appsumo-category-card .shine-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.03) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.appsumo-category-card:hover .shine-effect {
+  transform: translateX(100%);
+}
+
+/* Slider navigation - positioned below the cards */
+.appsumo-slider-navigation {
+  position: absolute;
+  top: auto;
+  bottom: -70px; /* Position below the cards */
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center; /* Center the buttons */
+  align-items: center;
+  z-index: 30;
+  pointer-events: none;
+  padding: 0;
+  gap: 20px; /* Space between buttons */
+}
+
+.appsumo-slider-arrow {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  outline: none;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 40;
+  transform: none; /* Reset transform */
+}
+
+.appsumo-slider-prev {
+  margin-left: 0;
+}
+
+.appsumo-slider-next {
+  margin-right: 0;
+}
+
+/* Slider navigation arrows hover effects */
+.appsumo-slider-arrow:hover {
+  background-color: rgba(50, 50, 50, 0.95);
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.appsumo-slider-arrow:active {
+  transform: scale(0.95);
+}
+
+.appsumo-slider-next:hover {
+  transform: scale(1.05);
+}
+
+.appsumo-slider-next:active {
+  transform: scale(0.95);
+}
+
+.appsumo-slider-arrow svg {
+  width: 16px;
+  height: 24px;
+  stroke-width: 2.5;
+}
+
+/* Slider pagination dots */
+.appsumo-slider-pagination {
+  display: none;
+}
+
+/* Responsive adjustments for card sizes */
+@media (min-width: 1024px) {
+  .appsumo-category-card {
+    height: 440px;
+  }
+  
+  .appsumo-category-image {
+    height: 270px;
+  }
+}
+
+/* Media query for extra large screens */
+@media (min-width: 1440px) {
+  .appsumo-category-card {
+    height: 460px;
+  }
+  
+  .appsumo-category-image {
+    height: 290px;
+  }
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .appsumo-category-card {
+    height: 400px;
+  }
+  
+  .appsumo-category-image {
+    height: 230px;
+  }
+}
+
+/* Categories container - add bottom padding for navigation buttons */
 .appsumo-categories-container {
   position: relative;
   overflow: hidden;
-  padding: 1rem 0;
+  padding: 1rem 0 5rem; /* Added bottom padding for navigation buttons */
   margin: 0;
   z-index: 10;
   height: 100%;
@@ -1482,7 +1726,7 @@ html, body {
   align-items: center;
 }
 
-/* Categories slider */
+/* Categories slider - optimized for infinite carousel */
 .appsumo-categories-slider {
   display: flex;
   gap: 1rem;
@@ -1494,14 +1738,133 @@ html, body {
   -ms-overflow-style: none; /* IE and Edge */
   padding: 1.5rem 0.5rem;
   position: relative;
-  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1); /* Smoother easing function */
+  transition: all 0.3s ease;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  cursor: grab; /* Show grab cursor to indicate draggable */
+  user-select: none; /* Prevent text selection during drag */
+  will-change: scroll-position; /* Optimize for scroll performance */
+  touch-action: pan-x; /* Allow only horizontal panning */
+}
+
+/* Change cursor when actively dragging */
+.appsumo-categories-slider.dragging {
+  cursor: grabbing;
+  scroll-behavior: auto; /* Disable smooth scrolling during drag for direct control */
+  transition: none; /* Remove transition during drag for immediate response */
+}
+
+/* Make cards feel more interactive during drag */
+.appsumo-categories-slider.dragging .appsumo-category-card {
+  transform: scale(0.98); /* Slightly reduce size to give feedback */
+  transition: transform 0.1s ease;
 }
 
 /* Hide scrollbar */
 .appsumo-categories-slider::-webkit-scrollbar {
   display: none;
+}
+
+/* Ensure category cards have proper snap points */
+.appsumo-category-card {
+  flex: 0 0 calc(48% - 1rem);
+  min-width: calc(48% - 1rem);
+  background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  height: 420px; /* Adjusted for perfect balance */
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  scroll-snap-align: center;
+  -webkit-user-drag: none; /* Prevent default drag behavior on Safari */
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+}
+
+/* Custom arrows container for category cards - styled like gig cards */
+.category-arrows-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+}
+
+.category-arrows-wrapper {
+  display: flex;
+  gap: 16px;
+}
+
+.category-arrow-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+  padding: 0;
+}
+
+.category-arrow-btn:hover {
+  background-color: #ff6900;
+  color: white;
+  border-color: #ff6900;
+  transform: translateY(-2px);
+}
+
+.category-arrow-btn:active {
+  transform: translateY(0);
+}
+
+.category-arrow-btn svg {
+  width: 8px;
+  height: 14px;
+  stroke-width: 2;
+}
+
+/* Hide the old slider navigation */
+.appsumo-slider-navigation {
+  display: none;
+}
+
+/* Responsive adjustments for category navigation buttons */
+@media (max-width: 768px) {
+  .category-arrow-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .category-arrows-container {
+    margin-top: 20px;
+  }
+  
+  .appsumo-categories-container {
+    padding: 1rem 0 4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-arrow-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .category-arrow-btn svg {
+    width: 7px;
+    height: 12px;
+  }
 }
 
 @keyframes card-fade-in {
@@ -1527,32 +1890,39 @@ html, body {
   animation-delay: 0.3s;
 }
 
-/* Enhanced category card styling */
-.appsumo-category-card {
-  background-color: rgba(30, 30, 30, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  overflow: hidden;
-  position: relative;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  animation: card-fade-in 0.5s ease-out forwards;
-  opacity: 0;
-  height: 450px; /* Fixed height for all cards */
-  transform-origin: center bottom;
-  flex: 0 0 calc(144% - 2rem); /* Increased by another 20% from 120% */
-  scroll-snap-align: center;
-  max-width: 650px; /* Increased by another 20% from 540px */
-  margin: 0 0.5rem;
+.appsumo-category-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.appsumo-category-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.appsumo-category-card:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+.appsumo-category-card:nth-child(7) {
+  animation-delay: 0.7s;
+}
+
+.appsumo-category-card:nth-child(8) {
+  animation-delay: 0.8s;
+}
+
+.appsumo-category-card:nth-child(9) {
+  animation-delay: 0.9s;
+}
+
+.appsumo-category-card:nth-child(10) {
+  animation-delay: 1.0s;
 }
 
 .appsumo-category-content {
-  padding: 2rem;
-  z-index: 20;
-  flex: 1;
+  padding: 1.5rem;
+  flex: 0 0 auto;
+  z-index: 1;
+  min-height: 170px; /* Ensure consistent content height */
   display: flex;
   flex-direction: column;
 }
@@ -1602,9 +1972,13 @@ html, body {
   width: 100%;
   overflow: hidden;
   border-radius: 0 0 0.75rem 0.75rem;
-  height: 240px;
+  height: 250px; /* Optimal height for the image container */
   position: relative;
   box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .appsumo-category-image img {
@@ -1613,6 +1987,7 @@ html, body {
   height: 100%;
   transition: transform 0.5s ease;
   filter: brightness(0.95);
+  object-position: center;
 }
 
 .appsumo-category-card:hover .appsumo-category-image img {
@@ -1641,156 +2016,12 @@ html, body {
   box-shadow: 0 4px 8px rgba(255, 105, 0, 0.3);
 }
 
-/* Responsive adjustments */
-@media (min-width: 1024px) {
-  .appsumo-category-card {
-    flex: 0 0 calc(48% - 1rem); /* Increased by 20% from 40% */
-  }
+/* Category name styling */
+.appsumo-category-content .text-orange-500 {
+  font-size: 1.125rem;
+  letter-spacing: 0.02em;
+  position: relative;
+  display: inline-block;
 }
 
-@media (max-width: 1024px) {
-  .appsumo-category-card {
-    flex: 0 0 calc(72% - 1rem); /* Increased by 20% from 60% */
-    height: 400px;
-  }
-  
-  .appsumo-category-image {
-    height: 200px;
-  }
-}
-
-@media (max-width: 768px) {
-  .appsumo-category-card {
-    flex: 0 0 calc(144% - 1rem); /* Increased by 20% from 120% */
-    height: 380px;
-  }
-  
-  .appsumo-category-image {
-    height: 180px;
-  }
-  
-  .appsumo-navigation-controls {
-    margin-top: 2rem;
-  }
-}
-
-/* Optimize for very small screens */
-@media (max-width: 375px) {
-  .appsumo-hero h1 {
-    font-size: 1.75rem;
-  }
-  
-  .appsumo-category-card {
-    min-height: 320px;
-  }
-  
-  .appsumo-category-image {
-    height: 120px;
-  }
-  
-  .appsumo-category-content {
-    padding: 1.25rem;
-  }
-  
-  .appsumo-category-content h3 {
-    font-size: 1.125rem;
-  }
-  
-  .appsumo-category-content p {
-    font-size: 0.875rem;
-  }
-  
-  .appsumo-category-button {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-  }
-  
-  .appsumo-navigation-controls {
-    gap: 1rem;
-  }
-  
-  .appsumo-slider-arrow {
-    width: 36px;
-    height: 36px;
-  }
-}
-
-/* Navigation controls below the slider */
-.appsumo-navigation-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 1.5rem;
-  gap: 1.5rem;
-}
-
-.appsumo-slider-dots {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.appsumo-slider-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.3);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.appsumo-slider-dot.active {
-  width: 30px;
-  border-radius: 10px;
-  background-color: #FF6900;
-}
-
-.appsumo-slider-arrow {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: rgba(30, 30, 30, 0.85);
-  backdrop-filter: blur(5px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  outline: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.appsumo-slider-arrow:hover {
-  background-color: rgba(255, 105, 0, 0.9);
-  transform: scale(1.05);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.appsumo-slider-arrow:active {
-  transform: scale(0.95);
-  transition: all 0.1s ease;
-}
-
-.appsumo-slider-arrow svg {
-  width: 12px;
-  height: 20px;
-  fill: none;
-  stroke: white;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* Remove old navigation styles that are no longer needed */
-.appsumo-slider-navigation {
-  display: none;
-}
-
-.appsumo-slider-pagination {
-  display: none;
-}
 

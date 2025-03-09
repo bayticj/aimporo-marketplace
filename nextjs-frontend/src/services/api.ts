@@ -418,6 +418,11 @@ export async function del<T>(url: string): Promise<ApiResponse<T>> {
   });
 }
 
+// Function to get search suggestions
+export async function searchSuggestions(query: string, limit: number = 5): Promise<any> {
+  return get(`/search/suggestions?q=${query}&limit=${limit}`);
+}
+
 export default {
   fetchWithAuth,
   fetchApi,
@@ -425,4 +430,5 @@ export default {
   post,
   put,
   del,
+  searchSuggestions
 }; 

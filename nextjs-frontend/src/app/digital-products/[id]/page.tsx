@@ -94,6 +94,14 @@ const DigitalProductPage: React.FC<DigitalProductPageProps> = ({ params }) => {
     ? `${process.env.NEXT_PUBLIC_API_URL}/storage/${product.preview_path}`
     : '/assets/img/placeholder.jpg';
 
+  // Generate a deterministic avatar number based on the product ID or seller name
+  const getAvatarNumber = (productId: number, sellerName: string) => {
+    // Use the product ID if available, otherwise hash the seller name
+    const hashValue = productId || sellerName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    // Ensure it's between 1 and 10 (we have 10 avatar images)
+    return (hashValue % 10) + 1;
+  };
+
   if (loading) {
     return (
       <div className="content">
@@ -221,7 +229,7 @@ const DigitalProductPage: React.FC<DigitalProductPageProps> = ({ params }) => {
               <div className="seller-info d-flex align-items-center mt-3 mb-4">
                 <div className="seller-avatar me-3">
                   <Image 
-                    src={`/assets/img/profiles/avatar-${Math.floor(Math.random() * 10) + 1}.jpg`} 
+                    src={`/assets/img/profiles/avatar-${getAvatarNumber(parseInt(params.id), product.user?.name || 'Seller')}.jpg`} 
                     alt={product.user?.name || 'Seller'}
                     width={44}
                     height={44}

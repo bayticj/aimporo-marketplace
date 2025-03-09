@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import RoleBasedAccess from '@/components/auth/RoleBasedAccess';
 import Link from 'next/link';
+import Image from 'next/image';
 import RoleSwitcher from '@/components/auth/RoleSwitcher';
 
 export default function DashboardLayout({
@@ -47,8 +48,19 @@ export default function DashboardLayout({
         <div className="dashboard-sidebar bg-white shadow-md">
           <div className="p-4 border-b">
             <div className="flex items-center justify-between mb-4">
-              <Link href="/" className="text-xl font-bold text-orange-600">
-                Marketplace
+              <Link href="/" className="flex items-center">
+                <Image 
+                  src="/assets/img/aimporo-logo.png" 
+                  alt="Aimporo Marketplace" 
+                  width={120} 
+                  height={32}
+                  style={{ 
+                    maxHeight: '32px', 
+                    width: 'auto', 
+                    objectFit: 'contain'
+                  }}
+                  priority
+                />
               </Link>
               
               {/* Add Role Switcher here */}

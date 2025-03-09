@@ -106,6 +106,14 @@ const GigCard: React.FC<GigCardProps> = ({
     const days = parseInt(delivery.split(' ')[0]);
     return days === 1 ? '1 day delivery' : `${days} days delivery`;
   };
+  
+  // Generate a deterministic avatar number based on the seller name or ID
+  const getAvatarNumber = () => {
+    // Use the id if available, otherwise hash the seller name
+    const hashValue = id || seller.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    // Ensure it's between 1 and 10 (we have 10 avatar images)
+    return (hashValue % 10) + 1;
+  };
 
   return (
     <div className={`gigs-card relative group ${status === 'draft' ? 'opacity-70' : ''} hover:shadow-lg transition-shadow duration-300`}>
@@ -204,19 +212,12 @@ const GigCard: React.FC<GigCardProps> = ({
         </div>
         <div className="seller-avatar">
           <Image 
-            src={`/assets/img/profiles/avatar-${Math.floor(Math.random() * 10) + 1}.jpg`} 
+            src={`/assets/img/profiles/avatar-${getAvatarNumber()}.jpg`} 
             alt={seller}
             width={44}
             height={44}
             className="rounded-full"
-            onError={(e: any) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
-            }}
           />
-          <div className="avatar-fallback">
-            {seller.charAt(0).toUpperCase()}
-          </div>
         </div>
       </div>
       <div className="gigs-content">
@@ -236,7 +237,7 @@ const GigCard: React.FC<GigCardProps> = ({
         </div>
         <div className="gigs-title">
           <h3>
-            <Link href={`/gigs/${id}`} className="hover:text-orange-600 transition-colors">
+            <Link href={`/gigs/${id}`} className="text-gray-800 hover:text-orange-600 transition-colors font-semibold">
               {title}
             </Link>
           </h3>
@@ -252,20 +253,6 @@ const GigCard: React.FC<GigCardProps> = ({
           </div>
           <div className="text-xs text-gray-500">
             <span className="seller-name font-medium">{seller}</span>
-          </div>
-        </div>
-        
-        {/* Completion rate indicator */}
-        <div className="mt-2 mb-3">
-          <div className="flex justify-between text-xs mb-1">
-            <span>Completion Rate</span>
-            <span className="font-medium">{Math.floor(90 + (rating * 2))}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
-            <div 
-              className="bg-green-500 h-1.5 rounded-full" 
-              style={{ width: `${Math.floor(90 + (rating * 2))}%` }}
-            ></div>
           </div>
         </div>
         

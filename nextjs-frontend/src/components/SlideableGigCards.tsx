@@ -37,8 +37,8 @@ const PrevArrow = (props: any) => {
       onClick={onClick}
       aria-label="Previous slide"
     >
-      <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4.66602 1.5L1.16602 5L4.66602 8.5V1.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7 1L1 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     </div>
   );
@@ -52,8 +52,8 @@ const NextArrow = (props: any) => {
       onClick={onClick}
       aria-label="Next slide"
     >
-      <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M1.33398 8.5L4.83398 5L1.33398 1.5V8.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 13L7 7L1 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     </div>
   );
@@ -204,7 +204,7 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
           <h2 className="text-3xl font-bold mb-2">
             {title.includes('<span>') ? (
               <>
-                {title.split('<span>')[0]}
+                <span className="text-gray-800">{title.split('<span>')[0]}</span>
                 <span className="text-orange-500">{title.split('<span>')[1].split('</span>')[0]}</span>
                 {title.split('</span>')[1]}
               </>
@@ -285,8 +285,8 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
                 type="button"
                 disabled={isLoading}
               >
-                <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.66602 1.5L1.16602 5L4.66602 8.5V1.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 1L1 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
               <button 
@@ -296,8 +296,8 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
                 type="button"
                 disabled={isLoading}
               >
-                <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1.33398 8.5L4.83398 5L1.33398 1.5V8.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 13L7 7L1 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
             </div>

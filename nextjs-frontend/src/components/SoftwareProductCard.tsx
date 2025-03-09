@@ -100,6 +100,14 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
     return months === 1 ? '1 month' : `${months} months`;
   };
 
+  // Generate a deterministic avatar number based on the partner name or ID
+  const getAvatarNumber = () => {
+    // Use the id if available, otherwise hash the partner name
+    const hashValue = id || partner_name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    // Ensure it's between 1 and 10 (we have 10 avatar images)
+    return (hashValue % 10) + 1;
+  };
+
   return (
     <div className={`gigs-card relative group ${!is_active ? 'opacity-70' : ''} hover:shadow-lg transition-shadow duration-300`}>
       {!is_active && (
@@ -184,7 +192,7 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
         </div>
         <div className="seller-avatar">
           <Image 
-            src={logoSrc || `/assets/img/profiles/avatar-${Math.floor(Math.random() * 10) + 1}.jpg`} 
+            src={logoSrc || `/assets/img/profiles/avatar-${getAvatarNumber()}.jpg`} 
             alt={partner_name}
             width={44}
             height={44}

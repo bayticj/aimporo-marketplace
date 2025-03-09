@@ -230,7 +230,7 @@ const Footer = () => {
               <div className="row">
                 <div className="col-lg-6">
                   <div className="copy-right">
-                    <p>Copyright © 2024 Aimporo Philippines. All rights reserved.</p>
+                    <p>Copyright © 2024 DreamGigs. All rights reserved.</p>
                   </div>
                 </div>
                 <div className="col-lg-6">

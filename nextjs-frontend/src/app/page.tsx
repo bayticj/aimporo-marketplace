@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Slider from 'react-slick';
@@ -30,6 +30,226 @@ export default function Home() {
       console.log('Slider is undefined');
     }
   }, []);
+
+  // Add isClient state
+  const [isClient, setIsClient] = useState(false);
+  
+  // Set isClient to true when component mounts
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // State for category slider
+  const [activeCategorySet, setActiveCategorySet] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  
+  // Main categories only
+  const mainCategories = [
+    { 
+      id: 'gigs', 
+      title: 'Growth Hacking Services', 
+      description: 'Find top-rated freelancers for any project',
+      name: 'Gigs',
+      image: '/assets/img/gigs/gigs-01.jpg',
+      link: '/gigs'
+    },
+    { 
+      id: 'digital', 
+      title: 'Digital Products', 
+      description: 'Pay once. Download instantly, use forever.',
+      name: 'Digital Products',
+      image: '/assets/img/gigs/gigs-05.jpg',
+      link: '/digital-products'
+    },
+    { 
+      id: 'software', 
+      title: 'Business Software', 
+      description: 'Streamline your business operations',
+      name: 'Software',
+      image: '/assets/img/gigs/gigs-11.jpg',
+      link: '/software'
+    }
+  ];
+  
+  // Function to change category set with transition
+  const changeCategorySet = (index: number) => {
+    if (index === activeCategorySet || isTransitioning) return;
+    
+    setIsTransitioning(true);
+    setActiveCategorySet(index);
+    
+    if (sliderRef.current) {
+      const cardWidth = sliderRef.current.querySelector('.appsumo-category-card')?.clientWidth || 0;
+      const gap = 24; // 1.5rem gap
+      const scrollPosition = index * (cardWidth + gap);
+      
+      sliderRef.current.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+      });
+    }
+    
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 500);
+  };
+  
+  // Handle touch events for swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.touches[0].clientX);
+  };
+  
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    
+    if (isLeftSwipe && activeCategorySet < mainCategories.length - 1) {
+      changeCategorySet(activeCategorySet + 1);
+    }
+    
+    if (isRightSwipe && activeCategorySet > 0) {
+      changeCategorySet(activeCategorySet - 1);
+    }
+    
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+  
+  // Handle arrow navigation
+  const handlePrevClick = () => {
+    if (activeCategorySet > 0) {
+      changeCategorySet(activeCategorySet - 1);
+    }
+  };
+  
+  const handleNextClick = () => {
+    if (activeCategorySet < mainCategories.length - 1) {
+      changeCategorySet(activeCategorySet + 1);
+    }
+  };
+  
+  // Handle scroll events to update active dot
+  useEffect(() => {
+    const handleScroll = () => {
+      if (sliderRef.current && !isTransitioning) {
+        const scrollPosition = sliderRef.current.scrollLeft;
+        const cardWidth = sliderRef.current.querySelector('.appsumo-category-card')?.clientWidth || 0;
+        const gap = 24; // 1.5rem gap
+        
+        if (cardWidth > 0) {
+          const newIndex = Math.round(scrollPosition / (cardWidth + gap));
+          if (newIndex !== activeCategorySet) {
+            setActiveCategorySet(newIndex);
+          }
+        }
+      }
+    };
+    
+    const sliderElement = sliderRef.current;
+    if (sliderElement) {
+      sliderElement.addEventListener('scroll', handleScroll);
+    }
+    
+    return () => {
+      if (sliderElement) {
+        sliderElement.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [activeCategorySet, isTransitioning]);
+  
+  const categorySets = [
+    [
+      { 
+        id: 'gigs', 
+        title: 'Transform your business with AI', 
+        description: 'Find top-rated freelancers for any project',
+        name: 'Gigs',
+        image: '/assets/img/gigs/gigs-01.jpg',
+        link: '/gigs'
+      },
+      { 
+        id: 'digital', 
+        title: 'Ready-to-use digital assets', 
+        description: 'Download instantly, use forever',
+        name: 'Digital Products',
+        image: '/assets/img/gigs/gigs-05.jpg',
+        link: '/digital-products'
+      },
+      { 
+        id: 'software', 
+        title: 'Powerful software solutions', 
+        description: 'Streamline your business operations',
+        name: 'Software',
+        image: '/assets/img/software/software-01.jpg',
+        link: '/software',
+        fullWidth: true
+      }
+    ],
+    [
+      { 
+        id: 'marketing', 
+        title: 'Boost your online presence', 
+        description: 'Expert marketing services for your business',
+        name: 'Marketing',
+        image: '/assets/img/gigs/gigs-03.jpg',
+        link: '/marketing'
+      },
+      { 
+        id: 'design', 
+        title: 'Professional design services', 
+        description: 'Stand out with stunning visuals',
+        name: 'Design',
+        image: '/assets/img/gigs/gigs-07.jpg',
+        link: '/design'
+      },
+      { 
+        id: 'writing', 
+        title: 'Compelling content creation', 
+        description: 'Words that convert and engage',
+        name: 'Writing',
+        image: '/assets/img/gigs/gigs-09.jpg',
+        link: '/writing',
+        fullWidth: true
+      }
+    ],
+    [
+      { 
+        id: 'video', 
+        title: 'Professional video production', 
+        description: 'Bring your ideas to life with motion',
+        name: 'Video',
+        image: '/assets/img/gigs/gigs-11.jpg',
+        link: '/video'
+      },
+      { 
+        id: 'audio', 
+        title: 'High-quality audio services', 
+        description: 'Sound that resonates with your audience',
+        name: 'Audio',
+        image: '/assets/img/gigs/gigs-02.jpg',
+        link: '/audio'
+      },
+      { 
+        id: 'consulting', 
+        title: 'Expert consulting services', 
+        description: 'Strategic guidance for your business',
+        name: 'Consulting',
+        image: '/assets/img/gigs/gigs-04.jpg',
+        link: '/consulting',
+        fullWidth: true
+      }
+    ]
+  ];
 
   // Featured categories
   const categories = [
@@ -227,77 +447,120 @@ export default function Home() {
 
   return (
     <main className="overflow-x-hidden">
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="banner-bg-imgs">
-          {/* Background images would be added in production */}
-        </div>
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-8" data-aos="fade-up">
-              <div className="banner-head">
-                <h1 className="text-4xl md:text-5xl font-bold mb-6">Find the Best Instant Services Marketplace.</h1>
-                <p className="text-xl mb-8">A large number of individuals use us to transform their thoughts into the real world.</p>
+      {/* Hero Section - AppSumo Style */}
+      <section className="appsumo-hero">
+        {/* Floating elements for visual appeal */}
+        <div className="hero-floating-element hero-floating-element-1"></div>
+        <div className="hero-floating-element hero-floating-element-2"></div>
+        <div className="hero-floating-element hero-floating-element-3"></div>
+        
+        <div className="container mx-auto px-4 py-12 md:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+            {/* Left side - Headline */}
+            <div className="lg:col-span-5 flex flex-col justify-center mb-8 lg:mb-0" data-aos="fade-right">
+              {/* Main Headline and Subheadline */}
+              <div className="mb-8 md:mb-10">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+                  Find the <span className="text-orange-500">perfect talent</span> for your business
+                </h1>
+                <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-8">
+                  Connect with top professionals, digital products, and software solutions all in one place
+                </p>
               </div>
-              <div className="banner-form bg-white p-6 rounded-lg shadow-lg">
-                <form className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium mb-1">Category</label>
-                    <select className="w-full p-3 border border-gray-300 rounded-lg">
-                      <option>All Categories</option>
-                      <option>Digital Marketing</option>
-                      <option>Design & Creative</option>
-                      <option>Programming & Tech</option>
-                      <option>Writing & Translation</option>
-                    </select>
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium mb-1">Location</label>
-                    <div className="relative">
-                      <input type="text" className="w-full p-3 border border-gray-300 rounded-lg" placeholder="Miami, USA" />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                        <i className="fas fa-map-pin"></i>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium mb-1">Keyword</label>
-                    <input type="text" className="w-full p-3 border border-gray-300 rounded-lg" placeholder="Need Graphic Designer" />
-                  </div>
-                  <div className="flex items-end">
-                    <button type="button" className="btn-primary py-3 px-6">
-                      <i className="fas fa-search mr-2"></i> Search
-                    </button>
-                  </div>
-                </form>
-              </div>
-              <div className="popular-search mt-6">
-                <h5 className="font-medium mb-2">Popular Searches: </h5>
-                <ul className="flex flex-wrap gap-3">
-                  <li><Link href="#" className="text-blue-600 hover:underline">Online Mockup</Link></li>
-                  <li><Link href="#" className="text-blue-600 hover:underline">Carpentering</Link></li>
-                  <li><Link href="#" className="text-blue-600 hover:underline">Event Organiser</Link></li>
-                </ul>
-              </div>
+              
+              <Link href="/gigs" className="appsumo-button inline-block text-center text-lg py-4 px-8">
+                SHOP NOW
+              </Link>
             </div>
-            <div className="lg:col-span-4">
-              <div className="banner-img relative">
-                <div className="relative h-80 w-full">
-                  <Image 
-                    src="/assets/img/banner-img.png"
-                    alt="AIMporo Marketplace"
-                    fill
-                    style={{ objectFit: 'contain' }}
-                    priority
-                  />
+            
+            {/* Right side - Featured Categories */}
+            <div className="lg:col-span-7 flex items-center">
+              <div className="relative appsumo-categories-container w-full">
+                {/* Swipeable slider with navigation arrows */}
+                <div className="appsumo-slider-navigation">
+                  <button 
+                    className="appsumo-slider-arrow appsumo-slider-prev" 
+                    aria-label="Previous slide"
+                    onClick={handlePrevClick}
+                  >
+                    <svg width="12" height="20" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 1L1 9L9 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <button 
+                    className="appsumo-slider-arrow appsumo-slider-next" 
+                    aria-label="Next slide"
+                    onClick={handleNextClick}
+                  >
+                    <svg width="12" height="20" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1L9 9L1 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
                 </div>
-                {/* Small background elements would be added in production */}
+                
+                <div 
+                  ref={sliderRef}
+                  className="appsumo-categories-slider"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                >
+                  {mainCategories.map((category, index) => (
+                    <div 
+                      key={category.id}
+                      className="appsumo-category-card" 
+                      data-aos="fade-up" 
+                      data-aos-delay={100 + (index * 100)}
+                    >
+                      {/* Add shine effect div */}
+                      <div className="shine-effect"></div>
+                      <div className="appsumo-category-content">
+                        <h3 className="text-xl font-bold">{category.title}</h3>
+                        <p className="text-gray-300">{category.description}</p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <div>
+                            <span className="text-orange-500 font-bold text-base">{category.name}</span>
+                          </div>
+                          <Link href={category.link} className="appsumo-category-button">
+                            Explore
+                          </Link>
+                        </div>
+                      </div>
+                      <div className="appsumo-category-image">
+                        <Image
+                          src={category.image}
+                          alt={category.name}
+                          width={400}
+                          height={300}
+                          style={{ objectFit: 'cover', objectPosition: 'center' }}
+                          className="w-full h-full"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          loading={index === 0 ? "eager" : "lazy"}
+                          quality={85}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Slider pagination dots */}
+                <div className="appsumo-slider-pagination">
+                  {mainCategories.map((_, index) => (
+                    <button 
+                      key={index} 
+                      className={`appsumo-slider-dot ${index === activeCategorySet ? 'active' : ''}`}
+                      onClick={() => changeCategorySet(index)}
+                      aria-label={`Go to slide ${index + 1}`}
+                    ></button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-
+      
+      {/* Rest of the content */}
       {/* Featured Gigs Section - Using fixed SlideableGigCards */}
       <SlideableGigCards 
         gigs={gigs} 
@@ -305,94 +568,714 @@ export default function Home() {
         subtitle="Find the perfect services for your business from our diverse range of categories"
       />
 
-      {/* Categories Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="section-heading text-center mb-12">
-            <h2>Popular <span>Categories</span></h2>
-            <p className="text-gray-600 max-w-3xl mx-auto">Find the perfect services for your business from our diverse range of categories</p>
+      {/* What Makes DreamGigs Different Section */}
+      <section className="py-16 bg-black text-white overflow-hidden">
+        <div className="container mx-auto px-4 relative">
+          {/* Animated background elements */}
+          <div className="absolute top-10 left-10 opacity-20 animate-pulse">
+            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="30" cy="30" r="30" fill="#FF6900" fillOpacity="0.3"/>
+            </svg>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {categories.map((category) => (
-              <Link 
-                href={`/category/${category.id}`} 
-                key={category.id}
-                className="bg-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center hover:shadow-lg transition-shadow"
-              >
-                <div className="w-16 h-16 mb-4 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Image 
-                    src={category.icon}
-                    alt={category.name}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                  />
+          <div className="absolute bottom-20 right-10 opacity-20" style={{animation: 'pulse 3s infinite'}}>
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="80" height="80" rx="20" fill="#FF6900" fillOpacity="0.2"/>
+            </svg>
+          </div>
+          
+          <div className="text-center mb-12" data-aos="fade-up">
+            <h2 className="text-3xl md:text-4xl font-bold">
+              <span className="text-orange-500">What Makes</span> DreamGigs Different
+            </h2>
+            <div className="w-24 h-1 bg-orange-500 mx-auto mt-4"></div>
+            <p className="text-gray-300 mt-4 max-w-3xl mx-auto">
+              We provide a unique platform that connects talented professionals with clients looking for quality services
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 stagger-fade-in">
+            {/* Feature 1 */}
+            <div className="feature-card bg-gray-800 rounded-lg p-8 transition-all">
+              <div className="flex flex-col items-start">
+                <div className="feature-icon mb-6 flex-shrink-0">
+                  <div className="bg-gray-700 p-3 rounded-lg inline-flex items-center justify-center">
+                    <svg className="w-10 h-10 text-orange-500" viewBox="0 0 40 40" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20 3.33334C10.8 3.33334 3.33337 10.8 3.33337 20C3.33337 29.2 10.8 36.6667 20 36.6667C29.2 36.6667 36.6667 29.2 36.6667 20C36.6667 10.8 29.2 3.33334 20 3.33334ZM16.6667 28.3333L8.33337 20L10.6834 17.65L16.6667 23.6167L29.3167 10.9667L31.6667 13.3333L16.6667 28.3333Z"/>
+                    </svg>
+                  </div>
                 </div>
-                <h3 className="text-lg font-medium text-center">{category.name}</h3>
-              </Link>
-            ))}
+                <h3 className="text-xl font-bold mb-4 text-white">Trusted Services</h3>
+                <p className="text-gray-300">
+                  All our professionals are verified and reviewed by the community, ensuring you get the highest quality service every time.
+                </p>
+              </div>
+            </div>
+            
+            {/* Feature 2 */}
+            <div className="feature-card bg-gray-800 rounded-lg p-8 transition-all">
+              <div className="flex flex-col items-start">
+                <div className="feature-icon mb-6 flex-shrink-0">
+                  <div className="bg-gray-700 p-3 rounded-lg inline-flex items-center justify-center">
+                    <svg className="w-10 h-10 text-orange-500" viewBox="0 0 40 40" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M33.3334 11.6667H30.0001V8.33334C30.0001 7.00001 28.9834 6.66667 28.3334 6.66667H11.6667C10.3334 6.66667 10.0001 7.68334 10.0001 8.33334V11.6667H6.66671C5.33337 11.6667 5.00004 12.6833 5.00004 13.3333V31.6667C5.00004 33 6.01671 33.3333 6.66671 33.3333H33.3334C34.6667 33.3333 35.0001 32.3167 35.0001 31.6667V13.3333C35.0001 12 33.9834 11.6667 33.3334 11.6667ZM13.3334 10H26.6667V11.6667H13.3334V10ZM31.6667 30H8.33337V15H31.6667V30ZM21.6667 18.3333H28.3334V25H21.6667V18.3333Z"/>
+                    </svg>
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-white">Transparent Pricing</h3>
+                <p className="text-gray-300">
+                  Clear pricing with no hidden fees. Know exactly what you're paying for before you commit to any service.
+                </p>
+              </div>
+            </div>
+            
+            {/* Feature 3 */}
+            <div className="feature-card bg-gray-800 rounded-lg p-8 transition-all">
+              <div className="flex flex-col items-start">
+                <div className="feature-icon mb-6 flex-shrink-0">
+                  <div className="bg-gray-700 p-3 rounded-lg inline-flex items-center justify-center">
+                    <svg className="w-10 h-10 text-orange-500" viewBox="0 0 40 40" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20 3.33334C10.8 3.33334 3.33337 10.8 3.33337 20C3.33337 29.2 10.8 36.6667 20 36.6667C29.2 36.6667 36.6667 29.2 36.6667 20C36.6667 10.8 29.2 3.33334 20 3.33334ZM20 33.3333C12.65 33.3333 6.66671 27.35 6.66671 20C6.66671 12.65 12.65 6.66667 20 6.66667C27.35 6.66667 33.3334 12.65 33.3334 20C33.3334 27.35 27.35 33.3333 20 33.3333ZM20.8334 11.6667H18.3334V21.6667L27.0834 26.9167L28.3334 24.85L20.8334 20.4167V11.6667Z"/>
+                    </svg>
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-white">Fast Delivery</h3>
+                <p className="text-gray-300">
+                  Get your projects completed on time, every time. Our professionals are committed to meeting deadlines without compromising quality.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* How it works section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="section-heading text-center mb-12" data-aos="fade-up">
-            <h2>How It <span>Works</span></h2>
-            <p className="text-gray-600 max-w-3xl mx-auto">Simple steps to start using our marketplace services</p>
+      {/* Explore Our Software Section */}
+      {isClient && (
+        <>
+          {/* Software Products Data */}
+          {(() => {
+            // Example software products with updated image paths to use existing images
+            const softwareProducts = [
+              {
+                id: 1,
+                title: 'Project Management Software',
+                price: 99.99,
+                rating: 4.9,
+                reviews: 128,
+                images: ['/assets/img/software/software-01.jpg', '/assets/img/gigs/gigs-02.jpg'],
+                seller: 'TechSolutions',
+                location: 'San Francisco',
+                badge: 'Software',
+                featured: true,
+                hot: true,
+                delivery: 'Instant'
+              },
+              {
+                id: 2,
+                title: 'CRM System',
+                price: 149.99,
+                rating: 4.8,
+                reviews: 86,
+                images: ['/assets/img/software/software-02.jpg', '/assets/img/gigs/gigs-04.jpg'],
+                seller: 'BusinessPro',
+                location: 'New York',
+                badge: 'Software',
+                hot: true,
+                delivery: 'Instant'
+              },
+              {
+                id: 3,
+                title: 'Accounting Software',
+                price: 129.99,
+                rating: 4.7,
+                reviews: 92,
+                images: ['/assets/img/software/software-03.jpg', '/assets/img/gigs/gigs-06.jpg'],
+                seller: 'FinancePro',
+                location: 'Chicago',
+                badge: 'Software',
+                featured: true,
+                delivery: 'Instant'
+              },
+              {
+                id: 4,
+                title: 'HR Management System',
+                price: 119.99,
+                rating: 4.6,
+                reviews: 74,
+                images: ['/assets/img/software/software-04.jpg', '/assets/img/gigs/gigs-08.jpg'],
+                seller: 'HRSolutions',
+                location: 'Boston',
+                badge: 'Software',
+                delivery: 'Instant'
+              },
+              {
+                id: 5,
+                title: 'E-commerce Platform',
+                price: 199.99,
+                rating: 4.9,
+                reviews: 118,
+                images: ['/assets/img/software/software-05.jpg', '/assets/img/gigs/gigs-01.jpg'],
+                seller: 'ShopTech',
+                location: 'Seattle',
+                badge: 'Software',
+                featured: true,
+                hot: true,
+                delivery: 'Instant'
+              },
+              {
+                id: 6,
+                title: 'Marketing Automation Tool',
+                price: 89.99,
+                rating: 4.7,
+                reviews: 82,
+                images: ['/assets/img/software/software-06.jpg', '/assets/img/gigs/gigs-03.jpg'],
+                seller: 'MarketPro',
+                location: 'Austin',
+                badge: 'Software',
+                hot: false,
+                delivery: 'Instant'
+              }
+            ];
+            
+            return (
+              <SlideableGigCards 
+                gigs={softwareProducts} 
+                title="Explore Our <span>Software.</span>"
+                subtitle="Discover powerful software solutions to streamline your business operations"
+              />
+            );
+          })()}
+        </>
+      )}
+
+      {/* We're here to help section */}
+      <section className="py-16 bg-black text-white overflow-hidden">
+        <div className="container mx-auto px-4 relative">
+          {/* Animated background elements */}
+          <div className="absolute top-10 left-10 opacity-20 animate-pulse">
+            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="30" cy="30" r="30" fill="#FF6900" fillOpacity="0.3"/>
+            </svg>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="200">
-            <div className="flex flex-col items-center text-center">
-              <div className="process-icon mb-6">1</div>
-              <h3 className="text-xl font-semibold mb-4">Discover Services</h3>
-              <p className="text-gray-600">Browse through thousands of services and digital products from our verified sellers.</p>
+          <div className="absolute bottom-20 right-10 opacity-20" style={{animation: 'pulse 3s infinite'}}>
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="80" height="80" rx="20" fill="#FF6900" fillOpacity="0.2"/>
+            </svg>
+          </div>
+          
+          <div className="text-center mb-12" data-aos="fade-up">
+            <h2 className="text-3xl md:text-4xl font-bold">
+              <span className="text-orange-500">We're</span> here help to find your Needs.
+            </h2>
+            <div className="w-24 h-1 bg-orange-500 mx-auto mt-4"></div>
+            <p className="text-gray-300 font-medium mt-4">
+              Over 74K listings of Gigs- available today for you.
+            </p>
+          </div>
+          
+          <div className="bg-gray-900 rounded-lg p-6 md:p-10 mx-auto max-w-6xl relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 stagger-fade-in">
+              {/* Buy a Service Card */}
+              <div className="feature-card bg-gray-800 rounded-lg p-6 transition-all">
+                <div className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left">
+                  <div className="feature-icon mr-0 mb-4 md:mb-0 flex-shrink-0 icon-pulse">
+                    <div className="bg-gray-700 p-3 rounded-lg inline-flex items-center justify-center w-16 h-16">
+                      <svg className="w-10 h-10 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="md:ml-6">
+                    <h3 className="text-xl font-bold mb-4 text-white">Buy a Service</h3>
+                    <p className="text-gray-300 mb-6">
+                      Explore homy's 50K+ Service and uncover your ideal needs.
+                    </p>
+                    <a href="/services" className="inline-flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                      Get Started
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Sell a Service Card */}
+              <div className="feature-card bg-gray-800 rounded-lg p-6 transition-all">
+                <div className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left">
+                  <div className="feature-icon mr-0 mb-4 md:mb-0 flex-shrink-0 icon-pulse">
+                    <div className="bg-gray-700 p-3 rounded-lg inline-flex items-center justify-center w-16 h-16">
+                      <svg className="w-10 h-10 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="md:ml-6">
+                    <h3 className="text-xl font-bold mb-4 text-white">Sell a Service</h3>
+                    <p className="text-gray-300 mb-6">
+                      Explore homy's 50K+ Service and uncover your ideal needs.
+                    </p>
+                    <a href="/sell" className="inline-flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                      Add Service
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Join Us Card */}
+              <div className="feature-card bg-gray-800 rounded-lg p-6 transition-all">
+                <div className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left">
+                  <div className="feature-icon mr-0 mb-4 md:mb-0 flex-shrink-0 icon-pulse">
+                    <div className="bg-gray-700 p-3 rounded-lg inline-flex items-center justify-center w-16 h-16">
+                      <svg className="w-10 h-10 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="md:ml-6">
+                    <h3 className="text-xl font-bold mb-4 text-white">Join Us</h3>
+                    <p className="text-gray-300 mb-6">
+                      Explore homy's 50K+ Service and uncover your ideal needs.
+                    </p>
+                    <a href="/join" className="inline-flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                      Get Started
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="flex flex-col items-center text-center">
-              <div className="process-icon mb-6">2</div>
-              <h3 className="text-xl font-semibold mb-4">Purchase Securely</h3>
-              <p className="text-gray-600">Make secure payments and communicate with sellers about your requirements.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Digital Products Section */}
+      {isClient && (
+        <>
+          {/* Digital Products Data */}
+          {(() => {
+            // Example digital products with updated image paths to use existing images
+            const digitalProducts = [
+              {
+                id: 1,
+                title: 'Premium Photoshop Actions Pack',
+                price: 29.99,
+                rating: 4.8,
+                reviews: 156,
+                images: ['/assets/img/gigs/gigs-09.jpg', '/assets/img/gigs/gigs-10.jpg'],
+                seller: 'DesignAssets',
+                location: 'California',
+                badge: 'Design Resources',
+                featured: true,
+                hot: true,
+                delivery: 'Instant'
+              },
+              {
+                id: 2,
+                title: 'Social Media Marketing eBook',
+                price: 19.99,
+                rating: 4.7,
+                reviews: 92,
+                images: ['/assets/img/gigs/gigs-11.jpg', '/assets/img/gigs/gigs-12.jpg'],
+                seller: 'MarketingPro',
+                location: 'Chicago',
+                badge: 'eBooks & Guides',
+                hot: true,
+                delivery: 'Instant'
+              },
+              {
+                id: 3,
+                title: 'UI/UX Design System Template',
+                price: 59.99,
+                rating: 4.9,
+                reviews: 78,
+                images: ['/assets/img/gigs/gigs-05.jpg', '/assets/img/gigs/gigs-06.jpg'],
+                seller: 'UXMasters',
+                location: 'Berlin',
+                badge: 'UI Templates',
+                featured: true,
+                delivery: 'Instant'
+              },
+              {
+                id: 4,
+                title: 'Stock Photo Collection (100 Images)',
+                price: 39.99,
+                rating: 4.6,
+                reviews: 64,
+                images: ['/assets/img/gigs/gigs-07.jpg', '/assets/img/gigs/gigs-08.jpg'],
+                seller: 'StockImagery',
+                location: 'Paris',
+                badge: 'Photography',
+                delivery: 'Instant'
+              },
+              {
+                id: 5,
+                title: 'WordPress Theme - Business Pro',
+                price: 49.99,
+                rating: 4.8,
+                reviews: 112,
+                images: ['/assets/img/gigs/gigs-01.jpg', '/assets/img/gigs/gigs-02.jpg'],
+                seller: 'ThemeForge',
+                location: 'Sydney',
+                badge: 'WordPress',
+                featured: true,
+                hot: true,
+                delivery: 'Instant'
+              },
+              {
+                id: 6,
+                title: 'Video Editing Presets Pack',
+                price: 34.99,
+                rating: 4.7,
+                reviews: 86,
+                images: ['/assets/img/gigs/gigs-03.jpg', '/assets/img/gigs/gigs-04.jpg'],
+                seller: 'FilmEffects',
+                location: 'Los Angeles',
+                badge: 'Video Resources',
+                hot: false,
+                delivery: 'Instant'
+              },
+              {
+                id: 7,
+                title: 'SEO Strategy Guide 2023',
+                price: 24.99,
+                rating: 4.9,
+                reviews: 73,
+                images: ['/assets/img/gigs/gigs-09.jpg', '/assets/img/gigs/gigs-10.jpg'],
+                seller: 'SEOguru',
+                location: 'Toronto',
+                badge: 'Digital Marketing',
+                featured: true,
+                delivery: 'Instant'
+              },
+              {
+                id: 8,
+                title: 'Premium Icon Pack (500+ Icons)',
+                price: 19.99,
+                rating: 4.8,
+                reviews: 95,
+                images: ['/assets/img/gigs/gigs-11.jpg', '/assets/img/gigs/gigs-12.jpg'],
+                seller: 'IconCraft',
+                location: 'Amsterdam',
+                badge: 'Design Resources',
+                hot: true,
+                delivery: 'Instant'
+              }
+            ];
+            
+            return (
+              <SlideableGigCards 
+                gigs={digitalProducts} 
+                title="Explore Our Digital <span>Products.</span>"
+                subtitle="Download ready-to-use digital assets created by our talented community"
+              />
+            );
+          })()}
+        </>
+      )}
+
+      {/* Categories Section */}
+      <section className="py-20 category-section">
+        <div className="container mx-auto px-4 relative z-10">
+          {/* Floating shapes */}
+          <div className="floating-shape floating-shape-1">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="40" cy="40" r="40" fill="white"/>
+            </svg>
+          </div>
+          <div className="floating-shape floating-shape-2">
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="120" height="120" rx="24" fill="white"/>
+            </svg>
+          </div>
+          <div className="floating-shape floating-shape-3">
+            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M30 0L60 30L30 60L0 30L30 0Z" fill="white"/>
+            </svg>
+          </div>
+          <div className="floating-shape floating-shape-4">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M50 0L93.3 25V75L50 100L6.7 75V25L50 0Z" fill="white"/>
+            </svg>
+          </div>
+          
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              <span className="category-heading">Explore Popular Categories</span>
+            </h2>
+            <p className="category-subtitle text-lg">
+              Discover top-rated services across our most popular categories, tailored to help your business grow and succeed
+            </p>
+          </div>
+          
+          <div className="category-grid stagger-fade-in-category">
+            {/* Design & Creative */}
+            <div className="category-card" style={{backgroundImage: 'url(/assets/img/categories/design.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+              <div className="category-card-content">
+                <div className="category-card-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 19L19 12L22 15L15 22L12 19Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M18 13L16.5 5.5L2 2L5.5 16.5L13 18L18 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M2 2L9.586 9.586" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M11 13C12.1046 13 13 12.1046 13 11C13 9.89543 12.1046 9 11 9C9.89543 9 9 9.89543 9 11C9 12.1046 9.89543 13 11 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <h3 className="category-card-title">Design & Creative</h3>
+                <div className="category-card-count">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span>8,543 Professionals</span>
+                </div>
+              </div>
             </div>
-            <div className="flex flex-col items-center text-center">
-              <div className="process-icon mb-6">3</div>
-              <h3 className="text-xl font-semibold mb-4">Receive & Review</h3>
-              <p className="text-gray-600">Get your completed service or product and provide feedback on your experience.</p>
+            
+            {/* Digital Marketing */}
+            <div className="category-card" style={{backgroundImage: 'url(/assets/img/categories/marketing.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+              <div className="category-card-content">
+                <div className="category-card-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 6.65685 16.3431 8 18 8Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M6 15C7.65685 15 9 13.6569 9 12C9 10.3431 7.65685 9 6 9C4.34315 9 3 10.3431 3 12C3 13.6569 4.34315 15 6 15Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M18 22C19.6569 22 21 20.6569 21 19C21 17.3431 19.6569 16 18 16C16.3431 16 15 17.3431 15 19C15 20.6569 16.3431 22 18 22Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M8.59 13.51L15.42 17.49" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M15.41 6.51L8.59 10.49" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <h3 className="category-card-title">Digital Marketing</h3>
+                <div className="category-card-count">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span>7,129 Professionals</span>
+                </div>
+              </div>
             </div>
+            
+            {/* Programming & Tech */}
+            <div className="category-card" style={{backgroundImage: 'url(/assets/img/categories/programming.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+              <div className="category-card-content">
+                <div className="category-card-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 18L22 12L16 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M8 6L2 12L8 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <h3 className="category-card-title">Programming & Tech</h3>
+                <div className="category-card-count">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span>12,345 Professionals</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Video & Animation */}
+            <div className="category-card" style={{backgroundImage: 'url(/assets/img/categories/video.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+              <div className="category-card-content">
+                <div className="category-card-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M23 7L16 12L23 17V7Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M14 5H3C1.89543 5 1 5.89543 1 7V17C1 18.1046 1.89543 19 3 19H14C15.1046 19 16 18.1046 16 17V7C16 5.89543 15.1046 5 14 5Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <h3 className="category-card-title">Video & Animation</h3>
+                <div className="category-card-count">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span>5,678 Professionals</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Writing & Translation */}
+            <div className="category-card" style={{backgroundImage: 'url(/assets/img/categories/writing.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+              <div className="category-card-content">
+                <div className="category-card-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 19L19 12L22 15L15 22L12 19Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M18 13L16.5 5.5L2 2L5.5 16.5L13 18L18 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M2 2L9.586 9.586" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M11 13C12.1046 13 13 12.1046 13 11C13 9.89543 12.1046 9 11 9C9.89543 9 9 9.89543 9 11C9 12.1046 9.89543 13 11 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <h3 className="category-card-title">Writing & Translation</h3>
+                <div className="category-card-count">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 11C11.2091 11 13 9.20914 13 11 11C9.89543 11 9 9.89543 9 8C9 6.89543 9.89543 6 11 6C12.1046 6 13 6.89543 13 8C13 9.89543 12.1046 11 11 11Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span>4,321 Professionals</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Music & Audio */}
+            <div className="category-card" style={{backgroundImage: 'url(/assets/img/categories/music.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+              <div className="category-card-content">
+                <div className="category-card-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 18V5L21 3V16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M6 21C7.65685 21 9 19.6569 9 18C9 16.3431 7.65685 15 6 15C4.34315 15 3 16.3431 3 18C3 19.6569 4.34315 21 6 21Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M18 19C19.6569 19 21 17.6569 21 16C21 14.3431 19.6569 13 18 13C16.3431 13 15 14.3431 15 16C15 17.6569 16.3431 19 18 19Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <h3 className="category-card-title">Music & Audio</h3>
+                <div className="category-card-count">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span>3,456 Professionals</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-12 text-center">
+            <a href="/categories" className="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105">
+              View All Categories
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </a>
           </div>
         </div>
       </section>
 
       {/* Testimonials section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="section-heading text-center mb-12" data-aos="fade-up">
-            <h2>What Our <span>Customers</span> Say</h2>
-            <p className="text-gray-600 max-w-3xl mx-auto">Hear from our satisfied customers about their experience with our marketplace</p>
+          <div className="relative mb-12 text-center">
+            <div className="absolute left-1/4 -top-6">
+              <div className="h-4 w-4 rounded-full bg-orange-500"></div>
+            </div>
+            <div className="absolute right-1/3 -top-10">
+              <div className="h-8 w-8 rounded-full border-2 border-orange-300"></div>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
+              Why People Love <span className="text-orange-500">with</span> DreamGigs
+            </h2>
+            <div className="w-24 h-1 bg-orange-500 mx-auto mt-4"></div>
           </div>
-          <div data-aos="fade-up" data-aos-delay="200">
-            <Slider {...testimonialSliderSettings} className="testimonial-slider">
-              {testimonials.map((testimonial) => (
-                <div key={testimonial.id} className="px-2">
-                  <div className="testimonial-card">
-                    <div className="testimonial-rating">
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Testimonial Card 1 */}
+            <div className="testimonial-card">
+              <div className="text-orange-500 text-4xl font-serif mb-4">"</div>
+              <h3 className="text-xl font-bold mb-4 text-gray-800">Great <span className="text-orange-500">Work</span></h3>
+              <p className="text-gray-700 mb-6">
+                "The best part about this service is the variety of skills available. I've hired designers, writers, and developers, all in one place."
+              </p>
+              <div className="testimonial-rating">
                       {[...Array(5)].map((_, i) => (
-                        <i key={i} className={`fas fa-star ${i < testimonial.rating ? 'text-yellow-400' : 'text-gray-300'}`}></i>
+                  <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" />
+                  </svg>
                       ))}
                     </div>
-                    <p className="text-gray-600 mb-6">{testimonial.comment}</p>
-                    <div className="testimonial-user">
-                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xs">
-                        {testimonial.name.charAt(0)}
+              <div className="testimonial-user">
+                <img 
+                  src="/assets/img/profiles/avatar-1.jpg" 
+                  alt="Gloria Weber" 
+                  className="w-12 h-12 rounded-full mr-4"
+                />
+                <div>
+                  <h4 className="font-medium text-gray-800">Gloria Weber</h4>
+                  <p className="text-sm text-gray-600">United States</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Testimonial Card 2 */}
+            <div className="testimonial-card">
+              <div className="text-orange-500 text-4xl font-serif mb-4">"</div>
+              <h3 className="text-xl font-bold mb-4 text-gray-800">Seamless <span className="text-orange-500">Experience</span></h3>
+              <p className="text-gray-700 mb-6">
+                "I've completed several gigs on this site, and the experience has been seamless every time. Great for both freelancers and clients!"
+              </p>
+              <div className="testimonial-rating">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" />
+                  </svg>
+                ))}
                       </div>
+              <div className="testimonial-user">
+                <img 
+                  src="/assets/img/profiles/avatar-2.jpg" 
+                  alt="John Cramer" 
+                  className="w-12 h-12 rounded-full mr-4"
+                />
                       <div>
-                        <h4 className="font-semibold">{testimonial.name}</h4>
-                        <p className="text-sm text-gray-500">{testimonial.role}</p>
+                  <h4 className="font-medium text-gray-800">John Cramer</h4>
+                  <p className="text-sm text-gray-600">UK</p>
                       </div>
                     </div>
                   </div>
+            
+            {/* Testimonial Card 3 */}
+            <div className="testimonial-card">
+              <div className="text-orange-500 text-4xl font-serif mb-4">"</div>
+              <h3 className="text-xl font-bold mb-4 text-gray-800">Great <span className="text-orange-500">Work</span></h3>
+              <p className="text-gray-700 mb-6">
+                "Finding the right freelancer for my project has never been easier. The platform is user-friendly, and the quality of talent is exceptional."
+              </p>
+              <div className="testimonial-rating">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" />
+                  </svg>
+                ))}
+              </div>
+              <div className="testimonial-user">
+                <img 
+                  src="/assets/img/profiles/avatar-3.jpg" 
+                  alt="Mary Marquez" 
+                  className="w-12 h-12 rounded-full mr-4"
+                />
+                <div>
+                  <h4 className="font-medium text-gray-800">Mary Marquez</h4>
+                  <p className="text-sm text-gray-600">United States</p>
                 </div>
-              ))}
-            </Slider>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex justify-center mt-8 gap-4">
+            <button className="testimonial-nav-btn">
+              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 8 14" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 1L1 7L7 13"></path>
+              </svg>
+            </button>
+            <button className="testimonial-nav-btn">
+              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 8 14" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M1 13L7 7L1 1"></path>
+              </svg>
+            </button>
           </div>
         </div>
       </section>

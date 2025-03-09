@@ -78,174 +78,32 @@ export default function Home() {
   const changeCategorySet = (index: number) => {
     if (isTransitioning) return;
     
-    setIsTransitioning(true);
-    
-    // For true infinite scrolling, we need to handle the edge cases differently
+    // Handle infinite scrolling
     let targetIndex = index;
+    if (index < 0) {
+      targetIndex = mainCategories.length - 1;
+    } else if (index >= mainCategories.length) {
+      targetIndex = 0;
+    }
+    
+    setIsTransitioning(true);
+    setActiveCategorySet(targetIndex);
     
     if (sliderRef.current) {
       const cardWidth = sliderRef.current.querySelector('.appsumo-category-card')?.clientWidth || 0;
       const gap = 24; // 1.5rem gap
-      let scrollPosition = targetIndex * (cardWidth + gap);
-      let resetScroll = false;
-      let resetIndex = 0;
+      const scrollPosition = targetIndex * (cardWidth + gap);
       
-      // If we're going beyond the last card, loop to the first card
-      if (targetIndex >= mainCategories.length) {
-        // First scroll to the clone of the first card (which is at the end)
-        scrollPosition = targetIndex * (cardWidth + gap);
-        resetScroll = true;
-        resetIndex = 0;
-      }
-      
-      // If we're going before the first card, loop to the last card
-      if (targetIndex < 0) {
-        // First scroll to the clone of the last card (which is at the beginning)
-        scrollPosition = 0;
-        resetScroll = true;
-        resetIndex = mainCategories.length - 1;
-      }
-      
-      // Perform the scroll animation
       sliderRef.current.scrollTo({
         left: scrollPosition,
         behavior: 'smooth'
       });
-      
-      // If we need to reset the scroll position for infinite loop effect
-      if (resetScroll) {
-        // After the animation completes, instantly jump to the actual card without animation
-        setTimeout(() => {
-          if (sliderRef.current) {
-            // Disable smooth scrolling temporarily
-            sliderRef.current.style.scrollBehavior = 'auto';
-            
-            // Jump to the actual position
-            const actualPosition = resetIndex * (cardWidth + gap);
-            sliderRef.current.scrollLeft = actualPosition;
-            
-            // Re-enable smooth scrolling
-            setTimeout(() => {
-              if (sliderRef.current) {
-                sliderRef.current.style.scrollBehavior = 'smooth';
-              }
-            }, 50);
-            
-            // Update the active index
-            setActiveCategorySet(resetIndex);
-          }
-        }, 300); // This should match the transition duration
-      } else {
-        // Normal case - just update the active index
-        setActiveCategorySet(targetIndex);
-      }
     }
     
-    // Allow transitions again after animation completes
+    // Shorter transition time for better responsiveness
     setTimeout(() => {
       setIsTransitioning(false);
-    }, 350);
-  };
-  
-  // Render duplicate cards for infinite scrolling effect
-  const renderCategoryCards = () => {
-    // Create an array with: last card + all cards + first card
-    // This allows for the infinite scrolling effect
-    return (
-      <>
-        {/* Clone of the last card at the beginning for infinite scroll */}
-        {mainCategories.length > 0 && (
-          <div className="appsumo-category-card" data-aos="fade-up" data-aos-delay="100">
-            <div className="shine-effect"></div>
-            <div className="appsumo-category-content">
-              <div className="category-card-icon">
-                {/* Use the icon from the last category */}
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 19L19 12L22 15L15 22L12 19Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M18 13L16.5 5.5L2 2L5.5 16.5L13 18L18 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M2 2L9.586 9.586" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M11 13C12.1046 13 13 12.1046 13 11C13 9.89543 12.1046 9 11 9C9.89543 9 9 9.89543 9 11C9 12.1046 9.89543 13 11 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <h3 className="category-card-title">{mainCategories[mainCategories.length - 1].title}</h3>
-              <div className="category-card-count">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Professionals</span>
-              </div>
-            </div>
-            <div className="appsumo-category-image">
-              <img src={mainCategories[mainCategories.length - 1].image} alt={mainCategories[mainCategories.length - 1].name} />
-            </div>
-          </div>
-        )}
-        
-        {/* Regular cards */}
-        {mainCategories.map((category, index) => (
-          <div key={category.id} className="appsumo-category-card" data-aos="fade-up" data-aos-delay={100 + (index * 100)}>
-            <div className="shine-effect"></div>
-            <div className="appsumo-category-content">
-              <div className="category-card-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 19L19 12L22 15L15 22L12 19Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M18 13L16.5 5.5L2 2L5.5 16.5L13 18L18 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M2 2L9.586 9.586" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M11 13C12.1046 13 13 12.1046 13 11C13 9.89543 12.1046 9 11 9C9.89543 9 9 9.89543 9 11C9 12.1046 9.89543 13 11 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <h3 className="category-card-title">{category.title}</h3>
-              <div className="category-card-count">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Professionals</span>
-              </div>
-            </div>
-            <div className="appsumo-category-image">
-              <img src={category.image} alt={category.name} />
-            </div>
-          </div>
-        ))}
-        
-        {/* Clone of the first card at the end for infinite scroll */}
-        {mainCategories.length > 0 && (
-          <div className="appsumo-category-card" data-aos="fade-up" data-aos-delay="100">
-            <div className="shine-effect"></div>
-            <div className="appsumo-category-content">
-              <div className="category-card-icon">
-                {/* Use the icon from the first category */}
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 19L19 12L22 15L15 22L12 19Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M18 13L16.5 5.5L2 2L5.5 16.5L13 18L18 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M2 2L9.586 9.586" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M11 13C12.1046 13 13 12.1046 13 11C13 9.89543 12.1046 9 11 9C9.89543 9 9 9.89543 9 11C9 12.1046 9.89543 13 11 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <h3 className="category-card-title">{mainCategories[0].title}</h3>
-              <div className="category-card-count">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Professionals</span>
-              </div>
-            </div>
-            <div className="appsumo-category-image">
-              <img src={mainCategories[0].image} alt={mainCategories[0].name} />
-            </div>
-          </div>
-        )}
-      </>
-    );
+    }, 300);
   };
   
   // Handle touch events for swipe
@@ -592,20 +450,6 @@ export default function Home() {
     ],
   };
 
-  // Initialize the slider to show the first actual card (skip the clone)
-  useEffect(() => {
-    // Wait for the component to fully render
-    setTimeout(() => {
-      if (sliderRef.current) {
-        const cardWidth = sliderRef.current.querySelector('.appsumo-category-card')?.clientWidth || 0;
-        const gap = 24; // 1.5rem gap
-        
-        // Skip the first card (which is a clone of the last) and show the first actual card
-        sliderRef.current.scrollLeft = cardWidth + gap;
-      }
-    }, 100);
-  }, []);
-
   return (
     <main className="overflow-x-hidden">
       {/* Hero Section - AppSumo Style */}
@@ -637,8 +481,54 @@ export default function Home() {
             {/* Right side - Featured Categories */}
             <div className="lg:col-span-7 flex items-center">
               <div className="relative appsumo-categories-container w-full">
-                {/* Swipeable slider with navigation arrows */}
-                <div className="appsumo-slider-navigation">
+                <div 
+                  ref={sliderRef}
+                  className="appsumo-categories-slider"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                >
+                  {mainCategories.map((category, index) => (
+                    <div 
+                      key={category.id}
+                      className="appsumo-category-card" 
+                      data-aos="fade-up" 
+                      data-aos-delay={100 + (index * 100)}
+                    >
+                      {/* Add shine effect div */}
+                      <div className="shine-effect"></div>
+                      <div className="appsumo-category-content">
+                        <h3 className="text-xl font-bold">{category.title}</h3>
+                        <p className="text-gray-300">{category.description}</p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <div>
+                            <span className="text-orange-500 font-bold text-base">{category.name}</span>
+                          </div>
+                          <Link href={category.link} className="appsumo-category-button">
+                            Explore
+                          </Link>
+                        </div>
+                      </div>
+                      <div className="appsumo-category-image">
+                        <Image
+                          src={category.image}
+                          alt={category.name}
+                          width={400}
+                          height={300}
+                          style={{ objectFit: 'cover', objectPosition: 'center' }}
+                          className="w-full h-full"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          loading={index === 0 ? "eager" : "lazy"}
+                          quality={85}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Navigation controls - moved below the slider */}
+                <div className="appsumo-navigation-controls">
+                  {/* Slider navigation arrows */}
                   <button 
                     className="appsumo-slider-arrow appsumo-slider-prev" 
                     aria-label="Previous slide"
@@ -648,29 +538,8 @@ export default function Home() {
                       <path d="M9 1L1 9L9 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </button>
-                  <button 
-                    className="appsumo-slider-arrow appsumo-slider-next" 
-                    aria-label="Next slide"
-                    onClick={handleNextClick}
-                  >
-                    <svg width="12" height="20" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M1 1L9 9L1 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                </div>
-                
-                <div 
-                  ref={sliderRef}
-                  className="appsumo-categories-slider"
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                >
-                  {renderCategoryCards()}
-                </div>
-                
-                {/* Slider pagination dots */}
-                <div className="appsumo-slider-pagination">
+                  
+                  {/* Slider pagination dots */}
                   <div className="appsumo-slider-dots">
                     {[0, 1, 2, 3].map((_, index) => (
                       <button 
@@ -681,6 +550,16 @@ export default function Home() {
                       ></button>
                     ))}
                   </div>
+                  
+                  <button 
+                    className="appsumo-slider-arrow appsumo-slider-next" 
+                    aria-label="Next slide"
+                    onClick={handleNextClick}
+                  >
+                    <svg width="12" height="20" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1L9 9L1 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>

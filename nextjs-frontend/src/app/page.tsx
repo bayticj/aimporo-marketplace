@@ -76,15 +76,23 @@ export default function Home() {
   
   // Function to change category set with transition
   const changeCategorySet = (index: number) => {
-    if (index === activeCategorySet || isTransitioning) return;
+    if (isTransitioning) return;
+    
+    // Handle infinite scrolling
+    let targetIndex = index;
+    if (index < 0) {
+      targetIndex = mainCategories.length - 1;
+    } else if (index >= mainCategories.length) {
+      targetIndex = 0;
+    }
     
     setIsTransitioning(true);
-    setActiveCategorySet(index);
+    setActiveCategorySet(targetIndex);
     
     if (sliderRef.current) {
       const cardWidth = sliderRef.current.querySelector('.appsumo-category-card')?.clientWidth || 0;
       const gap = 24; // 1.5rem gap
-      const scrollPosition = index * (cardWidth + gap);
+      const scrollPosition = targetIndex * (cardWidth + gap);
       
       sliderRef.current.scrollTo({
         left: scrollPosition,
@@ -92,9 +100,10 @@ export default function Home() {
       });
     }
     
+    // Shorter transition time for better responsiveness
     setTimeout(() => {
       setIsTransitioning(false);
-    }, 500);
+    }, 300);
   };
   
   // Handle touch events for swipe
@@ -113,11 +122,11 @@ export default function Home() {
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
     
-    if (isLeftSwipe && activeCategorySet < mainCategories.length - 1) {
+    if (isLeftSwipe) {
       changeCategorySet(activeCategorySet + 1);
     }
     
-    if (isRightSwipe && activeCategorySet > 0) {
+    if (isRightSwipe) {
       changeCategorySet(activeCategorySet - 1);
     }
     
@@ -125,17 +134,13 @@ export default function Home() {
     setTouchEnd(0);
   };
   
-  // Handle arrow navigation
+  // Handle arrow navigation with infinite scrolling
   const handlePrevClick = () => {
-    if (activeCategorySet > 0) {
-      changeCategorySet(activeCategorySet - 1);
-    }
+    changeCategorySet(activeCategorySet - 1);
   };
   
   const handleNextClick = () => {
-    if (activeCategorySet < mainCategories.length - 1) {
-      changeCategorySet(activeCategorySet + 1);
-    }
+    changeCategorySet(activeCategorySet + 1);
   };
   
   // Handle scroll events to update active dot

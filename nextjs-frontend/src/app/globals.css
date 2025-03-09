@@ -1572,12 +1572,12 @@ html, body {
   align-items: center;
   z-index: 30;
   pointer-events: none;
-  padding: 0;
+  padding: 0 20px; /* Add horizontal padding to prevent arrows from being cut off */
 }
 
 .appsumo-slider-arrow {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background-color: rgba(30, 30, 30, 0.85);
   backdrop-filter: blur(5px);
@@ -1586,7 +1586,7 @@ html, body {
   justify-content: center;
   color: white;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease; /* Faster transition for better responsiveness */
   pointer-events: auto;
   border: 1px solid rgba(255, 255, 255, 0.2);
   outline: none;
@@ -1596,16 +1596,16 @@ html, body {
 }
 
 .appsumo-slider-prev {
-  margin-left: -10px;
+  margin-left: 5px; /* Adjust margin to ensure it's fully visible */
 }
 
 .appsumo-slider-next {
-  margin-right: -10px;
+  margin-right: 5px; /* Adjust margin to ensure it's fully visible */
 }
 
 /* Slider navigation arrows hover effects */
 .appsumo-slider-arrow:hover {
-  background-color: rgba(50, 50, 50, 0.95);
+  background-color: rgba(255, 105, 0, 0.9); /* Change to orange on hover for better visibility */
   transform: scale(1.05);
   border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
@@ -1613,21 +1613,34 @@ html, body {
 
 .appsumo-slider-arrow:active {
   transform: scale(0.95);
+  transition: all 0.1s ease; /* Even faster transition when clicked */
 }
 
 .appsumo-slider-arrow svg {
-  width: 16px;
+  width: 24px;
   height: 24px;
-  stroke-width: 2.5;
+  fill: none;
+  stroke: white;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* Slider pagination dots */
 .appsumo-slider-pagination {
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
-  z-index: 20;
+  align-items: center;
+  z-index: 30;
+}
+
+.appsumo-slider-dots {
+  display: flex;
+  gap: 8px;
 }
 
 .appsumo-slider-dot {
@@ -1635,15 +1648,16 @@ html, body {
   height: 10px;
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.3);
-  cursor: pointer;
-  transition: all 0.3s ease;
   border: none;
-  outline: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .appsumo-slider-dot.active {
+  width: 30px;
+  border-radius: 10px;
   background-color: #FF6900;
-  transform: scale(1.2);
 }
 
 /* Responsive adjustments */
@@ -1690,7 +1704,7 @@ html, body {
 /* Categories slider */
 .appsumo-categories-slider {
   display: flex;
-  gap: 1rem; /* Reduced by 50% from 2rem */
+  gap: 1rem;
   width: 100%;
   height: 100%;
   overflow-x: auto;
@@ -1699,7 +1713,9 @@ html, body {
   -ms-overflow-style: none; /* IE and Edge */
   padding: 1.5rem 0.5rem;
   position: relative;
-  transition: transform 0.5s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1); /* Smoother easing function */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 /* Hide scrollbar */
@@ -1832,7 +1848,7 @@ html, body {
 
 /* Slider navigation arrows hover effects */
 .appsumo-slider-arrow:hover {
-  background-color: rgba(50, 50, 50, 0.95);
+  background-color: rgba(255, 105, 0, 0.9); /* Change to orange on hover for better visibility */
   transform: scale(1.05);
   border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
@@ -1840,6 +1856,7 @@ html, body {
 
 .appsumo-slider-arrow:active {
   transform: scale(0.95);
+  transition: all 0.1s ease; /* Even faster transition when clicked */
 }
 
 /* Optimize for very small screens */

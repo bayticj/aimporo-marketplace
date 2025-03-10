@@ -1,0 +1,72 @@
+/* Pricing styles */
+.price-container {
+  display: flex;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  flex-wrap: nowrap;
+  position: relative;
+  gap: 6px;
+}
+
+.price-amount {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #000;
+  line-height: 1.2;
+}
+
+.price-plan {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #6b7280;
+  margin-left: 1px;
+}
+
+.price-original {
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: #6b7280;
+  text-decoration: line-through;
+  position: relative;
+  top: 0;
+  display: inline-block !important; /* Force display */
+  opacity: 1 !important; /* Ensure visibility */
+}
+
+/* Badge for discount percentage */
+.discount-badge {
+  position: absolute;
+  top: -10px;
+  right: -15px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  transform: rotate(5deg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  display: block !important; /* Force display */
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .price-amount {
+    font-size: 1.5rem;
+  }
+  
+  .price-plan {
+    font-size: 0.75rem;
+  }
+  
+  .price-original {
+    font-size: 1rem;
+  }
+  
+  .discount-badge {
+    font-size: 0.65rem;
+    padding: 1px 4px;
+    top: -8px;
+    right: -10px;
+  }
+} 

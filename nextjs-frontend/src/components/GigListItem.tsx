@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { formatCurrency } from '@/utils/currency';
+import '@/style/pricing.css';
 
 interface PricingTier {
   title: string;
@@ -9,6 +11,8 @@ interface PricingTier {
   delivery_time: string;
   revisions: string;
   features: string[];
+  pricing_model?: 'lifetime' | 'month' | 'year' | 'session' | 'appointment' | 'slot' | 'hour' | 'delivery' | 'starting';
+  original_price?: number; // For showing discount
 }
 
 interface Gig {
@@ -30,6 +34,10 @@ interface Gig {
     standard: PricingTier;
     premium: PricingTier;
   };
+  pricing_model?: 'lifetime' | 'month' | 'year' | 'session' | 'appointment' | 'slot' | 'hour' | 'delivery' | 'starting';
+  is_service?: boolean;
+  is_digital_product?: boolean;
+  original_price?: number; // For showing discount
 }
 
 interface GigListItemProps {
@@ -44,18 +52,95 @@ const GigListItem: React.FC<GigListItemProps> = ({ gig, index, isFavorite, onTog
   const fallbackImage = '/assets/img/placeholder.jpg';
   
   // Determine if this gig has pricing tiers
-  const hasPricingTiers = gig.pricing_tiers && 
-    gig.pricing_tiers.basic && 
-    gig.pricing_tiers.basic.price;
+  const hasPricingTiers = gig.pricing_tiers && (
+    gig.pricing_tiers.basic?.price || 
+    gig.pricing_tiers.standard?.price || 
+    gig.pricing_tiers.premium?.price
+  );
   
   // Get the starting price (either single price or lowest tier)
-  const startingPrice = hasPricingTiers && gig.pricing_tiers
+  const startingPrice = hasPricingTiers 
     ? Math.min(
-        Number(gig.pricing_tiers.basic?.price) || Infinity,
-        Number(gig.pricing_tiers.standard?.price) || Infinity,
-        Number(gig.pricing_tiers.premium?.price) || Infinity
+        ...[
+          gig.pricing_tiers?.basic?.price || Infinity,
+          gig.pricing_tiers?.standard?.price || Infinity,
+          gig.pricing_tiers?.premium?.price || Infinity
+        ].filter(price => price !== Infinity)
       )
     : gig.price;
+
+  // Determine the pricing model to display
+  const getPricingModelDisplay = (tier?: PricingTier) => {
+    if (tier && tier.pricing_model) {
+      return tier.pricing_model;
+    }
+    
+    if (gig.pricing_model) {
+      return gig.pricing_model;
+    }
+    
+    return gig.is_digital_product ? 'lifetime' : 'delivery';
+  };
+
+  // Function to render the styled price
+  const renderStyledPrice = (price: number, pricingModel: string | null, originalPrice?: number | null) => {
+    // Debug logs
+    console.log('GigListItem - Price:', price);
+    console.log('GigListItem - Original Price:', originalPrice);
+    console.log('GigListItem - Pricing Model:', pricingModel);
+    
+    // Calculate discount percentage if original price exists
+    const discountPercentage = originalPrice && originalPrice > price 
+      ? Math.round(((originalPrice - price) / originalPrice) * 100) 
+      : null;
+    
+    console.log('GigListItem - Discount Percentage:', discountPercentage);
+    
+    return (
+      <div className="price-container">
+        <div style={{ display: 'flex', alignItems: 'baseline' }}>
+          <span className="price-amount">{gig.is_digital_product || pricingModel === 'lifetime' ? '$' : 'P'}{price.toFixed(0)}</span>
+          <span className="price-plan">/{pricingModel || 'lifetime'}</span>
+        </div>
+        {originalPrice && originalPrice > price && (
+          <span 
+            className="price-original" 
+            style={{ 
+              marginLeft: '8px', 
+              textDecoration: 'line-through', 
+              display: 'inline-block !important',
+              opacity: '1 !important',
+              color: '#6b7280',
+              fontSize: '1.25rem'
+            }}
+          >
+            {gig.is_digital_product ? '$' : 'P'}{originalPrice.toFixed(0)}
+          </span>
+        )}
+        {discountPercentage && discountPercentage >= 10 && (
+          <span 
+            className="discount-badge" 
+            style={{ 
+              display: 'block !important',
+              position: 'absolute',
+              top: '-10px',
+              right: '-15px',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              fontSize: '0.75rem',
+              fontWeight: '600',
+              padding: '2px 6px',
+              borderRadius: '10px',
+              transform: 'rotate(5deg)',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            -{discountPercentage}%
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className={`bg-white rounded-lg shadow-md overflow-hidden mb-4 hover:shadow-lg transition-shadow ${gig.status === 'draft' ? 'opacity-70' : ''}`}>
@@ -168,9 +253,24 @@ const GigListItem: React.FC<GigListItemProps> = ({ gig, index, isFavorite, onTog
                 Delivery in {gig.delivery}
               </div>
             </div>
-            <div className="text-xl font-bold text-orange-600">
-              ${startingPrice.toFixed(2)}
-              {hasPricingTiers && <span className="text-xs text-gray-500 ml-1">Starting at</span>}
+            <div className="price-info">
+              {gig.is_service ? (
+                <>
+                  <div className="text-lg font-bold text-gray-800">
+                    {renderStyledPrice(startingPrice, 'delivery', hasPricingTiers ? gig.pricing_tiers?.basic?.original_price : gig.original_price)}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-lg font-bold text-gray-800">
+                    {renderStyledPrice(
+                      startingPrice, 
+                      getPricingModelDisplay(), 
+                      hasPricingTiers ? gig.pricing_tiers?.basic?.original_price : gig.original_price
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
           

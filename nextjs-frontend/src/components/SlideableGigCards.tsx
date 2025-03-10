@@ -11,6 +11,7 @@ interface GigData {
   id: number;
   title: string;
   price: number;
+  original_price: number;
   rating: number;
   reviews: number;
   images: string[];
@@ -20,12 +21,17 @@ interface GigData {
   featured?: boolean;
   hot?: boolean;
   delivery: string;
+  pricing_model?: 'lifetime' | 'month' | 'year' | 'session' | 'appointment' | 'slot' | 'hour' | 'delivery' | 'starting';
+  is_service?: boolean;
+  is_digital_product?: boolean;
 }
 
 interface SlideableGigCardsProps {
   gigs: GigData[];
   title?: string;
   subtitle?: string;
+  isDigitalProducts?: boolean;
+  isServices?: boolean;
 }
 
 // Custom arrow components
@@ -77,11 +83,21 @@ const GigCardSkeleton = () => {
 const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({ 
   gigs, 
   title = "Explore Our <span>Gigs.</span>",
-  subtitle
+  subtitle,
+  isDigitalProducts = false,
+  isServices = false
 }) => {
   // Create a ref for the slider
   const sliderRef = useRef<Slider | null>(null);
 
+  // Debug: Log gigs data to check original_price values
+  useEffect(() => {
+    console.log('SlideableGigCards - Gigs data:', gigs);
+    gigs.forEach(gig => {
+      console.log(`Gig ID ${gig.id} - Original Price: ${gig.original_price}`);
+    });
+  }, [gigs]);
+  
   // State for favorites
   const [favorites, setFavorites] = useState(Array(gigs.length).fill(false));
   
@@ -251,6 +267,7 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
                     id={gig.id}
                     title={gig.title}
                     price={gig.price}
+                    original_price={gig.original_price}
                     rating={gig.rating}
                     reviews={gig.reviews}
                     images={gig.images}
@@ -262,10 +279,33 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
                     delivery={gig.delivery}
                     isFavorite={favorites[index]}
                     onToggleFavorite={() => toggleFavorite(index)}
+                    pricing_model={isServices ? 'delivery' : gig.pricing_model}
+                    is_service={gig.is_service || isServices}
+                    is_digital_product={gig.is_digital_product || isDigitalProducts}
                   />
                 </div>
               ))}
             </Slider>
+            
+            {/* Custom navigation arrows */}
+            <button 
+              className="slider-arrow prev-arrow"
+              onClick={goToPrev}
+              aria-label="Previous slide"
+            >
+              <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 1L1 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button 
+              className="slider-arrow next-arrow"
+              onClick={goToNext}
+              aria-label="Next slide"
+            >
+              <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 13L7 7L1 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
           </div>
           
           {/* Loading overlay that covers the entire slider area */}
@@ -274,34 +314,6 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
               <div className="filter-loading-animation"></div>
             </div>
           )}
-          
-          {/* Custom navigation arrows container - centered at bottom */}
-          <div className="custom-arrows-container">
-            <div className="custom-arrows-wrapper">
-              <button 
-                className="custom-arrow-btn prev-arrow-btn" 
-                onClick={goToPrev}
-                aria-label="Previous slide"
-                type="button"
-                disabled={isLoading}
-              >
-                <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M7 1L1 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-              <button 
-                className="custom-arrow-btn next-arrow-btn" 
-                onClick={goToNext}
-                aria-label="Next slide"
-                type="button"
-                disabled={isLoading}
-              >
-                <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 13L7 7L1 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </section>

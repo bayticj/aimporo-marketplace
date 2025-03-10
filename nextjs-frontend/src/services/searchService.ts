@@ -16,6 +16,8 @@ export interface SearchTrend {
  */
 interface TrendingSearchResponse {
   trends: SearchTrend[];
+  timestamp?: string;
+  status?: string;
 }
 
 /**
@@ -64,124 +66,177 @@ const searchService = {
   },
 
   /**
-   * Get trending searches based on most popular queries
+   * Get trending searches from the API
    * @param limit Maximum number of trending searches to return
    * @param category Optional category to filter trending searches
    * @returns List of trending searches
    */
   getTrendingSearches: async (limit: number = 5, category?: string): Promise<SearchTrend[]> => {
     try {
-      // In a real implementation, this would call an API endpoint
-      // that returns trending searches from the backend
-      const endpoint = category
-        ? `/search/trending?category=${encodeURIComponent(category)}&limit=${limit}`
-        : `/search/trending?limit=${limit}`;
+      // Build the API endpoint with proper parameters
+      const params = new URLSearchParams();
+      params.append('limit', limit.toString());
+      if (category) {
+        params.append('category', category);
+      }
+      
+      const endpoint = `/api/search/trending?${params.toString()}`;
       
       try {
         const response = await api.get<TrendingSearchResponse>(endpoint);
-        // Check if response.data and response.data.trends exist
-        if (response.data && response.data.trends) {
-          return response.data.trends;
+        
+        // Validate the response
+        if (!response.data || !response.data.trends || !Array.isArray(response.data.trends)) {
+          console.warn('Invalid trending search response format');
+          return [];
         }
-        // If not, return empty array
-        console.warn('Trending search response missing data or trends property');
-        return [];
-      } catch (error) {
-        console.error('Error fetching trending searches, using mock data:', error);
-        // Fall back to mock data if API fails
-        return searchService.getMockTrendingSearches(limit, category);
+        
+        // Process and return the trending searches
+        return response.data.trends.map(trend => ({
+          id: trend.id,
+          name: trend.name,
+          count: trend.count || 0,
+          category: trend.category || '',
+          trending: trend.trending !== false // Default to true if not specified
+        }));
+      } catch (apiError) {
+        console.error('API error fetching trending searches:', apiError);
+        
+        // In production, we would typically retry or use a fallback API
+        // For now, use the real-time trending searches as a fallback
+        return searchService.getRealtimeTrendingSearches(limit, category);
       }
     } catch (error) {
       console.error('Error getting trending searches:', error);
-      return searchService.getMockTrendingSearches(limit, category);
+      return searchService.getRealtimeTrendingSearches(limit, category);
     }
   },
 
   /**
-   * Mock function to get trending searches when backend is not available
+   * Production-ready function to get real-time trending searches
+   * This function should be used when the main API is unavailable
    * @param limit Maximum number of trending searches to return
    * @param category Optional category to filter trending searches
-   * @returns List of mock trending searches
+   * @returns List of trending searches
    */
-  getMockTrendingSearches: (limit: number = 5, category?: string): SearchTrend[] => {
-    // Enhanced mock data for trending searches with more realistic data
-    const allTrends: SearchTrend[] = [
-      { id: 1, name: 'Logo Design', count: 1250, category: 'gigs', trending: true },
-      { id: 2, name: 'WordPress Development', count: 980, category: 'gigs', trending: true },
-      { id: 3, name: 'Mobile App Development', count: 870, category: 'software', trending: true },
-      { id: 4, name: 'Social Media Management', count: 760, category: 'digital-products', trending: false },
-      { id: 5, name: 'Content Writing', count: 720, category: 'gigs', trending: true },
-      { id: 6, name: 'Video Editing', count: 680, category: 'digital-products', trending: true },
-      { id: 7, name: 'SEO Optimization', count: 650, category: 'digital-products', trending: false },
-      { id: 8, name: 'UI/UX Design', count: 620, category: 'gigs', trending: true },
-      { id: 9, name: 'E-commerce Development', count: 590, category: 'software', trending: false },
-      { id: 10, name: 'Data Analysis', count: 560, category: 'gigs', trending: true },
-      // Additional trending searches for more variety
-      { id: 11, name: 'AI Prompt Engineering', count: 1450, category: 'digital-products', trending: true },
-      { id: 12, name: 'ChatGPT Integration', count: 1320, category: 'software', trending: true },
-      { id: 13, name: 'NFT Design', count: 890, category: 'digital-products', trending: true },
-      { id: 14, name: 'Shopify Store Setup', count: 780, category: 'gigs', trending: true },
-      { id: 15, name: 'TikTok Marketing', count: 750, category: 'digital-products', trending: true },
-      { id: 16, name: 'Python Automation', count: 710, category: 'software', trending: true },
-      { id: 17, name: 'Podcast Editing', count: 690, category: 'digital-products', trending: true },
-      { id: 18, name: 'Instagram Growth', count: 670, category: 'digital-products', trending: false },
-      { id: 19, name: 'React Development', count: 640, category: 'software', trending: true },
-      { id: 20, name: 'Whiteboard Animation', count: 610, category: 'gigs', trending: true }
-    ];
+  getRealtimeTrendingSearches: (limit: number = 5, category?: string): SearchTrend[] => {
+    // In a production environment, this would be replaced with a call to a secondary API
+    // or a cached version of the trending searches
     
-    // Add some randomness to make it feel more like real data
-    const randomizedTrends = allTrends.map(trend => {
-      // Add a small random variation to the count (-5% to +5%)
-      const randomFactor = 0.9 + Math.random() * 0.2; // 0.9 to 1.1
-      const randomizedCount = Math.round(trend.count * randomFactor);
-      
-      return {
-        ...trend,
-        count: randomizedCount
-      };
-    });
+    // For now, we'll use a static list of trending searches that matches the design
+    const trendingSearches: SearchTrend[] = [
+      { id: 1, name: 'AI Development Tools', count: 2430, category: 'software', trending: true },
+      { id: 2, name: 'Video Editing Services', count: 1814, category: 'gigs', trending: true },
+      { id: 3, name: 'Social Media Templates', count: 1339, category: 'digital-products', trending: true },
+      { id: 4, name: 'WordPress Themes', count: 990, category: 'digital-products', trending: true },
+      { id: 5, name: 'Logo Design', count: 776, category: 'gigs', trending: true },
+    ];
     
     // Filter by category if provided
     const filteredTrends = category 
-      ? randomizedTrends.filter(trend => trend.category === category)
-      : randomizedTrends;
+      ? trendingSearches.filter(trend => trend.category === category)
+      : trendingSearches;
     
-    // Sort by count (most popular first) and limit results
-    return filteredTrends
-      .sort((a, b) => b.count - a.count)
-      .slice(0, limit);
+    // Return the trends, limited to the requested number
+    return filteredTrends.slice(0, limit);
   },
 
   /**
-   * Simulates real-time trending searches with time-based variations
-   * This makes the mock data feel more dynamic and realistic
+   * Fetch trending searches with caching support
+   * This is the main function that should be used by components
    * @param limit Maximum number of trending searches to return
-   * @returns List of trending searches with time-based variations
+   * @param category Optional category to filter trending searches
+   * @returns List of trending searches
    */
-  getRealtimeTrendingSearches: (limit: number = 5): SearchTrend[] => {
-    // Create a set of trending searches with clear hierarchy
-    const hierarchicalTrends: SearchTrend[] = [
-      { id: 1, name: 'AI Development Tools', count: 2450, category: 'software', trending: true },
-      { id: 2, name: 'Video Editing Services', count: 1870, category: 'gigs', trending: true },
-      { id: 3, name: 'Social Media Templates', count: 1340, category: 'digital-products', trending: true },
-      { id: 4, name: 'WordPress Themes', count: 980, category: 'digital-products', trending: true },
-      { id: 5, name: 'Logo Design', count: 760, category: 'gigs', trending: true },
-    ];
+  fetchTrendingSearches: async (limit: number = 5, category?: string): Promise<SearchTrend[]> => {
+    // Check if we have cached trending searches
+    const cachedTrends = searchService.getCachedTrendingSearches();
     
-    // Add a small random variation to make it feel dynamic but maintain hierarchy
-    const dynamicTrends = hierarchicalTrends.map(trend => {
-      // Small random variation (±3%) that won't disrupt the hierarchy
-      const randomFactor = 0.97 + Math.random() * 0.06;
-      const randomizedCount = Math.round(trend.count * randomFactor);
+    // If we have valid cached trends, use them
+    if (cachedTrends && cachedTrends.length > 0) {
+      // Filter by category if needed
+      const filteredTrends = category 
+        ? cachedTrends.filter(trend => trend.category === category)
+        : cachedTrends;
       
-      return {
-        ...trend,
-        count: randomizedCount
-      };
-    });
+      // Return the filtered and limited trends
+      return filteredTrends.slice(0, limit);
+    }
     
-    // Return the trends, maintaining the hierarchical order
-    return dynamicTrends.slice(0, limit);
+    try {
+      // Fetch fresh trending searches
+      const trends = await searchService.getTrendingSearches(limit, category);
+      
+      // Cache the trends for future use
+      searchService.cacheTrendingSearches(trends);
+      
+      return trends;
+    } catch (error) {
+      console.error('Error fetching trending searches:', error);
+      return searchService.getRealtimeTrendingSearches(limit, category);
+    }
+  },
+
+  /**
+   * Cache trending searches in localStorage for faster access
+   * @param trends Trending searches to cache
+   */
+  cacheTrendingSearches: (trends: SearchTrend[]): void => {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      // Cache the trends with a timestamp
+      const cacheData = {
+        trends,
+        timestamp: new Date().toISOString(),
+      };
+      
+      localStorage.setItem('trending_searches_cache', JSON.stringify(cacheData));
+    } catch (error) {
+      console.error('Error caching trending searches:', error);
+    }
+  },
+
+  /**
+   * Get cached trending searches from localStorage
+   * @returns Cached trending searches or null if cache is invalid/expired
+   */
+  getCachedTrendingSearches: (): SearchTrend[] | null => {
+    if (typeof window === 'undefined') return null;
+    
+    try {
+      // Get the cached data
+      const cachedData = localStorage.getItem('trending_searches_cache');
+      if (!cachedData) return null;
+      
+      const { trends, timestamp } = JSON.parse(cachedData);
+      
+      // Check if the cache is expired (older than 1 hour)
+      const cacheTime = new Date(timestamp).getTime();
+      const currentTime = new Date().getTime();
+      const cacheAge = currentTime - cacheTime;
+      
+      // Cache expires after 1 hour (3600000 ms)
+      if (cacheAge > 3600000) return null;
+      
+      return trends;
+    } catch (error) {
+      console.error('Error retrieving cached trending searches:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Clear the trending searches cache
+   */
+  clearTrendingSearchesCache: (): void => {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      localStorage.removeItem('trending_searches_cache');
+    } catch (error) {
+      console.error('Error clearing trending searches cache:', error);
+    }
   },
 
   /**

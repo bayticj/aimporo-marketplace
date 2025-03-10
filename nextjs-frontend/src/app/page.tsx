@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Slider from 'react-slick';
 import GigCard from '../components/GigCard';
 import SlideableGigCards from '../components/SlideableGigCards';
+import { useRouter } from 'next/navigation';
 
 // Add AOS type declaration
 declare global {
@@ -14,6 +15,23 @@ declare global {
 }
 
 export default function Home() {
+  const router = useRouter();
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
+  
+  // Navigation function
+  const navigateToMarketplace = () => {
+    console.log('Navigating to marketplace');
+    router.push('/marketplace');
+  };
+  
+  // Direct navigation function that doesn't rely on Next.js router
+  const goToMarketplace = () => {
+    console.log('Going to marketplace via direct navigation');
+    // Use direct window location for maximum compatibility
+    window.location.href = '/marketplace';
+  };
+
   // Console log for debugging
   useEffect(() => {
     console.log('Home component mounted');
@@ -616,20 +634,54 @@ export default function Home() {
         <div className="container mx-auto px-4 py-6 md:py-10 h-full flex items-center">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 w-full">
             {/* Left side - Headline */}
-            <div className="lg:col-span-5 flex flex-col justify-center mb-6 lg:mb-0" data-aos="fade-right">
+            <div 
+              className="lg:col-span-5 flex flex-col justify-center mb-6 lg:mb-0" 
+              data-aos="fade-right"
+            >
               {/* Main Headline and Subheadline */}
               <div className="mb-6 md:mb-8">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold text-white mb-4 leading-tight">
-                  Find the <span className="text-orange-500">perfect talent</span> for your business
+                  The Marketplace to <span className="text-orange-500">Amplify</span> businesses 10X more.
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-6">
-                  Connect with top professionals, digital products, and software solutions all in one place
+                  Connect with top strategists and specialists, digital products, and software solutions all in one place
                 </p>
               </div>
               
-              <Link href="/gigs" className="appsumo-button inline-block text-center text-lg py-3 px-6 sm:py-4 sm:px-8">
-                SHOP NOW
-              </Link>
+              <div style={{ position: 'relative', zIndex: 1000 }}>
+                <a 
+                  href="/marketplace"
+                  style={{
+                    backgroundColor: isPressed ? '#E05800' : isHovered ? '#FF7A1F' : '#FF6900',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    padding: '12px 24px',
+                    borderRadius: '50px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textTransform: 'uppercase',
+                    position: 'relative',
+                    zIndex: 999,
+                    boxShadow: isHovered ? '0 8px 20px rgba(255, 105, 0, 0.4)' : '0 4px 12px rgba(255, 105, 0, 0.3)',
+                    transform: isPressed ? 'translateY(2px)' : isHovered ? 'translateY(-3px)' : 'none',
+                    transition: 'all 0.3s ease',
+                    textDecoration: 'none'
+                  }}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => {
+                    setIsHovered(false);
+                    setIsPressed(false);
+                  }}
+                  onMouseDown={() => setIsPressed(true)}
+                  onMouseUp={() => setIsPressed(false)}
+                >
+                  SHOP NOW
+                </a>
+              </div>
             </div>
             
             {/* Right side - Featured Categories */}

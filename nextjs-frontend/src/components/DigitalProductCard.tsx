@@ -27,9 +27,30 @@ const DigitalProductCard: React.FC<DigitalProductCardProps> = ({
     setImageError(true);
   };
   
-  const imageSrc = imageError || !product.preview_path 
-    ? '/assets/img/placeholder.jpg' 
-    : product.preview_path;
+  // Use real images instead of placeholders
+  const getRandomProductImage = () => {
+    const productImages = [
+      '/assets/img/test/Attendace Template.png',
+      '/assets/img/test/Class Student Manager.jpg',
+      '/assets/img/test/Clinic Manager.jpg',
+      '/assets/img/test/Company Payroll System 3.png',
+      '/assets/img/test/Construction Estimator.png',
+      '/assets/img/test/Automated Purchase Order.png',
+      '/assets/img/test/Bill of Materials.png',
+      '/assets/img/gigs/gigs-01.jpg',
+      '/assets/img/gigs/gigs-02.jpg',
+      '/assets/img/gigs/gigs-03.jpg',
+      '/assets/img/gigs/gigs-04.jpg',
+      '/assets/img/gigs/gigs-05.jpg',
+    ];
+    
+    // Use product ID to consistently get the same image for the same product
+    const index = product.id % productImages.length;
+    return productImages[index];
+  };
+  
+  // Always use random images for consistency
+  const imageSrc = getRandomProductImage();
   
   // Function to render the styled price
   const renderStyledPrice = (price: number, originalPrice?: number | null) => {
@@ -60,14 +81,21 @@ const DigitalProductCard: React.FC<DigitalProductCardProps> = ({
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:-translate-y-1">
       <div className="relative">
         {/* Product Image */}
-        <div className="relative h-48 w-full">
+        <div className="relative h-[200px] w-full overflow-hidden rounded-t-lg">
+          <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20"></div>
           <Image
             src={imageSrc}
             alt={product.title}
             fill
-            style={{ objectFit: 'cover' }}
+            style={{ 
+              objectFit: 'cover',
+              objectPosition: 'center'
+            }}
             onError={handleImageError}
+            className="transition-all duration-300 hover:scale-105"
+            priority
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
         </div>
         
         {/* Favorite Button */}

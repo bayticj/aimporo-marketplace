@@ -301,7 +301,7 @@ export default function Home() {
         title: 'Ready-to-use digital assets', 
         description: 'Download instantly, use forever',
         name: 'Digital Products',
-        image: '/assets/img/gigs/gigs-05.jpg',
+        image: '/assets/img/test/Automated Purchase Order.png',
         link: '/digital-products'
       },
       { 
@@ -309,7 +309,7 @@ export default function Home() {
         title: 'Powerful software solutions', 
         description: 'Streamline your business operations',
         name: 'Software',
-        image: '/assets/img/software/software-01.jpg',
+        image: '/assets/img/test/Bill of Materials.png',
         link: '/software',
         fullWidth: true
       }
@@ -320,7 +320,7 @@ export default function Home() {
         title: 'Boost your online presence', 
         description: 'Expert marketing services for your business',
         name: 'Marketing',
-        image: '/assets/img/gigs/gigs-03.jpg',
+        image: '/assets/img/test/Class Student Manager.jpg',
         link: '/marketing'
       },
       { 
@@ -328,7 +328,7 @@ export default function Home() {
         title: 'Professional design services', 
         description: 'Stand out with stunning visuals',
         name: 'Design',
-        image: '/assets/img/gigs/gigs-07.jpg',
+        image: '/assets/img/test/Clinic Manager.jpg',
         link: '/design'
       },
       { 
@@ -336,7 +336,7 @@ export default function Home() {
         title: 'Compelling content creation', 
         description: 'Words that convert and engage',
         name: 'Writing',
-        image: '/assets/img/gigs/gigs-09.jpg',
+        image: '/assets/img/test/Company Payroll System 3.png',
         link: '/writing',
         fullWidth: true
       }
@@ -347,7 +347,7 @@ export default function Home() {
         title: 'Professional video production', 
         description: 'Bring your ideas to life with motion',
         name: 'Video',
-        image: '/assets/img/gigs/gigs-11.jpg',
+        image: '/assets/img/test/Construction Estimator.png',
         link: '/video'
       },
       { 
@@ -355,7 +355,7 @@ export default function Home() {
         title: 'High-quality audio services', 
         description: 'Sound that resonates with your audience',
         name: 'Audio',
-        image: '/assets/img/gigs/gigs-02.jpg',
+        image: '/assets/img/test/Automated Purchase Order.png',
         link: '/audio'
       },
       { 
@@ -363,7 +363,7 @@ export default function Home() {
         title: 'Expert consulting services', 
         description: 'Strategic guidance for your business',
         name: 'Consulting',
-        image: '/assets/img/gigs/gigs-04.jpg',
+        image: '/assets/img/test/Bill of Materials.png',
         link: '/consulting',
         fullWidth: true
       }
@@ -380,115 +380,134 @@ export default function Home() {
     { id: 6, name: 'Mobile Apps', icon: '/assets/img/aimporo-logo.png' },
   ];
 
-  // Example gigs with updated image paths to use existing images
+  // Example gigs data
   const gigs = [
     {
       id: 1,
       title: 'Professional Logo Design',
-      price: 49.99,
-      rating: 4.8,
-      reviews: 124,
-      images: ['/assets/img/gigs/gigs-01.jpg', '/assets/img/gigs/gigs-02.jpg'],
-      seller: 'CreativeStudio',
+      price: 99.99,
+      original_price: 149.99,
+      rating: 4.9,
+      reviews: 128,
+      images: ['/assets/img/test/Automated Purchase Order.png', '/assets/img/test/Bill of Materials.png'],
+      seller: 'LogoMaster',
       location: 'New York',
-      badge: 'Programming & Tech',
+      badge: 'Logo Design',
       featured: true,
       hot: true,
-      delivery: '1 day'
+      delivery: '3 days',
+      description: 'I will design a professional, modern logo for your business or brand. Includes unlimited revisions, multiple concepts, and all file formats you need for print and digital use.',
+      short_description: 'Professional, modern logo design.\nUnlimited revisions and multiple concepts.\nAll file formats for print and digital use.'
     },
     {
       id: 2,
-      title: 'WordPress Website Development',
-      price: 199.99,
-      rating: 4.9,
-      reviews: 89,
-      images: ['/assets/img/gigs/gigs-03.jpg', '/assets/img/gigs/gigs-04.jpg'],
-      seller: 'WebWizards',
+      title: 'Website Development - WordPress',
+      price: 299.99,
+      original_price: 399.99,
+      rating: 4.8,
+      reviews: 95,
+      images: ['/assets/img/test/Class Student Manager.jpg', '/assets/img/test/Clinic Manager.jpg'],
+      seller: 'WebDev',
       location: 'London',
-      badge: 'Videography',
+      badge: 'Web Development',
       hot: true,
-      delivery: '2 days'
+      delivery: '7 days',
+      description: 'I will create a professional WordPress website for your business or personal brand. Includes responsive design, SEO optimization, and integration with your preferred plugins and tools.',
+      short_description: 'Professional WordPress website development.\nResponsive design and SEO optimization.\nCustom plugin integration and setup.'
     },
     {
       id: 3,
-      title: 'SEO Optimization Package',
-      price: 149.99,
+      title: 'Social Media Management',
+      price: 199.99,
+      original_price: 249.99,
       rating: 4.7,
-      reviews: 67,
-      images: ['/assets/img/gigs/gigs-05.jpg', '/assets/img/gigs/gigs-06.jpg'],
-      seller: 'RankBooster',
-      location: 'Canada',
-      badge: 'Music & Audio',
+      reviews: 87,
+      images: ['/assets/img/test/Company Payroll System 3.png', '/assets/img/test/Construction Estimator.png'],
+      seller: 'SocialPro',
+      location: 'Miami',
+      badge: 'Social Media',
       featured: true,
-      delivery: '1 day'
+      delivery: '30 days',
+      description: 'I will manage your social media accounts for one month, creating and scheduling content, engaging with your audience, and providing analytics reports to track growth and engagement.',
+      short_description: 'Complete social media management for one month.\nContent creation and audience engagement.\nDetailed analytics and growth reports.'
     },
     {
       id: 4,
-      title: 'Social Media Content Creation',
-      price: 99.99,
+      title: 'SEO Optimization Package',
+      price: 149.99,
+      original_price: 199.99,
       rating: 4.6,
-      reviews: 52,
-      images: ['/assets/img/gigs/gigs-07.jpg', '/assets/img/gigs/gigs-08.jpg'],
-      seller: 'ViralVision',
-      location: 'Australia',
-      badge: 'Digital Marketing',
-      delivery: '3 days'
+      reviews: 76,
+      images: ['/assets/img/test/Automated Purchase Order.png', '/assets/img/test/Bill of Materials.png'],
+      seller: 'SEOexpert',
+      location: 'Chicago',
+      badge: 'SEO',
+      delivery: '14 days',
+      description: 'I will optimize your website for search engines to improve your rankings and organic traffic. Includes keyword research, on-page optimization, technical SEO audit, and backlink strategy.',
+      short_description: 'Complete website SEO optimization package.\nKeyword research and on-page optimization.\nTechnical audit and backlink strategy.'
     },
-    // Adding more gigs for better filter demonstration
     {
       id: 5,
-      title: 'Mobile App Development',
-      price: 299.99,
-      rating: 5.0,
-      reviews: 42,
-      images: ['/assets/img/gigs/gigs-01.jpg', '/assets/img/gigs/gigs-02.jpg'],
-      seller: 'AppMasters',
-      location: 'San Francisco',
-      badge: 'Programming & Tech',
+      title: 'Professional Video Editing',
+      price: 89.99,
+      original_price: 129.99,
+      rating: 4.8,
+      reviews: 104,
+      images: ['/assets/img/test/Class Student Manager.jpg', '/assets/img/test/Clinic Manager.jpg'],
+      seller: 'VideoEditor',
+      location: 'Los Angeles',
+      badge: 'Video Editing',
       featured: true,
-      hot: true,
-      delivery: '7 days'
+      delivery: '5 days',
+      description: 'I will professionally edit your video content for YouTube, social media, or business presentations. Includes color correction, transitions, effects, music, and basic animation.',
+      short_description: 'Professional video editing service.\nColor correction, transitions, and effects.\nMusic integration and basic animation.'
     },
     {
       id: 6,
-      title: 'E-commerce Store Setup',
-      price: 249.99,
-      rating: 4.5,
-      reviews: 78,
-      images: ['/assets/img/gigs/gigs-03.jpg', '/assets/img/gigs/gigs-04.jpg'],
-      seller: 'ShopifyPro',
+      title: 'Content Writing Services',
+      price: 79.99,
+      original_price: 99.99,
+      rating: 4.7,
+      reviews: 92,
+      images: ['/assets/img/test/Company Payroll System 3.png', '/assets/img/test/Construction Estimator.png'],
+      seller: 'ContentPro',
       location: 'Toronto',
-      badge: 'Digital Marketing',
-      hot: false,
-      delivery: '3 days'
+      badge: 'Content Writing',
+      hot: true,
+      delivery: '3 days',
+      description: 'I will write engaging, SEO-optimized content for your website, blog, or marketing materials. Includes research, keyword optimization, and up to 2 revisions to ensure your satisfaction.',
+      short_description: 'SEO-optimized content writing services.\nResearch-backed and engaging articles.\nUp to 2 revisions included.'
     },
     {
       id: 7,
-      title: 'Video Editing & Production',
+      title: 'E-commerce Product Photography',
       price: 149.99,
+      original_price: 199.99,
       rating: 4.9,
-      reviews: 105,
-      images: ['/assets/img/gigs/gigs-05.jpg', '/assets/img/gigs/gigs-06.jpg'],
-      seller: 'VisualCraft',
-      location: 'Los Angeles',
-      badge: 'Videography',
-      featured: false,
-      hot: true,
-      delivery: '2 days'
+      reviews: 68,
+      images: ['/assets/img/test/Automated Purchase Order.png', '/assets/img/test/Bill of Materials.png'],
+      seller: 'ProductShots',
+      location: 'Berlin',
+      badge: 'Photography',
+      delivery: '7 days',
+      description: 'I will provide professional product photography for your e-commerce store. Includes high-resolution images, multiple angles, lifestyle shots, and basic retouching for up to 10 products.',
+      short_description: 'Professional e-commerce product photography.\nHigh-resolution images with multiple angles.\nLifestyle shots and basic retouching included.'
     },
     {
       id: 8,
-      title: 'Content Writing Services',
-      price: 79.99,
-      rating: 4.7,
-      reviews: 93,
-      images: ['/assets/img/gigs/gigs-07.jpg', '/assets/img/gigs/gigs-08.jpg'],
-      seller: 'WordSmith',
-      location: 'Chicago',
-      badge: 'Writing & Translation',
-      featured: false,
-      hot: false,
-      delivery: '1 day'
+      title: 'Mobile App UI/UX Design',
+      price: 249.99,
+      original_price: 349.99,
+      rating: 4.8,
+      reviews: 83,
+      images: ['/assets/img/test/Class Student Manager.jpg', '/assets/img/test/Clinic Manager.jpg'],
+      seller: 'AppDesigner',
+      location: 'San Francisco',
+      badge: 'UI/UX Design',
+      hot: true,
+      delivery: '10 days',
+      description: 'I will design a modern, user-friendly UI/UX for your mobile application. Includes wireframes, high-fidelity mockups, interactive prototypes, and design system documentation.',
+      short_description: 'Modern mobile app UI/UX design.\nWireframes and high-fidelity mockups.\nInteractive prototypes and design system.'
     }
   ];
 
@@ -722,7 +741,7 @@ export default function Home() {
                 >
                   {continuousCarouselItems.map((category, index) => (
                     <div 
-                      key={category.id}
+                      key={`${category.id}-${index}`}
                       className="appsumo-category-card" 
                       data-aos="fade-up" 
                       data-aos-delay={100 + (index * 100)}
@@ -797,6 +816,7 @@ export default function Home() {
         gigs={gigs} 
         title="Explore Our <span>Gigs.</span>"
         subtitle="Find the perfect services for your business from our diverse range of categories"
+        isServices={true}
       />
 
       {/* What Makes DreamGigs Different Section */}
@@ -890,80 +910,98 @@ export default function Home() {
                 id: 1,
                 title: 'Project Management Software',
                 price: 99.99,
+                original_price: 149.99,
                 rating: 4.9,
                 reviews: 128,
-                images: ['/assets/img/software/software-01.jpg', '/assets/img/gigs/gigs-02.jpg'],
+                images: ['/assets/img/test/Company Payroll System 3.png', '/assets/img/test/Construction Estimator.png'],
                 seller: 'TechSolutions',
                 location: 'San Francisco',
                 badge: 'Software',
                 featured: true,
                 hot: true,
-                delivery: 'Instant'
+                delivery: 'Instant',
+                description: 'A comprehensive project management software solution for teams of all sizes. Features include task tracking, team collaboration, Gantt charts, and resource allocation.',
+                short_description: 'Comprehensive project management solution.\nTask tracking and team collaboration features.\nGantt charts and resource allocation tools.'
               },
               {
                 id: 2,
                 title: 'CRM System',
                 price: 149.99,
+                original_price: 199.99,
                 rating: 4.8,
                 reviews: 86,
-                images: ['/assets/img/software/software-02.jpg', '/assets/img/gigs/gigs-04.jpg'],
+                images: ['/assets/img/test/Attendace Template.png', '/assets/img/test/Bill of Materials.png'],
                 seller: 'BusinessPro',
                 location: 'New York',
                 badge: 'Software',
                 hot: true,
-                delivery: 'Instant'
+                delivery: 'Instant',
+                description: 'A powerful customer relationship management system to manage leads, customers, and sales. Includes contact management, sales pipeline, and reporting features.',
+                short_description: 'Powerful customer relationship management system.\nContact management and sales pipeline tools.\nComprehensive reporting and analytics features.'
               },
               {
                 id: 3,
                 title: 'Accounting Software',
                 price: 129.99,
+                original_price: 179.99,
                 rating: 4.7,
                 reviews: 92,
-                images: ['/assets/img/software/software-03.jpg', '/assets/img/gigs/gigs-06.jpg'],
+                images: ['/assets/img/test/Class Student Manager.jpg', '/assets/img/test/Clinic Manager.jpg'],
                 seller: 'FinancePro',
                 location: 'Chicago',
                 badge: 'Software',
                 featured: true,
-                delivery: 'Instant'
+                delivery: 'Instant',
+                description: 'A complete accounting software solution for small to medium businesses. Features include invoicing, expense tracking, financial reporting, and tax preparation.',
+                short_description: 'Complete accounting software for businesses.\nInvoicing and expense tracking functionality.\nFinancial reporting and tax preparation tools.'
               },
               {
                 id: 4,
                 title: 'HR Management System',
                 price: 119.99,
+                original_price: 159.99,
                 rating: 4.6,
                 reviews: 74,
-                images: ['/assets/img/software/software-04.jpg', '/assets/img/gigs/gigs-08.jpg'],
+                images: ['/assets/img/test/Company Payroll System 3.png', '/assets/img/test/Construction Estimator.png'],
                 seller: 'HRSolutions',
                 location: 'Boston',
                 badge: 'Software',
-                delivery: 'Instant'
+                delivery: 'Instant',
+                description: 'A comprehensive HR management system for employee data, payroll, benefits, and performance tracking. Streamlines HR processes and improves employee experience.',
+                short_description: 'Comprehensive HR management system.\nEmployee data, payroll, and benefits tracking.\nPerformance management and HR analytics.'
               },
               {
                 id: 5,
                 title: 'E-commerce Platform',
                 price: 199.99,
+                original_price: 299.99,
                 rating: 4.9,
                 reviews: 118,
-                images: ['/assets/img/software/software-05.jpg', '/assets/img/gigs/gigs-01.jpg'],
+                images: ['/assets/img/test/Automated Purchase Order.png', '/assets/img/test/Bill of Materials.png'],
                 seller: 'ShopTech',
                 location: 'Seattle',
                 badge: 'Software',
                 featured: true,
                 hot: true,
-                delivery: 'Instant'
+                delivery: 'Instant',
+                description: 'A complete e-commerce platform to build and manage your online store. Features include product management, payment processing, shipping integration, and marketing tools.',
+                short_description: 'Complete e-commerce platform solution.\nProduct management and payment processing.\nShipping integration and marketing tools.'
               },
               {
                 id: 6,
                 title: 'Marketing Automation Tool',
                 price: 89.99,
+                original_price: 129.99,
                 rating: 4.7,
                 reviews: 82,
-                images: ['/assets/img/software/software-06.jpg', '/assets/img/gigs/gigs-03.jpg'],
+                images: ['/assets/img/test/Attendace Template.png', '/assets/img/test/Class Student Manager.jpg'],
                 seller: 'MarketPro',
                 location: 'Austin',
                 badge: 'Software',
                 hot: false,
-                delivery: 'Instant'
+                delivery: 'Instant',
+                description: 'A powerful marketing automation tool to streamline your marketing campaigns. Features include email marketing, social media scheduling, lead scoring, and analytics.',
+                short_description: 'Powerful marketing automation solution.\nEmail marketing and social media scheduling.\nLead scoring and comprehensive analytics.'
               }
             ];
             
@@ -972,6 +1010,7 @@ export default function Home() {
                 gigs={softwareProducts} 
                 title="Explore Our <span>Software.</span>"
                 subtitle="Discover powerful software solutions to streamline your business operations"
+                isDigitalProducts={true}
               />
             );
           })()}
@@ -1094,116 +1133,108 @@ export default function Home() {
             const digitalProducts = [
               {
                 id: 1,
-                title: 'Premium Photoshop Actions Pack',
+                title: 'Professional Photoshop Actions',
                 price: 29.99,
+                original_price: 49.99,
                 rating: 4.8,
-                reviews: 156,
-                images: ['/assets/img/gigs/gigs-09.jpg', '/assets/img/gigs/gigs-10.jpg'],
-                seller: 'DesignAssets',
-                location: 'California',
+                reviews: 105,
+                images: ['/assets/img/test/Automated Purchase Order.png', '/assets/img/test/Bill of Materials.png'],
+                seller: 'DesignPro',
+                location: 'Los Angeles',
                 badge: 'Design Resources',
                 featured: true,
                 hot: true,
-                delivery: 'Instant'
+                delivery: 'Instant',
+                description: 'A collection of professional Photoshop actions to enhance your photos and streamline your editing workflow. Includes color grading, retouching, and special effects actions.',
+                short_description: 'Professional Photoshop actions collection.\nColor grading and retouching presets included.\nStreamline your photo editing workflow.'
               },
               {
                 id: 2,
                 title: 'Social Media Marketing eBook',
                 price: 19.99,
+                original_price: 29.99,
                 rating: 4.7,
                 reviews: 92,
-                images: ['/assets/img/gigs/gigs-11.jpg', '/assets/img/gigs/gigs-12.jpg'],
+                images: ['/assets/img/test/Attendace Template.png', '/assets/img/test/Class Student Manager.jpg'],
                 seller: 'MarketingPro',
                 location: 'Chicago',
                 badge: 'eBooks & Guides',
                 hot: true,
-                delivery: 'Instant'
+                delivery: 'Instant',
+                description: 'A comprehensive guide to social media marketing strategies for businesses of all sizes. Learn how to grow your audience, increase engagement, and convert followers into customers.',
+                short_description: 'Comprehensive social media marketing guide.\nStrategies for audience growth and engagement.\nConvert followers into paying customers.'
               },
               {
                 id: 3,
                 title: 'UI/UX Design System Template',
                 price: 59.99,
+                original_price: 89.99,
                 rating: 4.9,
                 reviews: 78,
-                images: ['/assets/img/gigs/gigs-05.jpg', '/assets/img/gigs/gigs-06.jpg'],
+                images: ['/assets/img/test/Clinic Manager.jpg', '/assets/img/test/Company Payroll System 3.png'],
                 seller: 'UXMasters',
                 location: 'Berlin',
                 badge: 'UI Templates',
                 featured: true,
-                delivery: 'Instant'
+                delivery: 'Instant',
+                description: 'A complete UI/UX design system template with hundreds of components, styles, and layouts. Perfect for web and mobile app design projects with consistent and modern aesthetics.',
+                short_description: 'Complete UI/UX design system template.\nHundreds of components, styles, and layouts.\nPerfect for web and mobile app projects.'
               },
               {
                 id: 4,
                 title: 'Stock Photo Collection (100 Images)',
                 price: 39.99,
+                original_price: 59.99,
                 rating: 4.6,
                 reviews: 64,
-                images: ['/assets/img/gigs/gigs-07.jpg', '/assets/img/gigs/gigs-08.jpg'],
+                images: ['/assets/img/test/Construction Estimator.png', '/assets/img/test/Automated Purchase Order.png'],
                 seller: 'StockImagery',
                 location: 'Paris',
                 badge: 'Photography',
-                delivery: 'Instant'
+                delivery: 'Instant',
+                description: 'A curated collection of 100 high-resolution stock photos for commercial use. Includes a variety of subjects, compositions, and styles to enhance your marketing materials and website.',
+                short_description: 'Curated collection of 100 high-resolution photos.\nVariety of subjects, compositions, and styles.\nEnhance your marketing materials and website.'
               },
               {
                 id: 5,
-                title: 'WordPress Theme - Business Pro',
+                title: 'Business Plan Template Bundle',
                 price: 49.99,
+                original_price: 79.99,
                 rating: 4.8,
-                reviews: 112,
-                images: ['/assets/img/gigs/gigs-01.jpg', '/assets/img/gigs/gigs-02.jpg'],
-                seller: 'ThemeForge',
-                location: 'Sydney',
-                badge: 'WordPress',
-                featured: true,
-                hot: true,
-                delivery: 'Instant'
-              },
-              {
-                id: 6,
-                title: 'Video Editing Presets Pack',
-                price: 34.99,
-                rating: 4.7,
-                reviews: 86,
-                images: ['/assets/img/gigs/gigs-03.jpg', '/assets/img/gigs/gigs-04.jpg'],
-                seller: 'FilmEffects',
-                location: 'Los Angeles',
-                badge: 'Video Resources',
-                hot: false,
-                delivery: 'Instant'
-              },
-              {
-                id: 7,
-                title: 'SEO Strategy Guide 2023',
-                price: 24.99,
-                rating: 4.9,
-                reviews: 73,
-                images: ['/assets/img/gigs/gigs-09.jpg', '/assets/img/gigs/gigs-10.jpg'],
-                seller: 'SEOguru',
+                reviews: 87,
+                images: ['/assets/img/test/Bill of Materials.png', '/assets/img/test/Attendace Template.png'],
+                seller: 'BizStrategy',
                 location: 'Toronto',
-                badge: 'Digital Marketing',
+                badge: 'Business',
                 featured: true,
-                delivery: 'Instant'
+                delivery: 'Instant',
+                description: 'A comprehensive SEO strategy guide for 2023 with the latest techniques and algorithms. Learn how to improve your website ranking and drive organic traffic.',
+                short_description: 'Comprehensive SEO strategy guide for 2023.\nLatest techniques and algorithm updates included.\nImprove website ranking and organic traffic.'
               },
               {
                 id: 8,
                 title: 'Premium Icon Pack (500+ Icons)',
                 price: 19.99,
+                original_price: 34.99,
                 rating: 4.8,
                 reviews: 95,
-                images: ['/assets/img/gigs/gigs-11.jpg', '/assets/img/gigs/gigs-12.jpg'],
+                images: ['/assets/img/test/Construction Estimator.png', '/assets/img/test/Clinic Manager.jpg'],
                 seller: 'IconCraft',
                 location: 'Amsterdam',
                 badge: 'Design Resources',
                 hot: true,
-                delivery: 'Instant'
+                delivery: 'Instant',
+                description: 'A premium icon pack with over 500 high-quality icons in multiple formats and styles. Perfect for web design, app development, and marketing materials.',
+                short_description: 'Premium pack with 500+ high-quality icons.\nMultiple formats and styles included.\nPerfect for web, app, and marketing projects.'
               }
             ];
             
             return (
               <SlideableGigCards 
                 gigs={digitalProducts} 
-                title="Explore Our Digital <span>Products.</span>"
-                subtitle="Download ready-to-use digital assets created by our talented community"
+                title="Digital <span>Products.</span>"
+                subtitle="Instant downloads for your creative and business needs"
+                isDigitalProducts={true}
               />
             );
           })()}

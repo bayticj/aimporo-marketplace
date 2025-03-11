@@ -44,9 +44,6 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
   isFavorite,
   onToggleFavorite,
 }) => {
-  // Fallback image in case the provided image doesn't load
-  const fallbackImage = '/assets/img/placeholder.jpg';
-  
   // State to track if pricing plans popup is shown
   const [showPlans, setShowPlans] = useState(false);
   
@@ -68,12 +65,6 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
   const handleScreenshotError = () => {
     setScreenshotError(true);
   };
-  
-  // Use placeholder images when the original images fail to load
-  const logoSrc = logoError ? '/assets/img/placeholder.jpg' : logo_path;
-  const screenshotSrc = screenshotError || screenshots.length === 0 
-    ? '/assets/img/placeholder.jpg' 
-    : screenshots[0];
   
   // Get the starting price (lowest plan price)
   const startingPrice = plans && plans.length > 0
@@ -133,6 +124,36 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
     return null;
   };
 
+  // Use real images instead of placeholders
+  const getRandomProductImages = () => {
+    const productImages = [
+      '/assets/img/test/Attendace Template.png',
+      '/assets/img/test/Class Student Manager.jpg',
+      '/assets/img/test/Clinic Manager.jpg',
+      '/assets/img/test/Company Payroll System 3.png',
+      '/assets/img/test/Construction Estimator.png',
+      '/assets/img/test/Automated Purchase Order.png',
+      '/assets/img/test/Bill of Materials.png',
+      '/assets/img/gigs/gigs-06.jpg',
+      '/assets/img/gigs/gigs-07.jpg',
+      '/assets/img/gigs/gigs-08.jpg',
+      '/assets/img/gigs/gigs-09.jpg',
+      '/assets/img/gigs/gigs-10.jpg',
+    ];
+    
+    // Use product ID to consistently get the same set of images for the same product
+    const startIndex = id % productImages.length;
+    return [
+      productImages[startIndex],
+      productImages[(startIndex + 1) % productImages.length]
+    ];
+  };
+  
+  // Always use random images for consistency
+  const logoSrc = logoError ? `/assets/img/profiles/avatar-${getAvatarNumber()}.jpg` : logo_path;
+  const randomImages = getRandomProductImages();
+  const screenshotSrc = randomImages[currentImageIndex % randomImages.length];
+
   return (
     <div className={`gigs-card relative group ${!is_active ? 'opacity-70' : ''} hover:shadow-lg transition-shadow duration-300`}>
       {!is_active && (
@@ -142,15 +163,21 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
       )}
       <div className="gigs-img relative">
         <Link href={`/software/${slug}`}>
-          <div className="relative h-48 w-full overflow-hidden">
+          <div className="relative h-[200px] w-full overflow-hidden rounded-t-lg">
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-red-500/20"></div>
             <Image 
               src={screenshotSrc} 
               alt={name} 
               fill
-              style={{ objectFit: 'cover' }}
-              className="transition-transform duration-300 group-hover:scale-105"
+              style={{ 
+                objectFit: 'cover',
+                objectPosition: 'center'
+              }}
+              className="transition-all duration-300 group-hover:scale-105"
               onError={handleScreenshotError}
+              priority
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             
             {/* Image navigation controls - only show if multiple images */}
             {screenshots.length > 1 && (
@@ -217,7 +244,7 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
         </div>
         <div className="seller-avatar">
           <Image 
-            src={logoSrc || `/assets/img/profiles/avatar-${getAvatarNumber()}.jpg`} 
+            src={logoSrc} 
             alt={partner_name}
             width={44}
             height={44}
@@ -228,6 +255,7 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
             {partner_name.charAt(0).toUpperCase()}
           </div>
         </div>
+
       </div>
       <div className="gigs-content">
         <div className="gigs-info">

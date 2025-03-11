@@ -70,19 +70,12 @@ const GigCard: React.FC<GigCardProps> = ({
   description,
   short_description,
 }) => {
-  // Fallback image in case the provided image doesn't load
-  const fallbackImage = '/assets/img/placeholder.jpg';
-  
-  // Debug logs for short description
-  console.log(`GigCard ${id} - short_description:`, short_description);
-  console.log(`GigCard ${id} - description:`, description);
-  console.log(`GigCard ${id} - title:`, title);
-  
   // State to track if pricing tiers popup is shown
   const [showTiers, setShowTiers] = useState(false);
   
   // State to track which image is currently displayed
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   
   // Determine if this gig has pricing tiers
   const hasPricingTiers = pricing_tiers && (
@@ -227,6 +220,38 @@ const GigCard: React.FC<GigCardProps> = ({
     );
   };
 
+  // Get random gig images based on gig ID
+  const getRandomGigImages = () => {
+    const gigImages = [
+      '/assets/img/test/Attendace Template.png',
+      '/assets/img/test/Class Student Manager.jpg',
+      '/assets/img/test/Clinic Manager.jpg',
+      '/assets/img/test/Company Payroll System 3.png',
+      '/assets/img/test/Construction Estimator.png',
+      '/assets/img/test/Automated Purchase Order.png',
+      '/assets/img/test/Bill of Materials.png',
+      '/assets/img/gigs/gigs-01.jpg',
+      '/assets/img/gigs/gigs-02.jpg',
+      '/assets/img/gigs/gigs-03.jpg',
+      '/assets/img/gigs/gigs-04.jpg',
+      '/assets/img/gigs/gigs-05.jpg',
+      '/assets/img/gigs/gigs-06.jpg',
+      '/assets/img/gigs/gigs-07.jpg',
+      '/assets/img/gigs/gigs-08.jpg',
+    ];
+    
+    // Use gig ID to consistently get the same set of images for the same gig
+    const startIndex = id % gigImages.length;
+    return [
+      gigImages[startIndex],
+      gigImages[(startIndex + 1) % gigImages.length]
+    ];
+  };
+  
+  // Get the image to display - always use random images for consistency
+  const randomImages = getRandomGigImages();
+  const currentImage = randomImages[currentImageIndex % randomImages.length];
+
   return (
     <div className={`gigs-card relative group ${status === 'draft' ? 'opacity-70' : ''} hover:shadow-lg transition-shadow duration-300`}>
       {status === 'draft' && (
@@ -236,58 +261,21 @@ const GigCard: React.FC<GigCardProps> = ({
       )}
       <div className="gigs-img relative">
         <Link href={`/gigs/${id}`}>
-          <div className="relative h-48 w-full overflow-hidden">
-            <Image 
-              src={images[currentImageIndex] || fallbackImage} 
-              alt={title} 
+          <div className="relative h-[200px] w-full overflow-hidden rounded-t-lg">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20"></div>
+            <Image
+              src={currentImage}
+              alt={title}
               fill
-              style={{ objectFit: 'cover' }}
-              className="transition-transform duration-300 group-hover:scale-105"
-              onError={(e: any) => {
-                // If image fails to load, set a fallback
-                if (e.target.src !== fallbackImage) {
-                  e.target.src = fallbackImage;
-                }
+              style={{ 
+                objectFit: 'cover',
+                objectPosition: 'center'
               }}
+              onError={() => console.log('Image error')}
+              className="transition-all duration-300 hover:scale-105"
+              priority
             />
-            
-            {/* Image navigation controls - only show if multiple images */}
-            {images.length > 1 && (
-              <>
-                <button 
-                  onClick={prevImage}
-                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M15 18l-6-6 6-6" />
-                  </svg>
-                </button>
-                <button 
-                  onClick={nextImage}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
-                </button>
-                
-                {/* Image pagination dots */}
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                  {images.map((_, index) => (
-                    <button 
-                      key={index}
-                      onClick={(e) => goToImage(e, index)}
-                      className={`w-2.5 h-2.5 rounded-full ${
-                        index === currentImageIndex 
-                          ? 'bg-white scale-110' 
-                          : 'bg-white/50 hover:bg-white/80'
-                      } transition-all duration-200 focus:outline-none cursor-pointer`}
-                      aria-label={`Go to image ${index + 1}`}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
         </Link>
         <div className="gigs-badges absolute top-2 left-2 z-10 flex flex-wrap gap-2">

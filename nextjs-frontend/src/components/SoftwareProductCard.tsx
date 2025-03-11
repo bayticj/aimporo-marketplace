@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { formatCurrency } from '@/utils/currency';
+import ShortDescriptionDisplay from './ShortDescriptionDisplay';
 
 interface SoftwarePlan {
   id: number;
@@ -55,6 +57,10 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
   const [logoError, setLogoError] = useState(false);
   const [screenshotError, setScreenshotError] = useState(false);
   
+  // Debug logs for description
+  console.log(`SoftwareProductCard ${id} - short_description:`, short_description);
+  console.log(`SoftwareProductCard ${id} - description:`, description);
+  
   const handleLogoError = () => {
     setLogoError(true);
   };
@@ -74,6 +80,9 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
     ? Math.min(...plans.map(plan => plan.price))
     : 0;
     
+  // Check if this is a lifetime product (has at least one lifetime plan)
+  const hasLifetimePlan = plans.some(plan => plan.duration_days === null);
+  
   // Function to cycle through images
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -106,6 +115,22 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
     const hashValue = id || partner_name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     // Ensure it's between 1 and 10 (we have 10 avatar images)
     return (hashValue % 10) + 1;
+  };
+  
+  // Determine the pricing model based on plans
+  const getPricingModel = () => {
+    if (hasLifetimePlan) {
+      return 'lifetime';
+    }
+    
+    // Check if any plan has a duration in months (approximately)
+    const hasMonthlyPlan = plans.some(plan => plan.duration_days && plan.duration_days >= 28 && plan.duration_days <= 31);
+    const hasYearlyPlan = plans.some(plan => plan.duration_days && plan.duration_days >= 365 && plan.duration_days <= 366);
+    
+    if (hasYearlyPlan) return 'year';
+    if (hasMonthlyPlan) return 'month';
+    
+    return null;
   };
 
   return (
@@ -161,7 +186,7 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
           </div>
         </Link>
         <div className="gigs-badges">
-          {plans.some(plan => plan.duration_days === null) && (
+          {hasLifetimePlan && (
             <span className="featured">
               <svg className="mr-1" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
@@ -220,23 +245,46 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
           </div>
         </div>
         <div className="gigs-title">
-          <h3>
+          <h3 className="mb-0">
             <Link href={`/software/${slug}`} className="hover:text-orange-600 transition-colors">
               {name}
             </Link>
           </h3>
         </div>
-        <div className="flex items-center justify-between mt-2">
+        
+        {/* Professional short description display */}
+        <div className="text-sm text-gray-600 mb-3">
+          {short_description ? (
+            typeof short_description === 'string' && short_description.includes('\n') ? (
+              <div className="py-0">
+                {short_description.split('\n').map((line, index) => (
+                  <p key={index} className="line-clamp-1 mb-0">{line}</p>
+                ))}
+              </div>
+            ) : (
+              <p className="line-clamp-3 py-0">{short_description}</p>
+            )
+          ) : description ? (
+            <p className="line-clamp-3 py-0">{description.substring(0, 100)}</p>
+          ) : (
+            <p className="py-0">No description available</p>
+          )}
+        </div>
+        
+        <div className="flex items-center justify-between mt-1">
           <div className="seller-info text-sm text-gray-600">
             <span>By {partner_name}</span>
           </div>
           <div className="price-info">
             <span className="price-prefix text-xs text-gray-500">Starting at</span>
-            <span className="price text-lg font-bold text-orange-600">${startingPrice.toFixed(2)}</span>
+            <span className="price text-lg font-bold text-orange-600">
+              {formatCurrency(startingPrice, { 
+                pricingModel: getPricingModel(),
+                isDigitalProduct: hasLifetimePlan,
+                useSimpleFormat: true
+              })}
+            </span>
           </div>
-        </div>
-        <div className="mt-2 text-xs text-gray-500 line-clamp-2">
-          {short_description}
         </div>
       </div>
     </div>

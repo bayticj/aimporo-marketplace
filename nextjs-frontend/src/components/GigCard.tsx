@@ -40,6 +40,9 @@ interface GigCardProps {
   is_service?: boolean;
   is_digital_product?: boolean;
   original_price?: number; // For showing discount
+  type?: 'gig' | 'digital' | 'software'; // Add product type
+  description?: string;
+  short_description?: string;
 }
 
 const GigCard: React.FC<GigCardProps> = ({
@@ -63,9 +66,17 @@ const GigCard: React.FC<GigCardProps> = ({
   is_service = false,
   is_digital_product = false,
   original_price = null,
+  type = 'gig', // Default to gig type
+  description,
+  short_description,
 }) => {
   // Fallback image in case the provided image doesn't load
   const fallbackImage = '/assets/img/placeholder.jpg';
+  
+  // Debug logs for short description
+  console.log(`GigCard ${id} - short_description:`, short_description);
+  console.log(`GigCard ${id} - description:`, description);
+  console.log(`GigCard ${id} - title:`, title);
   
   // State to track if pricing tiers popup is shown
   const [showTiers, setShowTiers] = useState(false);
@@ -126,6 +137,15 @@ const GigCard: React.FC<GigCardProps> = ({
   
   // Format delivery time for display
   const formatDelivery = (delivery: string) => {
+    // Always show "Instant Delivery" for software and digital products
+    if (type === 'software' || type === 'digital') {
+      return "Instant Delivery";
+    }
+    
+    // For gigs, parse the delivery time
+    if (delivery === "Instant") {
+      return "Instant Delivery";
+    }
     const days = parseInt(delivery.split(' ')[0]);
     return days === 1 ? '1 day delivery' : `${days} days delivery`;
   };
@@ -176,7 +196,7 @@ const GigCard: React.FC<GigCardProps> = ({
     return (
       <div className="price-container">
         <div style={{ display: 'flex', alignItems: 'baseline' }}>
-          <span className="price-amount">{is_digital_product || pricingModel === 'lifetime' ? '$' : 'P'}{price.toFixed(0)}</span>
+          <span className="price-amount">₱{price.toFixed(0)}</span>
           <span className="price-plan">/{pricingModel || 'lifetime'}</span>
         </div>
         {originalPrice && originalPrice > price && (
@@ -187,11 +207,9 @@ const GigCard: React.FC<GigCardProps> = ({
               textDecoration: 'line-through', 
               display: 'inline-block !important',
               opacity: '1 !important',
-              color: '#6b7280',
-              fontSize: '1.25rem'
             }}
           >
-            {is_digital_product ? '$' : 'P'}{originalPrice.toFixed(0)}
+            ₱{originalPrice.toFixed(0)}
           </span>
         )}
         {discountPercentage && discountPercentage >= 10 && (
@@ -199,17 +217,7 @@ const GigCard: React.FC<GigCardProps> = ({
             className="discount-badge" 
             style={{ 
               display: 'block !important',
-              position: 'absolute',
-              top: '-10px',
-              right: '-15px',
-              backgroundColor: '#ef4444',
-              color: 'white',
-              fontSize: '0.75rem',
-              fontWeight: '600',
-              padding: '2px 6px',
-              borderRadius: '10px',
-              transform: 'rotate(5deg)',
-              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+              opacity: '1 !important',
             }}
           >
             -{discountPercentage}%
@@ -346,12 +354,28 @@ const GigCard: React.FC<GigCardProps> = ({
           )}
         </div>
         <div className="gigs-title">
-          <h3 className="text-base font-medium mb-2 line-clamp-2">
+          <h3 className="text-base font-medium mb-0 line-clamp-2">
             <Link href={`/gigs/${id}`} className="text-gray-800 hover:text-orange-600 transition-colors">
               {title}
             </Link>
           </h3>
         </div>
+        
+        {/* Enhanced short description display with better spacing */}
+        <div className="text-sm text-gray-600 mb-3">
+          {short_description ? (
+            <div className="py-0">
+              {short_description.split('\n').map((line, index) => (
+                <p key={index} className="line-clamp-1 mb-0">{line}</p>
+              ))}
+            </div>
+          ) : description ? (
+            <p className="line-clamp-3 py-0">{description}</p>
+          ) : (
+            <p className="py-0">No description available</p>
+          )}
+        </div>
+        
         <div className="flex items-center justify-between">
           <div className="star-rate flex items-center">
             <div className="flex items-center mr-1">
@@ -396,7 +420,7 @@ const GigCard: React.FC<GigCardProps> = ({
         <div className="border-t border-gray-100 pt-3 mt-2">
           <div className="gigs-card-footer flex items-center justify-between">
             <div className="delivery flex items-center text-gray-600 text-sm">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1 text-red-500">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={`mr-1 ${type === 'software' || type === 'digital' || delivery === "Instant" ? "text-green-500" : "text-red-500"}`}>
                 <path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM16.2 16.2L11 13V7H12.5V12.2L17 14.9L16.2 16.2Z" fill="currentColor" />
               </svg>
               {formatDelivery(delivery)}

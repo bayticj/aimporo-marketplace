@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Slider from 'react-slick';
@@ -66,6 +66,27 @@ export default function Home() {
   const [dragStart, setDragStart] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
   
+  // Add isMobile state
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Detect mobile devices
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    // Set initial value
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
   // Main categories only
   const mainCategories = [
     { 
@@ -98,8 +119,8 @@ export default function Home() {
   // We'll create 10 copies of the array to ensure we never reach the end
   const continuousCarouselItems = Array(10).fill(null).flatMap(() => [...mainCategories]);
   
-  // Function to handle carousel navigation
-  const changeCategorySet = (index: number) => {
+  // Declare changeCategorySet first using useCallback
+  const changeCategorySet = useCallback((index: number) => {
     if (isTransitioning) return;
     
     setIsTransitioning(true);
@@ -116,7 +137,7 @@ export default function Home() {
     
     if (sliderRef.current) {
       const cardWidth = sliderRef.current.querySelector('.appsumo-category-card')?.clientWidth || 0;
-      const gap = 24; // 1.5rem gap
+      const gap = isMobile ? 0 : 24; // No gap on mobile
       const scrollPosition = targetIndex * (cardWidth + gap);
       
       sliderRef.current.scrollTo({
@@ -128,16 +149,16 @@ export default function Home() {
     setTimeout(() => {
       setIsTransitioning(false);
     }, 300);
-  };
+  }, [isTransitioning, continuousCarouselItems.length, isMobile]);
   
-  // Handle arrow navigation with infinite scroll
-  const handlePrevClick = () => {
-    changeCategorySet(activeCategorySet - 1);
-  };
-  
-  const handleNextClick = () => {
+  // Then declare handleNextClick and handlePrevClick
+  const handleNextClick = useCallback(() => {
     changeCategorySet(activeCategorySet + 1);
-  };
+  }, [activeCategorySet, changeCategorySet]);
+  
+  const handlePrevClick = useCallback(() => {
+    changeCategorySet(activeCategorySet - 1);
+  }, [activeCategorySet, changeCategorySet]);
   
   // Handle touch events for swipe
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -634,12 +655,54 @@ export default function Home() {
     }
   };
   
-  // Handle mouse leave to prevent stuck dragging state
-  const handleMouseLeave = () => {
+  // Fix the handleMouseLeave function to include pausing functionality
+  const handleMouseLeave = (e?: React.MouseEvent) => {
     if (isDragging) {
-      handleMouseUp(); // Use the same logic as mouse up
+      handleMouseUp();
     }
+    setIsPaused(false);
   };
+
+  // Add a handleMouseEnter function
+  const handleMouseEnter = () => {
+    setIsPaused(true);
+  };
+
+  // Add auto-slide functionality with useEffect
+  useEffect(() => {
+    // Auto-slide timer
+    const autoSlideTimer = setInterval(() => {
+      if (!isDragging && !isTransitioning) {
+        handleNextClick();
+      }
+    }, 5000); // Change slide every 5 seconds
+    
+    // Clean up timer on component unmount
+    return () => {
+      clearInterval(autoSlideTimer);
+    };
+  }, [isDragging, isTransitioning]); // Only re-create timer if these dependencies change
+
+  // Add pause auto-slide on hover functionality
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Update the useEffect for auto-sliding to respect the pause state
+  useEffect(() => {
+    // Don't start timer if paused
+    if (isPaused) return;
+    
+    // Auto-slide timer
+    const autoSlideTimer = setInterval(() => {
+      if (!isDragging && !isTransitioning) {
+        handleNextClick();
+      }
+    }, 5000); // Change slide every 5 seconds
+    
+    // Clean up timer on component unmount
+    return () => {
+      clearInterval(autoSlideTimer);
+    };
+  }, [isDragging, isTransitioning, isPaused, handleNextClick]); // Dependencies are now properly handled
 
   return (
     <main className="overflow-x-hidden overflow-y-auto">
@@ -667,9 +730,10 @@ export default function Home() {
                 </p>
               </div>
               
-              <div style={{ position: 'relative', zIndex: 1000 }}>
+              <div style={{ position: 'relative', zIndex: 1000 }} className="shop-now-button-container">
                 <a 
                   href="/marketplace"
+                  className="shop-now-button"
                   style={{
                     backgroundColor: isPressed ? '#E05800' : isHovered ? '#FF7A1F' : '#FF6900',
                     color: 'white',
@@ -706,7 +770,7 @@ export default function Home() {
             {/* Right side - Featured Categories */}
             <div className="lg:col-span-7 flex items-center">
               <div className="relative appsumo-categories-container w-full">
-                {/* Swipeable slider with navigation arrows */}
+                {/* Swipeable slider with navigation arrows - visible only on desktop */}
                 <div className="appsumo-slider-navigation">
                   <button 
                     className="appsumo-slider-arrow appsumo-slider-prev" 
@@ -730,7 +794,7 @@ export default function Home() {
                 
                 <div 
                   ref={sliderRef}
-                  className={`appsumo-categories-slider ${isDragging ? 'dragging' : ''}`}
+                  className={`appsumo-categories-slider ${isDragging ? 'dragging' : ''} ${isMobile ? 'mobile-slider' : ''}`}
                   onTouchStart={handleTouchStart}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
@@ -738,6 +802,7 @@ export default function Home() {
                   onMouseMove={handleMouseMove}
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseLeave}
+                  onMouseEnter={handleMouseEnter}
                 >
                   {continuousCarouselItems.map((category, index) => (
                     <div 
@@ -781,7 +846,9 @@ export default function Home() {
                   ))}
                 </div>
                 
-                {/* Custom navigation buttons below the cards */}
+                {/* Remove pagination indicators for mobile */}
+                
+                {/* Custom navigation buttons below the cards - visible only on desktop */}
                 <div className="category-arrows-container">
                   <div className="category-arrows-wrapper">
                     <button 

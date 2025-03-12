@@ -36,17 +36,25 @@ body {
   height: auto !important;
 }
 
-/* Header Styles */
+/* Header styles */
 .header {
   position: sticky;
   top: 0;
-  left: 0;
   width: 100%;
-  z-index: 1000;
   background-color: #fff;
+  z-index: 1001;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  overflow: visible; /* Ensure dropdowns can appear */
-  height: 80px; /* Fixed header height */
+  transition: all 0.3s ease;
+  overflow: visible !important;
+  box-sizing: border-box;
+}
+
+.header.fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .header-nav {
@@ -54,15 +62,86 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  height: 100%;
+  position: relative;
+  height: 70px;
 }
 
-.navbar-header {
-  display: flex;
+.navbar-header-mobile {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1 !important;
+}
+
+.navbar-header-mobile .logo {
+  pointer-events: auto !important;
+}
+
+.navbar-brand.logo img {
+  max-height: 30px !important;
+  max-width: 120px !important;
+}
+
+.mobile-header-left {
+  display: flex !important;
+  align-items: center !important;
+  z-index: 20 !important;
+  position: relative !important;
+  width: 80px !important;
+}
+
+.header-navbar-rht {
+  display: flex !important;
+  align-items: center !important;
+  z-index: 20 !important;
+  position: relative !important;
+  width: 80px !important;
+  justify-content: flex-end !important;
+}
+
+.mobile-nav-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #4b5563 !important;
+  padding: 8px !important;
+}
+
+.mobile-nav-btn svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.header-navbar-rht .absolute {
+  top: -4px !important;
+  right: -4px !important;
+  z-index: 30 !important;
+}
+
+.header-navbar-rht .w-8.h-8 {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+}
+
+/* Logo styles */
+.navbar-brand.logo {
+  display: inline-flex;
   align-items: center;
+  max-width: 150px;
   flex-shrink: 0;
 }
 
+.logo img {
+  max-height: 40px;
+  width: auto;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+/* Header navigation */
 .header-search-wrapper {
   flex-grow: 1;
   max-width: 720px;
@@ -154,6 +233,8 @@ body {
   overflow-y: auto;
   padding: 16px 20px;
   width: 100%;
+  overflow: visible;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* Title styling - change to "Trending Searches" */
@@ -471,94 +552,103 @@ html, body {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .header {
-    padding: 0.75rem 1rem;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background-color: #fff;
+    z-index: 1001;
+    overflow: visible !important;
   }
   
   .header-nav {
-    padding: 0.5rem 1rem;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0 16px !important;
+    height: 60px !important;
+    position: relative !important;
   }
   
-  .header-search-wrapper {
-    max-width: 200px;
-    margin: 0 0.5rem;
+  .mobile-header-left {
+    display: flex !important;
+    align-items: center !important;
+    z-index: 20 !important;
+    position: relative !important;
+    width: 80px !important;
   }
   
-  .categories-nav {
-    padding: 0.25rem 0;
+  .navbar-header-mobile {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 1 !important;
   }
   
-  .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 10px;
-    width: calc(100% - 20px);
-    max-width: 300px;
-    max-height: 80vh;
-    overflow-y: auto;
-    margin-top: 0.75rem;
+  .navbar-header-mobile .logo {
+    pointer-events: auto !important;
   }
   
-  /* Improve touch scrolling */
-  .appsumo-categories-slider {
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    padding: 0.5rem 0;
-    margin: 0 -1rem;
-    padding: 0 1rem;
+  .navbar-brand.logo img {
+    max-height: 30px !important;
+    max-width: 120px !important;
   }
   
-  /* Make navigation arrows more touch-friendly */
-  .appsumo-slider-arrow {
-    opacity: 0.9;
-    background-color: rgba(30, 30, 30, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  .header-navbar-rht {
+    display: flex !important;
+    align-items: center !important;
+    z-index: 20 !important;
+    position: relative !important;
+    width: 80px !important;
+    justify-content: flex-end !important;
   }
   
-  /* Improve pagination dots visibility */
-  .appsumo-slider-pagination {
-    margin-top: 1.25rem;
-    gap: 0.75rem;
+  .header-navbar-rht > li {
+    margin: 0;
+    position: relative;
   }
   
-  .appsumo-slider-dot {
-    width: 10px;
-    height: 10px;
-    background-color: rgba(255, 255, 255, 0.4);
+  .mobile-profile-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
   
-  .appsumo-slider-dot.active {
-    background-color: #FF6900;
-    transform: scale(1.3);
+  .mobile-nav-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #4b5563 !important;
+    padding: 8px !important;
   }
   
-  /* Adjust hero section for better mobile experience */
-  .appsumo-hero {
-    padding: 1.5rem 0;
-    min-height: calc(100vh - 70px); /* Adjusted for mobile header height */
-    height: auto;
+  .mobile-nav-btn svg {
+    width: 24px !important;
+    height: 24px !important;
+    stroke-width: 2 !important;
   }
   
-  .appsumo-hero h1 {
-    font-size: 2.25rem;
-    line-height: 1.2;
-    margin-bottom: 1rem;
+  .header-navbar-rht .absolute {
+    top: -4px !important;
+    right: -4px !important;
+    z-index: 30 !important;
   }
   
-  .appsumo-hero p {
-    font-size: 1.125rem;
-    margin-bottom: 1.5rem;
-    max-width: 100%;
+  .header-navbar-rht .w-8.h-8 {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
   }
   
-  .appsumo-button {
-    width: 100%;
-    text-align: center;
-    padding: 0.875rem;
-  }
+  /* Order classes for mobile layout */
+  .order-1 { order: 1; }
+  .order-2 { order: 2; }
+  .order-3 { order: 3; }
+  .order-4 { order: 4; }
+  .order-5 { order: 5; }
 }
 
 @media (max-width: 576px) {
@@ -617,6 +707,60 @@ html, body {
   
   .mobile-menu-wrapper form {
     margin-bottom: 1rem;
+  }
+  
+  /* Mobile search icon styling */
+  .header-navbar-rht .md\:hidden button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+    transition: all 0.2s ease;
+  }
+  
+  .header-navbar-rht .md\:hidden button:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .header-navbar-rht .md\:hidden button svg {
+    color: #4b5563;
+  }
+  
+  /* Mobile search overlay styling */
+  .mobile-search-overlay {
+    z-index: 1100;
+    animation: fade-in 0.2s ease-out;
+  }
+  
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .mobile-search-overlay .animate-slide-down {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .header-navbar-rht .w-8.h-8 {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .header-navbar-rht .rounded-full {
+    border-width: 1.5px;
+  }
+  
+  .header-navbar-rht .absolute {
+    top: -2px;
+    right: -2px;
   }
 }
 
@@ -1392,164 +1536,172 @@ main {
   }
 }
 
-/* Mobile-specific category card adjustments */
+/* Mobile-specific category card adjustments - with stronger specificity */
 @media (max-width: 768px) {
   /* Hide navigation arrows on mobile */
-  .appsumo-slider-arrow {
-    display: none;
+  .appsumo-slider-arrow,
+  .appsumo-hero .appsumo-slider-arrow {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
   }
   
-  /* Adjust container to show peek of next card */
-  .appsumo-categories-container {
-    margin-top: 2rem;
-    padding: 0;
-    overflow: visible;
+  /* Hide category arrows on mobile */
+  .category-arrows-container,
+  .appsumo-hero .category-arrows-container {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
   }
   
-  /* Adjust slider for peeking effect */
-  .appsumo-categories-slider {
-    padding: 1rem 0;
-    margin-right: -20%; /* Creates space to show 20% of next card */
-    padding-right: 20%; /* Ensures proper spacing */
-    scroll-padding-left: 1rem; /* Ensures proper snap points */
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
+  /* Adjust container to show only one card */
+  .appsumo-categories-container,
+  .appsumo-hero .appsumo-categories-container {
+    margin-top: 2rem !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    padding-bottom: 2rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
   
-  /* Adjust card sizing for mobile */
-  .appsumo-category-card {
-    flex: 0 0 calc(80% - 1rem);
-    min-width: calc(80% - 1rem);
-    height: 400px; /* Increased height to accommodate the full image */
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  /* Adjust slider for single card view */
+  .appsumo-categories-slider,
+  .appsumo-hero .appsumo-categories-slider {
+    display: flex !important;
+    padding: 1rem 0 !important;
+    margin: 0 auto !important;
+    padding-right: 0 !important;
+    gap: 1.5rem !important;
+    scroll-padding-left: 0 !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-behavior: smooth !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important; /* Firefox */
+  }
+  
+  /* Hide scrollbar */
+  .appsumo-categories-slider::-webkit-scrollbar {
+    display: none !important;
+  }
+  
+  /* Adjust card sizing for mobile - single card view */
+  .appsumo-category-card,
+  .appsumo-hero .appsumo-category-card {
+    flex: 0 0 90% !important;
+    min-width: 90% !important;
+    width: 90% !important;
+    max-width: 90% !important;
+    height: 450px !important;
+    margin: 0 auto !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+    scroll-snap-align: center !important;
+    scroll-snap-stop: always !important;
+    transform: none !important;
+    transition: transform 0.3s ease !important;
   }
   
   /* Content styling */
-  .appsumo-category-content {
-    padding: 1.5rem;
+  .appsumo-category-content,
+  .appsumo-hero .appsumo-category-content {
+    padding: 1.5rem !important;
+    flex: 1 !important;
   }
   
-  .appsumo-category-content h3 {
-    font-size: 1.25rem;
-    min-height: auto;
-  }
-  
-  .appsumo-category-content p {
-    font-size: 1rem;
-    min-height: auto;
-  }
-  
-  .appsumo-category-image {
-    height: 250px; /* Increased height for better image display */
-  }
-  
-  /* Improve pagination visibility on mobile */
-  .appsumo-slider-pagination {
-    margin-top: 1.5rem;
-    gap: 0.75rem;
+  /* Add pagination indicators for mobile */
+  .appsumo-slider-pagination,
+  .appsumo-hero .appsumo-slider-pagination {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin-top: 1.5rem !important;
+    gap: 0.5rem !important;
   }
   
   .appsumo-slider-dot {
-    width: 10px;
-    height: 10px;
-    margin: 0 4px;
-    background-color: rgba(255, 255, 255, 0.4);
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    background-color: rgba(255, 255, 255, 0.3) !important;
+    transition: all 0.3s ease !important;
   }
   
   .appsumo-slider-dot.active {
-    background-color: #FF6900;
-    transform: scale(1.3);
-  }
-  
-  /* Adjust hero section for better mobile experience */
-  .appsumo-hero {
-    overflow-x: hidden;
-    padding: 2rem 0;
-    min-height: auto;
-  }
-  
-  .appsumo-hero h1 {
-    font-size: 2.5rem;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-  }
-  
-  .appsumo-hero p {
-    font-size: 1.125rem;
-    margin-bottom: 1.5rem;
-    max-width: 100%;
-  }
-  
-  .appsumo-button {
-    width: 100%;
-    text-align: center;
-    padding: 1rem;
-  }
-  
-  /* Hide floating elements on small screens for better performance */
-  .hero-floating-element {
-    opacity: 0.5;
+    background-color: #FF6900 !important;
+    transform: scale(1.3) !important;
   }
 }
 
 /* Small mobile devices */
 @media (max-width: 480px) {
   .appsumo-categories-slider {
-    margin-right: -20%; /* Maintain 20% peek on smaller screens */
+    margin: 0 auto !important;
+    padding: 0.5rem !important;
   }
   
   .appsumo-category-card {
-    flex: 0 0 80%; /* Maintain 80% width on smaller screens */
-    min-width: 80%;
-    min-height: 350px;
+    flex: 0 0 100% !important;
+    min-width: 100% !important;
+    width: 100% !important;
+    height: 420px !important;
+    margin: 0 auto !important;
   }
   
   .appsumo-category-image {
-    height: 140px;
-  }
-  
-  .appsumo-hero h1 {
-    font-size: 2rem;
-  }
-  
-  .appsumo-hero p {
-    font-size: 1rem;
-  }
-}
-
-/* Very small devices */
-@media (max-width: 375px) {
-  .appsumo-categories-slider {
-    margin-right: -20%; /* Maintain 20% peek on very small screens */
-  }
-  
-  .appsumo-category-card {
-    flex: 0 0 80%; /* Maintain 80% width on very small screens */
-    min-width: 80%;
-    min-height: 320px;
-  }
-  
-  .appsumo-category-image {
-    height: 120px;
+    height: 220px !important;
   }
   
   .appsumo-category-content {
-    padding: 1.25rem;
+    padding: 1.25rem !important;
   }
   
   .appsumo-category-content h3 {
-    font-size: 1.125rem;
+    font-size: 1.35rem !important;
   }
   
   .appsumo-category-content p {
-    font-size: 0.875rem;
+    font-size: 0.95rem !important;
   }
   
   .appsumo-category-button {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Very small mobile devices */
+@media (max-width: 375px) {
+  .appsumo-category-card {
+    height: 400px !important;
+  }
+  
+  .appsumo-category-image {
+    height: 200px !important;
+  }
+  
+  .appsumo-category-content h3 {
+    font-size: 1.25rem !important;
+  }
+  
+  .appsumo-category-content p {
+    font-size: 0.9rem !important;
+    margin-bottom: 1rem !important;
+  }
+}
+
+/* Desktop styles for navigation buttons */
+@media (min-width: 769px) {
+  .appsumo-slider-arrow,
+  .category-arrows-container {
+    display: flex !important;
+  }
+  
+  .appsumo-slider-pagination {
+    display: none !important;
   }
 }
 
@@ -2330,6 +2482,8 @@ main {
   overflow: hidden;
   animation: dropdown-fade-in 0.2s ease-out;
   margin-top: 0.5rem;
+  overflow: visible;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes dropdown-fade-in {
@@ -2367,4 +2521,644 @@ main {
   }
 }
 
+/* Ensure proper spacing in header navbar for mobile */
+@media (max-width: 768px) {
+  .header-navbar-rht {
+    gap: 8px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .header-navbar-rht > li {
+    padding-right: 8px;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Flex order for mobile header items */
+  .order-1 { order: 1; }
+  .order-2 { order: 2; }
+  .order-3 { order: 3; }
+  .order-4 { order: 4; }
+  .order-5 { order: 5; }
+  
+  /* Adjust header height for better mobile experience */
+  .header-nav {
+    height: 60px;
+  }
+  
+  /* Ensure logo is properly sized on mobile */
+  .navbar-brand.logo img {
+    max-height: 32px;
+  }
+}
+
+/* Ensure proper z-index for all dropdown components */
+.dropdown-menu,
+.search-suggestions-dropdown,
+.mobile-search-overlay {
+  z-index: 1050;
+}
+
+/* Ensure proper styling for mobile menu button */
+.mobile-menu-btn button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure proper styling for user avatar on mobile */
+@media (max-width: 576px) {
+  .header-navbar-rht .w-8.h-8 {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Mobile search button styling */
+.mobile-search-btn {
+  background-color: #f3f4f6;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.mobile-search-btn:hover {
+  background-color: #e5e7eb;
+}
+
+.mobile-search-btn:active {
+  background-color: #d1d5db;
+  transform: scale(0.95);
+}
+
+.mobile-search-btn svg {
+  color: #4b5563;
+}
+
+/* Override header styles to fix layout issues */
+.header {
+  position: relative;
+  overflow: visible !important;
+}
+
+.header-nav {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0 16px !important;
+  height: 60px !important;
+  position: relative !important;
+}
+
+.navbar-header-mobile {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1 !important;
+}
+
+.navbar-header-mobile .logo {
+  pointer-events: auto !important;
+}
+
+.navbar-brand.logo img {
+  max-height: 30px !important;
+  max-width: 120px !important;
+}
+
+.mobile-header-left {
+  display: flex !important;
+  align-items: center !important;
+  z-index: 20 !important;
+  position: relative !important;
+  width: 80px !important;
+}
+
+.header-navbar-rht {
+  display: flex !important;
+  align-items: center !important;
+  z-index: 20 !important;
+  position: relative !important;
+  width: 80px !important;
+  justify-content: flex-end !important;
+}
+
+.mobile-nav-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #4b5563 !important;
+  padding: 8px !important;
+}
+
+.mobile-nav-btn svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.header-navbar-rht .absolute {
+  top: -4px !important;
+  right: -4px !important;
+  z-index: 30 !important;
+}
+
+.header-navbar-rht .w-8.h-8 {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+}
+
+/* Notification Dropdown Styles */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Mobile notification styles */
+@media (max-width: 767px) {
+  /* Ensure notification dropdown takes full width on mobile */
+  .notification-dropdown-mobile {
+    width: 100%;
+    max-width: 100%;
+    left: 0;
+    right: 0;
+    top: 60px !important;
+    border-radius: 0;
+    max-height: calc(100vh - 60px);
+    z-index: 1001;
+    position: fixed;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Smaller icons for mobile notifications */
+  .notification-icon-mobile {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .notification-icon-mobile svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Adjust padding and spacing for mobile */
+  .notification-item-mobile {
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+  
+  /* Ensure notification badge is visible */
+  .header-navbar-rht .notification-badge {
+    z-index: 30;
+    min-width: 18px;
+    height: 16px;
+    font-size: 10px;
+    padding: 0 4px;
+    line-height: 16px;
+  }
+  
+  /* When header is fixed, adjust notification dropdown position */
+  .header.fixed .notification-dropdown-mobile {
+    top: 60px !important;
+  }
+}
+
+/* Animation for notification dropdown */
+@keyframes notification-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-animate-in {
+  animation: notification-slide-up 0.3s ease-out forwards;
+}
+
+/* Animation for dropdown fade in */
+@keyframes dropdown-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-dropdown-fade-in {
+  animation: dropdown-fade-in 0.2s ease-out forwards;
+}
+
+/* Mobile slider specific styles - improved */
+.mobile-slider {
+  scroll-snap-type: x mandatory !important;
+  scroll-behavior: smooth !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  justify-content: center !important; /* Center the card */
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important; /* Hide horizontal scrolling */
+}
+
+.mobile-slider::-webkit-scrollbar {
+  display: none !important;
+}
+
+.mobile-slider .appsumo-category-card {
+  flex: 0 0 95% !important; /* Slightly reduced to ensure full visibility */
+  min-width: 95% !important;
+  width: 95% !important;
+  max-width: 95% !important;
+  margin: 0 auto !important;
+  scroll-snap-align: center !important;
+  scroll-snap-stop: always !important;
+  transform: none !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+/* Hide pagination dots */
+.appsumo-slider-pagination,
+.appsumo-hero .appsumo-slider-pagination {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .appsumo-categories-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    margin: 1.5rem auto !important;
+  }
+  
+  .mobile-slider {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* Ensure card content is fully visible */
+  .appsumo-category-content {
+    padding: 1.25rem !important;
+    flex: 1 !important;
+  }
+  
+  .appsumo-category-image {
+    height: 220px !important;
+    overflow: hidden !important;
+  }
+  
+  .appsumo-category-image img {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  /* Improve typography */
+  .appsumo-category-content h3 {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.75rem !important;
+    line-height: 1.3 !important;
+  }
+  
+  .appsumo-category-content p {
+    font-size: 1rem !important;
+    margin-bottom: 1.25rem !important;
+    line-height: 1.5 !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+  
+  /* Improve button styling */
+  .appsumo-category-button {
+    padding: 0.5rem 1.25rem !important;
+    font-size: 0.95rem !important;
+    border-radius: 4px !important;
+    background-color: #FF6900 !important;
+    color: white !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+  }
+}
+
+/* Additional mobile-specific adjustments */
+@media (max-width: 768px) {
+  /* Ensure the hero section has proper spacing */
+  .appsumo-hero {
+    padding: 2rem 0 !important;
+    min-height: auto !important;
+  }
+  
+  /* Ensure the container has proper spacing */
+  .appsumo-categories-container {
+    margin: 2rem auto !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+  
+  /* Ensure the slider is properly centered */
+  .appsumo-categories-slider,
+  .mobile-slider {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Ensure the card is properly sized and centered */
+  .appsumo-category-card,
+  .mobile-slider .appsumo-category-card {
+    flex: 0 0 92% !important;
+    min-width: 92% !important;
+    width: 92% !important;
+    max-width: 92% !important;
+    margin: 0 auto !important;
+    height: auto !important;
+    min-height: 450px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  /* Ensure the content is properly sized */
+  .appsumo-category-content {
+    padding: 1.5rem !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* Ensure the image is properly sized */
+  .appsumo-category-image {
+    height: 200px !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    flex: 0 0 auto !important;
+  }
+  
+  /* Ensure the button is properly styled */
+  .appsumo-category-button {
+    display: inline-block !important;
+    padding: 0.5rem 1.25rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    border-radius: 4px !important;
+    background-color: #FF6900 !important;
+    color: white !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    border: none !important;
+    cursor: pointer !important;
+  }
+  
+  .appsumo-category-button:hover,
+  .appsumo-category-button:active {
+    background-color: #E05800 !important;
+    transform: translateY(-1px) !important;
+  }
+}
+
+/* Very small mobile devices */
+@media (max-width: 375px) {
+  .appsumo-category-card,
+  .mobile-slider .appsumo-category-card {
+    flex: 0 0 95% !important;
+    min-width: 95% !important;
+    width: 95% !important;
+    max-width: 95% !important;
+    min-height: 420px !important;
+  }
+  
+  .appsumo-category-image {
+    height: 180px !important;
+  }
+  
+  .appsumo-category-content {
+    padding: 1.25rem !important;
+  }
+  
+  .appsumo-category-content h3 {
+    font-size: 1.35rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .appsumo-category-content p {
+    font-size: 0.95rem !important;
+    margin-bottom: 1rem !important;
+  }
+}
+
+/* Auto-slide transition effects */
+.appsumo-categories-slider {
+  transition: transform 0.5s ease-in-out;
+}
+
+.appsumo-category-card {
+  transition: transform 0.5s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+}
+
+/* Smooth transition for mobile slider */
+.mobile-slider {
+  transition: transform 0.5s ease-in-out;
+}
+
+.mobile-slider .appsumo-category-card {
+  transition: transform 0.5s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+}
+
+/* Mobile hero section text and button centering */
+@media (max-width: 768px) {
+  .appsumo-hero h1,
+  .appsumo-hero p {
+    text-align: center !important;
+  }
+  
+  .appsumo-hero .lg\:col-span-5 {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+  
+  .appsumo-hero .lg\:col-span-5 > div[style*="position: relative"] {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+  }
+  
+  .appsumo-hero a[href="/marketplace"] {
+    margin: 0 auto !important;
+    display: flex !important;
+    justify-content: center !important;
+    min-width: 180px !important;
+  }
+  
+  /* Ensure the button has proper spacing */
+  .appsumo-button, 
+  a[style*="backgroundColor"] {
+    margin: 0 auto !important;
+    text-align: center !important;
+  }
+}
+
+/* Shop Now button styling */
+.shop-now-button-container {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.shop-now-button {
+  min-width: 160px;
+  text-align: center;
+}
+
+/* Mobile hero section text and button centering - enhanced */
+@media (max-width: 768px) {
+  .appsumo-hero h1,
+  .appsumo-hero p {
+    text-align: center !important;
+  }
+  
+  .appsumo-hero .lg\:col-span-5 {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+  
+  .shop-now-button-container {
+    justify-content: center !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+  }
+  
+  .shop-now-button {
+    margin: 0 auto !important;
+    min-width: 180px !important;
+  }
+  
+  /* Improve headline spacing */
+  .appsumo-hero .mb-6.md\:mb-8 {
+    margin-bottom: 2rem !important;
+    width: 100% !important;
+  }
+  
+  /* Ensure the headline is properly sized */
+  .appsumo-hero h1 {
+    font-size: 2.25rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Ensure the subheadline is properly sized */
+  .appsumo-hero p {
+    font-size: 1.125rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 1.5rem !important;
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+/* Final mobile hero section adjustments */
+@media (max-width: 768px) {
+  /* Additional button centering styles */
+  .shop-now-button-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+  
+  .shop-now-button {
+    margin: 0 auto !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-width: 180px !important;
+    padding: 14px 28px !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+  }
+  
+  /* Ensure text is properly centered */
+  .appsumo-hero .text-3xl.sm\:text-4xl.md\:text-5xl.lg\:text-5xl {
+    text-align: center !important;
+    width: 100% !important;
+  }
+  
+  .appsumo-hero .text-base.sm\:text-lg.md\:text-xl {
+    text-align: center !important;
+    width: 100% !important;
+  }
+  
+  /* Add some space below the hero section */
+  .appsumo-hero {
+    padding-bottom: 3rem !important;
+  }
+}
+
+/* Very small devices */
+@media (max-width: 375px) {
+  .appsumo-hero h1 {
+    font-size: 2rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .appsumo-hero p {
+    font-size: 1rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+  
+  .shop-now-button {
+    min-width: 160px !important;
+    padding: 12px 24px !important;
+  }
+}
 

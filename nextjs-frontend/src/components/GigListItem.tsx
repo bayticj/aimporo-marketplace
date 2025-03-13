@@ -99,7 +99,7 @@ const GigListItem: React.FC<GigListItemProps> = ({ gig, index, isFavorite, onTog
     return (
       <div className="price-container">
         <div style={{ display: 'flex', alignItems: 'baseline' }}>
-          <span className="price-amount">{gig.is_digital_product || pricingModel === 'lifetime' ? '$' : 'P'}{price.toFixed(0)}</span>
+          <span className="price-amount">₱{price.toFixed(0)}</span>
           <span className="price-plan">/{pricingModel || 'lifetime'}</span>
         </div>
         {originalPrice && originalPrice > price && (

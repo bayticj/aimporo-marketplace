@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { gigService } from '@/services/api';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { formatCurrency } from '@/utils/currency';
 
 interface Gig {
   id: number;
@@ -266,7 +267,7 @@ export default function SearchPage() {
                   </h3>
                   <p className="text-gray-600 mb-4 line-clamp-2">{gig.description}</p>
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-green-600">${gig.price.toFixed(2)}</span>
+                    <span className="text-lg font-bold text-green-600">{formatCurrency(gig.price)}</span>
                     <span className="text-sm text-gray-500">Delivery: {gig.delivery_time} days</span>
                   </div>
                 </div>

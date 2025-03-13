@@ -29,11 +29,15 @@ const startServer = (port) => {
 
     // Initialize Socket.IO
     const io = new Server(server, {
+      path: '/api/socketio',
       cors: {
         origin: process.env.NEXT_PUBLIC_FRONTEND_URL || `http://localhost:${port}`,
         methods: ['GET', 'POST'],
         credentials: true
-      }
+      },
+      transports: ['websocket', 'polling'],
+      allowEIO3: true,
+      pingTimeout: 60000
     });
 
     // Socket.IO connection handler

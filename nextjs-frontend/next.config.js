@@ -21,6 +21,15 @@ const nextConfig = {
     // Handle CSS and other assets
     return config;
   },
+  // Add rewrites for websocket connections
+  async rewrites() {
+    return [
+      {
+        source: '/api/socketio/:path*',
+        destination: '/api/socketio',
+      },
+    ];
+  },
 };
 
 const sentryWebpackPluginOptions = {

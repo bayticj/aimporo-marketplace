@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Laravel\Scout\Searchable;
 
 class Gig extends Model
@@ -21,14 +22,21 @@ class Gig extends Model
         'user_id',
         'title',
         'description',
+        'short_description',
         'category_id',
         'subcategory',
         'price',
+        'original_price',
+        'pricing_model',
+        'discount_percentage',
+        'discount_valid_until',
         'delivery_time',
         'requirements',
         'location',
         'is_featured',
         'is_active',
+        'is_digital_product',
+        'is_service',
         'thumbnail',
         'images',
         'tags',
@@ -46,8 +54,13 @@ class Gig extends Model
         'images' => 'array',
         'tags' => 'array',
         'price' => 'decimal:2',
+        'original_price' => 'decimal:2',
+        'discount_percentage' => 'decimal:2',
+        'discount_valid_until' => 'datetime',
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
+        'is_digital_product' => 'boolean',
+        'is_service' => 'boolean',
         'average_rating' => 'decimal:1',
         'rating' => 'integer',
         'reviews_count' => 'integer',
@@ -67,9 +80,11 @@ class Gig extends Model
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
+            'short_description' => $this->short_description,
             'category_id' => $this->category_id,
             'subcategory' => $this->subcategory,
             'price' => $this->price,
+            'pricing_model' => $this->pricing_model,
             'delivery_time' => $this->delivery_time,
             'location' => $this->location,
             'tags' => $this->tags,
@@ -77,6 +92,8 @@ class Gig extends Model
             'rating' => $this->rating,
             'is_featured' => $this->is_featured,
             'is_active' => $this->is_active,
+            'is_digital_product' => $this->is_digital_product,
+            'is_service' => $this->is_service,
             'created_at' => $this->created_at,
         ];
         
@@ -113,6 +130,14 @@ class Gig extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+    
+    /**
+     * Get the pricing plans for the gig.
+     */
+    public function pricingPlans(): MorphMany
+    {
+        return $this->morphMany(PricingPlan::class, 'priceable');
     }
     
     /**
@@ -153,5 +178,31 @@ class Gig extends Model
     public function scopeByMinRating($query, $rating)
     {
         return $query->where('average_rating', '>=', $rating);
+    }
+
+    /**
+     * Calculate the discounted price.
+     *
+     * @return float
+     */
+    public function getDiscountedPriceAttribute(): float
+    {
+        if ($this->discount_percentage && $this->discount_valid_until && $this->discount_valid_until->isFuture()) {
+            return $this->price * (1 - ($this->discount_percentage / 100));
+        }
+
+        return $this->price;
+    }
+
+    /**
+     * Check if the gig has an active discount.
+     *
+     * @return bool
+     */
+    public function getHasActiveDiscountAttribute(): bool
+    {
+        return $this->discount_percentage && 
+               $this->discount_valid_until && 
+               $this->discount_valid_until->isFuture();
     }
 }

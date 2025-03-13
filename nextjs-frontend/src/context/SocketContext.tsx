@@ -51,9 +51,13 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Only connect if user is authenticated
     if (!user) return;
 
-    const socketInstance = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3012', {
+    const socketInstance = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3003', {
+      path: '/api/socketio',
       withCredentials: true,
       transports: ['websocket', 'polling'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 60000
     });
 
     socketInstance.on('connect', () => {

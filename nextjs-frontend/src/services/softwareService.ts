@@ -49,32 +49,70 @@ export interface SoftwareProductParams {
 export const getSoftwareProducts = async (params: SoftwareProductParams = {}) => {
   try {
     const response = await axios.get('/api/software/products', { params });
+    
+    // Ensure all software products have "Instant" delivery
+    if (response.data && response.data.data) {
+      response.data.data = response.data.data.map((product: SoftwareProduct) => ({
+        ...product,
+        delivery: "Instant"
+      }));
+    } else if (Array.isArray(response.data)) {
+      response.data = response.data.map((product: SoftwareProduct) => ({
+        ...product,
+        delivery: "Instant"
+      }));
+    }
+    
     return response.data;
   } catch (error) {
     console.error('Error fetching software products:', error);
     
     // Return mock data for development
-    return {
-      data: getMockSoftwareProducts(),
+    const mockData = {
+      data: getMockSoftwareProducts().map(product => ({
+        ...product,
+        delivery: "Instant"
+      })),
       current_page: params.page || 1,
       last_page: 3,
       per_page: params.per_page || 12,
       total: 30
     };
+    
+    return mockData;
   }
 };
 
 export const getSoftwareProduct = async (slug: string) => {
   try {
     const response = await axios.get(`/api/software/products/${slug}`);
+    
+    // Ensure the software product has "Instant" delivery
+    if (response.data && response.data.data) {
+      response.data.data = {
+        ...response.data.data,
+        delivery: "Instant"
+      };
+    } else if (response.data) {
+      response.data = {
+        ...response.data,
+        delivery: "Instant"
+      };
+    }
+    
     return response.data;
   } catch (error) {
     console.error(`Error fetching software product ${slug}:`, error);
     
     // Return mock data for development
     const mockProducts = getMockSoftwareProducts();
+    const mockProduct = mockProducts.find(product => product.slug === slug) || mockProducts[0];
+    
     return {
-      data: mockProducts.find(product => product.slug === slug) || mockProducts[0]
+      data: {
+        ...mockProduct,
+        delivery: "Instant"
+      }
     };
   }
 };

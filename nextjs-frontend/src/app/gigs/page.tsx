@@ -46,6 +46,8 @@ interface Gig {
       features: string[];
     };
   };
+  description: string;
+  short_description: string;
 }
 
 export default function GigsPage() {
@@ -200,7 +202,9 @@ export default function GigsPage() {
             revisions: 'Unlimited',
             features: ['10 Concepts', 'All file formats', 'Source files', 'Social media kit', 'Brand guidelines', 'Stationery design']
           }
-        }
+        },
+        description: 'A professional logo design service',
+        short_description: 'Professional logo design'
       },
       {
         id: 2,
@@ -214,7 +218,9 @@ export default function GigsPage() {
         badge: 'Videography',
         hot: true,
         delivery: '2 days',
-        status: 'published' as const
+        status: 'published' as const,
+        description: 'A professional website development service',
+        short_description: 'Professional website development'
       },
       {
         id: 3,
@@ -228,7 +234,9 @@ export default function GigsPage() {
         badge: 'Music & Audio',
         featured: true,
         delivery: '1 day',
-        status: 'draft' as const
+        status: 'draft' as const,
+        description: 'An SEO optimization package',
+        short_description: 'SEO optimization'
       },
       {
         id: 4,
@@ -240,7 +248,9 @@ export default function GigsPage() {
         seller: 'ViralVision',
         location: 'Australia',
         badge: 'Digital Marketing',
-        delivery: '3 days'
+        delivery: '3 days',
+        description: 'Social media content creation',
+        short_description: 'Social media content'
       },
       {
         id: 5,
@@ -252,7 +262,9 @@ export default function GigsPage() {
         seller: 'VideoMaster',
         location: 'United States',
         badge: 'Videography',
-        delivery: '2 days'
+        delivery: '2 days',
+        description: 'Professional video editing',
+        short_description: 'Professional video editing'
       },
       {
         id: 6,
@@ -265,7 +277,9 @@ export default function GigsPage() {
         location: 'Germany',
         badge: 'Programming & Tech',
         featured: true,
-        delivery: '7 days'
+        delivery: '7 days',
+        description: 'Mobile app development',
+        short_description: 'Mobile app development'
       },
     ];
     setGigs(sampleGigs);
@@ -455,8 +469,8 @@ export default function GigsPage() {
                       className="w-full"
                     />
                     <div className="flex justify-between text-xs text-gray-500">
-                      <span>${priceRange[0]}</span>
-                      <span>${priceRange[1]}</span>
+                      <span>₱{priceRange[0]}</span>
+                      <span>₱{priceRange[1]}</span>
                     </div>
                   </div>
                 </div>
@@ -645,7 +659,7 @@ export default function GigsPage() {
                 
                 {(priceRange[0] > 0 || priceRange[1] < 1000) && (
                   <span className="text-xs bg-white px-2 py-1 rounded-full flex items-center border border-gray-200">
-                    Price: ${priceRange[0]} - ${priceRange[1]}
+                    Price: ₱{priceRange[0]} - ₱{priceRange[1]}
                     <button 
                       onClick={() => setPriceRange([0, 1000])}
                       className="ml-1 text-gray-500 hover:text-gray-700"
@@ -724,6 +738,8 @@ export default function GigsPage() {
                           onToggleFavorite={() => toggleFavorite(index)}
                           status={gig.status}
                           pricing_tiers={gig.pricing_tiers}
+                          description={gig.description}
+                          short_description={gig.short_description}
                         />
                       </div>
                     ))}

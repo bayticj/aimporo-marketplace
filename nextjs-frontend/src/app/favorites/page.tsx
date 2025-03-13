@@ -18,6 +18,8 @@ interface Gig {
   featured?: boolean;
   hot?: boolean;
   delivery: string;
+  description?: string;
+  short_description?: string;
 }
 
 export default function FavoritesPage() {
@@ -84,7 +86,9 @@ export default function FavoritesPage() {
         badge: 'Programming & Tech',
         featured: true,
         hot: true,
-        delivery: '1 day'
+        delivery: '1 day',
+        description: 'I will create a professional, modern logo design for your business or brand. The package includes unlimited revisions, multiple concepts, and all file formats you need.',
+        short_description: 'Professional, modern logo design with unlimited revisions and all file formats.'
       },
       {
         id: 2,
@@ -97,7 +101,9 @@ export default function FavoritesPage() {
         location: 'London',
         badge: 'Videography',
         hot: true,
-        delivery: '2 days'
+        delivery: '2 days',
+        description: 'I will create a responsive WordPress website for your business or personal use. The package includes custom design, mobile optimization, and basic SEO setup.',
+        short_description: 'Responsive WordPress website with custom design, mobile optimization, and basic SEO setup.'
       },
       {
         id: 3,
@@ -110,7 +116,9 @@ export default function FavoritesPage() {
         location: 'Canada',
         badge: 'Music & Audio',
         featured: true,
-        delivery: '1 day'
+        delivery: '1 day',
+        description: 'I will optimize your website for search engines to improve your rankings and drive more organic traffic. The package includes keyword research, on-page optimization, and technical SEO fixes.',
+        short_description: 'Complete SEO optimization with keyword research, on-page optimization, and technical fixes.'
       },
     ];
     setAllGigs(sampleGigs);
@@ -312,6 +320,8 @@ export default function FavoritesPage() {
                       delivery={gig.delivery}
                       isFavorite={true}
                       onToggleFavorite={() => toggleFavorite(gig.id)}
+                      description={gig.description}
+                      short_description={gig.short_description}
                     />
                   ))}
                 </div>

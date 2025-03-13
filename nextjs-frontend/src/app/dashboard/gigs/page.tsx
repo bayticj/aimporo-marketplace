@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { gigService } from '@/services/api';
 import { toast } from 'react-hot-toast';
+import { formatCurrency } from '@/utils/currency';
 
 interface Gig {
   id: number;
@@ -132,7 +133,7 @@ const GigsPage = () => {
                 <p className="text-gray-600 text-sm mb-3 line-clamp-3">{gig.description}</p>
                 
                 <div className="flex justify-between items-center mb-3">
-                  <span className="font-bold text-lg">${gig.price}</span>
+                  <span className="font-bold text-lg">{formatCurrency(gig.price)}</span>
                   <span className="text-sm text-gray-500">Delivery: {gig.delivery_time} day{gig.delivery_time !== 1 ? 's' : ''}</span>
                 </div>
                 

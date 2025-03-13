@@ -24,6 +24,8 @@ interface GigData {
   pricing_model?: 'lifetime' | 'month' | 'year' | 'session' | 'appointment' | 'slot' | 'hour' | 'delivery' | 'starting';
   is_service?: boolean;
   is_digital_product?: boolean;
+  description?: string;
+  short_description?: string;
 }
 
 interface SlideableGigCardsProps {
@@ -177,7 +179,7 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
 
   // Slider settings
   const sliderSettings = {
-    dots: false, // Disable default dots
+    dots: false,
     infinite: true,
     speed: 500,
     slidesToShow: 3,
@@ -185,7 +187,7 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
     autoplay: true,
     autoplaySpeed: 3000,
     pauseOnHover: true,
-    arrows: false, // Hide default arrows
+    arrows: false,
     responsive: [
       {
         breakpoint: 1200,
@@ -206,6 +208,29 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
+          centerMode: true,
+          centerPadding: '60px',
+          infinite: true,
+          variableWidth: false,
+          initialSlide: 0,
+          speed: 400,
+          swipeToSlide: true,
+          focusOnSelect: true,
+        }
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          centerMode: true,
+          centerPadding: '40px',
+          infinite: true,
+          variableWidth: false,
+          initialSlide: 0,
+          speed: 400,
+          swipeToSlide: true,
+          focusOnSelect: true,
         }
       }
     ],
@@ -214,8 +239,8 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
   };
 
   return (
-    <section className="py-16 bg-white">
-      <div className="container mx-auto px-4">
+    <section className="py-16 bg-white" style={{ overflow: 'visible' }}>
+      <div className="container mx-auto px-4" style={{ overflow: 'visible' }}>
         <div className="section-heading text-center mb-12">
           <h2 className="text-3xl font-bold mb-2">
             {title.includes('<span>') ? (
@@ -257,7 +282,7 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
           </div>
         </div>
         
-        <div className="max-w-6xl mx-auto relative">
+        <div className="max-w-6xl mx-auto relative" style={{ overflow: 'visible' }}>
           {/* Slider implementation with ref */}
           <div className="slider-container">
             <Slider ref={sliderRef} {...sliderSettings} key={activeFilter}>
@@ -282,30 +307,34 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
                     pricing_model={isServices ? 'delivery' : gig.pricing_model}
                     is_service={gig.is_service || isServices}
                     is_digital_product={gig.is_digital_product || isDigitalProducts}
+                    description={gig.description}
+                    short_description={gig.short_description}
                   />
                 </div>
               ))}
             </Slider>
             
-            {/* Custom navigation arrows */}
-            <button 
-              className="slider-arrow prev-arrow"
-              onClick={goToPrev}
-              aria-label="Previous slide"
-            >
-              <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 1L1 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-            <button 
-              className="slider-arrow next-arrow"
-              onClick={goToNext}
-              aria-label="Next slide"
-            >
-              <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 13L7 7L1 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
+            {/* Custom navigation arrows - only visible on desktop */}
+            <div className="desktop-only-controls">
+              <button 
+                className="slider-arrow prev-arrow"
+                onClick={goToPrev}
+                aria-label="Previous slide"
+              >
+                <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 1L1 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+              <button 
+                className="slider-arrow next-arrow"
+                onClick={goToNext}
+                aria-label="Next slide"
+              >
+                <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 13L7 7L1 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </div>
           
           {/* Loading overlay that covers the entire slider area */}

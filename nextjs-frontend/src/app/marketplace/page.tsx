@@ -12,6 +12,7 @@ import DigitalProductCard from '@/components/DigitalProductCard';
 import SoftwareProductCard from '@/components/SoftwareProductCard';
 import PageBanner from '@/components/PageBanner';
 import Pagination from '@/components/Pagination';
+import DebugDescriptionDisplay from '@/components/DebugDescriptionDisplay';
 
 // Define interfaces for different product types
 interface Gig {
@@ -29,6 +30,8 @@ interface Gig {
   delivery: string;
   type: 'gig';
   status?: 'draft' | 'published';
+  description?: string;
+  short_description?: string;
   pricing_tiers?: {
     basic: {
       title: string;
@@ -69,9 +72,11 @@ interface DigitalProduct {
   category: string;
   downloads: number;
   type: 'digital';
+  delivery: string;
   // Additional fields required by the component
   user_id: number;
   description: string;
+  short_description?: string | null;
   file_path: string;
   file_name: string;
   file_size: string;
@@ -96,6 +101,7 @@ interface SoftwareProduct {
   category: string;
   has_lifetime: boolean;
   type: 'software';
+  delivery: string;
   // Additional fields required by the component
   name: string;
   slug: string;
@@ -209,118 +215,172 @@ export default function MarketplacePage() {
     setError(null);
     
     try {
-      let allProducts: Product[] = [];
+      let fetchedProducts: Product[] = [];
       
-      // Fetch gigs if needed
+      // Fetch gigs if type is 'all' or 'gig'
       if (type === 'all' || type === 'gig') {
-        try {
-          const gigsResponse = await gigService.getGigs({
-            page: page,
-            search: search,
-            min_price: priceRange[0],
-            max_price: priceRange[1],
-            sort_by: getSortField(sort),
-            sort_order: getSortOrder(sort),
-          });
-          
-          const gigs = (gigsResponse.data.gigs.data || []).map((gig: any) => ({
-            ...gig,
-            type: 'gig'
+        const gigs = await gigService.getGigs({
+          search,
+          min_price: priceRange[0],
+          max_price: priceRange[1],
+          sort_by: getSortField(sort),
+          sort_order: getSortOrder(sort),
+          page
+        });
+        
+        if (gigs && gigs.data) {
+          fetchedProducts = [...fetchedProducts, ...gigs.data];
+        }
+      }
+      
+      // Fetch digital products if type is 'all' or 'digital'
+      if (type === 'all' || type === 'digital') {
+        const digitalProducts = await getDigitalProducts({
+          search,
+          min_price: priceRange[0],
+          max_price: priceRange[1],
+          sort_by: getSortField(sort),
+          sort_order: getSortOrder(sort),
+          page
+        });
+        
+        if (digitalProducts && digitalProducts.success && digitalProducts.data && digitalProducts.data.data) {
+          // Ensure all digital products have "Instant" delivery
+          const products = digitalProducts.data.data.map((product: any) => ({
+            ...product,
+            delivery: "Instant",
+            type: 'digital' as const
           }));
           
-          allProducts = [...allProducts, ...gigs];
-        } catch (err) {
-          console.error('Error fetching gigs:', err);
-          // Use mock data if API fails
-          allProducts = [...allProducts, ...getMockGigs()];
+          fetchedProducts = [...fetchedProducts, ...products];
         }
       }
       
-      // Fetch digital products if needed
-      if (type === 'all' || type === 'digital') {
-        try {
-          const digitalResponse = await getDigitalProducts({
-            page: page,
-            search: search,
-            min_price: priceRange[0],
-            max_price: priceRange[1],
-            sort: sort,
-          });
-          
-          // Check if digitalResponse.data is an object with a data property
-          const digitalProductsData = digitalResponse.data && 
-            typeof digitalResponse.data === 'object' && 
-            'data' in digitalResponse.data 
-              ? digitalResponse.data.data 
-              : digitalResponse.data || [];
-          
-          const digitalProducts = Array.isArray(digitalProductsData) 
-            ? digitalProductsData.map((product: any) => ({
-                ...product,
-                type: 'digital'
-              }))
-            : [];
-          
-          allProducts = [...allProducts, ...digitalProducts];
-        } catch (err) {
-          console.error('Error fetching digital products:', err);
-          // Use mock data if API fails
-          allProducts = [...allProducts, ...getMockDigitalProducts()];
-        }
-      }
-      
-      // Fetch software products if needed
+      // Fetch software products if type is 'all' or 'software'
       if (type === 'all' || type === 'software') {
-        try {
-          const softwareResponse = await getSoftwareProducts({
-            page: page,
-            search: search,
-            sort_by: getSortField(sort),
-            sort_order: getSortOrder(sort),
-            // We can't use min_price and max_price directly as they're not in SoftwareProductParams
-            // We'll filter by price after fetching
-          });
+        const softwareProducts = await getSoftwareProducts({
+          search,
+          sort_by: getSortField(sort),
+          sort_order: getSortOrder(sort),
+          page
+        });
+        
+        if (softwareProducts && softwareProducts.data) {
+          // Ensure all software products have "Instant" delivery
+          const products = softwareProducts.data.map((product: any) => ({
+            ...product,
+            delivery: "Instant",
+            type: 'software' as const
+          }));
           
-          let softwareProducts = Array.isArray(softwareResponse.data) 
-            ? softwareResponse.data.map((product: any) => ({
-                ...product,
-                type: 'software'
-              }))
-            : [];
-          
-          // Filter by price manually since the API doesn't support it
-          if (priceRange[0] > 0 || priceRange[1] < 1000) {
-            softwareProducts = softwareProducts.filter(
-              (product: SoftwareProduct) => product.price >= priceRange[0] && product.price <= priceRange[1]
-            );
-          }
-          
-          allProducts = [...allProducts, ...softwareProducts];
-        } catch (err) {
-          console.error('Error fetching software products:', err);
-          // Use mock data if API fails
-          allProducts = [...allProducts, ...getMockSoftwareProducts()];
+          fetchedProducts = [...fetchedProducts, ...products];
         }
       }
       
-      // Sort combined results
-      allProducts = sortProducts(allProducts, sort);
+      // If no products were fetched, use mock data
+      if (fetchedProducts.length === 0) {
+        let mockProducts: Product[] = [];
+        
+        if (type === 'all' || type === 'gig') {
+          const mockGigs = getMockGigs();
+          console.log('Mock Gigs Data (detailed):', JSON.stringify(mockGigs, null, 2));
+          mockProducts = [...mockProducts, ...mockGigs];
+        }
+        
+        if (type === 'all' || type === 'digital') {
+          // Ensure all digital products have "Instant" delivery
+          const digitalProducts = getMockDigitalProducts().map(product => ({
+            ...product,
+            delivery: "Instant"
+          }));
+          mockProducts = [...mockProducts, ...digitalProducts];
+        }
+        
+        if (type === 'all' || type === 'software') {
+          // Ensure all software products have "Instant" delivery
+          const softwareProducts = getMockSoftwareProducts().map(product => ({
+            ...product,
+            delivery: "Instant"
+          }));
+          mockProducts = [...mockProducts, ...softwareProducts];
+        }
+        
+        fetchedProducts = mockProducts;
+      }
       
-      // Paginate results
-      const totalItems = allProducts.length;
-      const totalPages = Math.ceil(totalItems / itemsPerPage);
-      const startIndex = (page - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const paginatedProducts = allProducts.slice(startIndex, endIndex);
+      // Apply client-side filtering and sorting
+      let filteredProducts = fetchedProducts;
       
-      setProducts(paginatedProducts);
-      setTotalPages(totalPages);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch products');
-      // Use mock data if everything fails
-      const mockProducts = [...getMockGigs(), ...getMockDigitalProducts(), ...getMockSoftwareProducts()];
-      setProducts(mockProducts.slice(0, itemsPerPage));
-      setTotalPages(Math.ceil(mockProducts.length / itemsPerPage));
+      // Filter by price range
+      filteredProducts = filteredProducts.filter(product => 
+        product.price >= priceRange[0] && product.price <= priceRange[1]
+      );
+      
+      // Filter by search term
+      if (search) {
+        const searchLower = search.toLowerCase();
+        filteredProducts = filteredProducts.filter(product => 
+          product.title.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      // Sort products
+      filteredProducts = sortProducts(filteredProducts, sort);
+      
+      setProducts(filteredProducts);
+      setTotalPages(Math.ceil(filteredProducts.length / itemsPerPage));
+      setCurrentPage(page);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setError('Failed to fetch products. Please try again later.');
+      
+      // Use mock data as fallback
+      let mockProducts: Product[] = [];
+      
+      if (type === 'all' || type === 'gig') {
+        mockProducts = [...mockProducts, ...getMockGigs()];
+      }
+      
+      if (type === 'all' || type === 'digital') {
+        // Ensure all digital products have "Instant" delivery
+        const digitalProducts = getMockDigitalProducts().map(product => ({
+          ...product,
+          delivery: "Instant"
+        }));
+        mockProducts = [...mockProducts, ...digitalProducts];
+      }
+      
+      if (type === 'all' || type === 'software') {
+        // Ensure all software products have "Instant" delivery
+        const softwareProducts = getMockSoftwareProducts().map(product => ({
+          ...product,
+          delivery: "Instant"
+        }));
+        mockProducts = [...mockProducts, ...softwareProducts];
+      }
+      
+      // Apply client-side filtering and sorting
+      let filteredProducts = mockProducts;
+      
+      // Filter by price range
+      filteredProducts = filteredProducts.filter(product => 
+        product.price >= priceRange[0] && product.price <= priceRange[1]
+      );
+      
+      // Filter by search term
+      if (search) {
+        const searchLower = search.toLowerCase();
+        filteredProducts = filteredProducts.filter(product => 
+          product.title.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      // Sort products
+      filteredProducts = sortProducts(filteredProducts, sort);
+      
+      setProducts(filteredProducts);
+      setTotalPages(Math.ceil(filteredProducts.length / itemsPerPage));
+      setCurrentPage(page);
     } finally {
       setLoading(false);
     }
@@ -479,7 +539,9 @@ export default function MarketplacePage() {
         badge: "Level 2",
         featured: true,
         delivery: "2 days",
-        type: 'gig'
+        type: 'gig',
+        description: "I will design a professional, modern, and unique logo for your business or brand. The package includes unlimited revisions, source files, and a quick turnaround time.",
+        short_description: "Professional logo design for your business or brand.\nIncludes unlimited revisions and source files.\nQuick turnaround with modern and unique designs."
       },
       {
         id: 2,
@@ -491,9 +553,10 @@ export default function MarketplacePage() {
         seller: "WebWizard",
         location: "Canada",
         badge: "Level 1",
-        hot: true,
         delivery: "3 days",
-        type: 'gig'
+        type: 'gig',
+        description: "I will create a responsive WordPress website for your business or personal use. The package includes custom design, mobile optimization, and basic SEO setup.",
+        short_description: "Custom responsive WordPress website development.\nMobile-optimized with modern design principles.\nIncludes basic SEO setup and configuration."
       },
       {
         id: 3,
@@ -506,7 +569,9 @@ export default function MarketplacePage() {
         location: "UK",
         badge: "Top Rated",
         delivery: "1 day",
-        type: 'gig'
+        type: 'gig',
+        description: "I will manage your social media accounts and create engaging content to grow your audience. The package includes daily posts, audience engagement, and monthly performance reports.",
+        short_description: "Strategic social media account management.\nDaily engaging content creation and posting.\nAudience growth with monthly performance reports."
       },
       {
         id: 4,
@@ -520,7 +585,9 @@ export default function MarketplacePage() {
         badge: "Level 2",
         featured: true,
         delivery: "4 days",
-        type: 'gig'
+        type: 'gig',
+        description: "I will optimize your website for search engines to improve your rankings and drive more organic traffic. The package includes keyword research, on-page optimization, and technical SEO fixes.",
+        short_description: "Comprehensive SEO optimization for higher rankings.\nIn-depth keyword research and on-page optimization.\nTechnical SEO fixes to drive more organic traffic."
       }
     ];
   };
@@ -538,8 +605,10 @@ export default function MarketplacePage() {
         category: "Social Media",
         downloads: 1250,
         type: 'digital',
+        delivery: "Instant",
         user_id: 1,
-        description: "A collection of templates for Instagram marketing",
+        description: "A collection of templates for Instagram marketing. Includes story templates, post templates, and highlight covers. Perfect for businesses looking to improve their social media presence.",
+        short_description: "Premium Instagram marketing templates collection.\nStory templates, post designs, and highlight covers.\nPerfect for enhancing your brand's social presence.",
         file_path: "/path/to/digital-product-01.jpg",
         file_name: "digital-product-01.jpg",
         file_size: "1.2MB",
@@ -562,8 +631,10 @@ export default function MarketplacePage() {
         category: "Business",
         downloads: 980,
         type: 'digital',
+        delivery: "Instant",
         user_id: 2,
-        description: "A template for creating a business plan",
+        description: "A comprehensive Excel template for creating professional business plans. Includes financial projections, market analysis, and executive summary sections with automatic calculations and charts.",
+        short_description: "Professional business plan Excel template suite.\nFinancial projections with automatic calculations.\nMarket analysis and executive summary sections.",
         file_path: "/path/to/digital-product-02.xlsx",
         file_name: "business-plan-template.xlsx",
         file_size: "2.5MB",
@@ -586,8 +657,10 @@ export default function MarketplacePage() {
         category: "Photography",
         downloads: 2100,
         type: 'digital',
+        delivery: "Instant",
         user_id: 3,
-        description: "A set of presets for wedding photography",
+        description: "A professional set of Lightroom presets specifically designed for wedding photography. Includes 20 different styles from light and airy to dark and moody, perfect for any wedding atmosphere.",
+        short_description: "20 professional Lightroom wedding presets.\nStyles ranging from light and airy to dark and moody.\nPerfect for enhancing any wedding photography.",
         file_path: "/path/to/digital-product-03.zip",
         file_name: "wedding-photography-presets.zip",
         file_size: "3.5MB",
@@ -610,8 +683,10 @@ export default function MarketplacePage() {
         category: "Design",
         downloads: 1560,
         type: 'digital',
+        delivery: "Instant",
         user_id: 4,
-        description: "A UI kit for e-commerce websites",
+        description: "A comprehensive UI kit for e-commerce websites with over 200 components and 50 templates. Includes product cards, checkout flows, category pages, and more in both light and dark modes. Compatible with Figma, Sketch, and Adobe XD.",
+        short_description: "Complete e-commerce UI kit with 200+ components and 50 templates for Figma, Sketch, and Adobe XD.",
         file_path: "/path/to/digital-product-04.zip",
         file_name: "e-commerce-ui-kit.zip",
         file_size: "2.8MB",
@@ -639,10 +714,11 @@ export default function MarketplacePage() {
         category: "Storage",
         has_lifetime: false,
         type: 'software',
+        delivery: "Instant",
         name: "Cloud Storage Pro",
         slug: "cloud-storage-pro",
-        description: "A powerful cloud storage solution",
-        short_description: "Store and manage your files in the cloud",
+        description: "A secure and scalable cloud storage solution with advanced file management, automatic syncing across devices, and powerful sharing capabilities. Includes end-to-end encryption and version history for all your important files.",
+        short_description: "Secure cloud storage with automatic syncing.\nPowerful sharing capabilities and file management.\nEnd-to-end encryption and version history.",
         logo_path: "/path/to/cloud-storage-logo.png",
         screenshots: ["/path/to/cloud-storage-screenshot-1.jpg", "/path/to/cloud-storage-screenshot-2.jpg"],
         version: "1.0",
@@ -689,10 +765,11 @@ export default function MarketplacePage() {
         category: "Design",
         has_lifetime: true,
         type: 'software',
+        delivery: "Instant",
         name: "Design Pro Suite",
         slug: "design-pro-suite",
-        description: "A comprehensive design toolkit",
-        short_description: "Create stunning designs with ease",
+        description: "A comprehensive design toolkit with powerful vector editing, photo manipulation, and typography tools. Includes thousands of templates, brushes, and assets to help you create professional designs for print, web, and social media.",
+        short_description: "Comprehensive design toolkit with vector editing.\nPhoto manipulation and typography tools.\nThousands of templates, brushes, and assets.",
         logo_path: "/path/to/design-pro-logo.png",
         screenshots: ["/path/to/design-pro-screenshot-1.jpg", "/path/to/design-pro-screenshot-2.jpg"],
         version: "2.0",
@@ -739,10 +816,11 @@ export default function MarketplacePage() {
         category: "Marketing",
         has_lifetime: false,
         type: 'software',
+        delivery: "Instant",
         name: "SEO Analytics Tool",
         slug: "seo-analytics-tool",
-        description: "Analyze your website's SEO performance",
-        short_description: "Track your website's SEO metrics",
+        description: "Analyze your website's SEO performance with comprehensive tracking and reporting tools. Monitor keyword rankings, backlinks, site speed, and competitor analysis. Get actionable insights and recommendations to improve your search engine visibility.",
+        short_description: "Comprehensive SEO performance tracking and reporting.\nMonitor keywords, backlinks, and competitor analysis.\nActionable insights to improve search visibility.",
         logo_path: "/path/to/seo-analytics-logo.png",
         screenshots: ["/path/to/seo-analytics-screenshot-1.jpg", "/path/to/seo-analytics-screenshot-2.jpg"],
         version: "1.0",
@@ -789,10 +867,11 @@ export default function MarketplacePage() {
         category: "Productivity",
         has_lifetime: true,
         type: 'software',
+        delivery: "Instant",
         name: "Project Management System",
         slug: "project-management-system",
-        description: "Manage your projects efficiently",
-        short_description: "Plan, organize, and track your projects",
+        description: "Manage your projects efficiently with this all-in-one project management solution. Features include task tracking, team collaboration, Gantt charts, time tracking, resource allocation, and customizable workflows to fit any project methodology.",
+        short_description: "All-in-one project management solution.\nTask tracking, team collaboration, and Gantt charts.\nCustomizable workflows for any project methodology.",
         logo_path: "/path/to/project-management-logo.png",
         screenshots: ["/path/to/project-management-screenshot-1.jpg", "/path/to/project-management-screenshot-2.jpg"],
         version: "1.0",
@@ -830,6 +909,75 @@ export default function MarketplacePage() {
       }
     ];
   };
+  
+  // Sort products based on selected sort option
+  useEffect(() => {
+    if (products.length > 0) {
+      const sorted = sortProducts(products, sortBy);
+      setProducts(sorted);
+      
+      // Debug: Check if products have short descriptions
+      console.log('Products with short descriptions check:', 
+        products.map(product => ({
+          id: product.id,
+          title: product.title,
+          type: product.type,
+          short_description: product.type === 'gig' 
+            ? (product as Gig).short_description 
+            : product.type === 'digital' 
+              ? (product as DigitalProduct).short_description 
+              : (product as SoftwareProduct).short_description
+        }))
+      );
+    }
+  }, [sortBy, products]);
+  
+  // For demo purposes, if API fails, use mock data
+  useEffect(() => {
+    if (error) {
+      console.log('Using mock data due to API error:', error);
+      
+      // Get mock data based on product type
+      let mockProducts: Product[] = [];
+      
+      if (productType === 'all' || productType === 'gig') {
+        const mockGigs = getMockGigs();
+        console.log('Mock Gigs Data:', mockGigs);
+        mockProducts = [...mockProducts, ...mockGigs];
+      }
+      
+      if (productType === 'all' || productType === 'digital') {
+        mockProducts = [...mockProducts, ...getMockDigitalProducts()];
+      }
+      
+      if (productType === 'all' || productType === 'software') {
+        mockProducts = [...mockProducts, ...getMockSoftwareProducts()];
+      }
+      
+      // Apply client-side filtering and sorting
+      let filteredProducts = mockProducts;
+      
+      // Filter by price range
+      filteredProducts = filteredProducts.filter(product => 
+        product.price >= priceRange[0] && product.price <= priceRange[1]
+      );
+      
+      // Filter by search term
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        filteredProducts = filteredProducts.filter(product => 
+          product.title.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      // Sort products
+      filteredProducts = sortProducts(filteredProducts, sortBy);
+      
+      setProducts(filteredProducts);
+      setTotalPages(Math.ceil(filteredProducts.length / itemsPerPage));
+      setCurrentPage(1);
+    }
+  }, [error, productType, priceRange, sortBy, searchTerm]);
   
   return (
     <div className="bg-gray-50 py-8">
@@ -968,6 +1116,11 @@ export default function MarketplacePage() {
           </div>
         )}
         
+        {/* Debug Description Display */}
+        {products.length > 0 && (
+          <DebugDescriptionDisplay products={products.slice(0, 4)} />
+        )}
+        
         {/* Products Grid */}
         {!loading && !error && products.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -977,6 +1130,12 @@ export default function MarketplacePage() {
               if (product.type === 'gig') {
                 // Cast the product to Gig type and pass required props
                 const gig = product as Gig;
+                console.log('Rendering GigCard with data:', {
+                  id: gig.id,
+                  title: gig.title,
+                  description: gig.description,
+                  short_description: gig.short_description
+                });
                 return (
                   <div key={`gig-${gig.id}-${index}`} className="gig-card-wrapper">
                     {/* Use spread operator to pass all properties */}
@@ -997,6 +1156,9 @@ export default function MarketplacePage() {
                       onToggleFavorite={() => toggleFavorite(product, index)}
                       status={gig.status}
                       pricing_tiers={gig.pricing_tiers}
+                      type="gig"
+                      description={gig.description}
+                      short_description={gig.short_description}
                     />
                   </div>
                 );

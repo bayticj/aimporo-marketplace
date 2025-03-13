@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import RoleBasedAccess from '@/components/auth/RoleBasedAccess';
+import { formatCurrency } from '@/utils/currency';
 
 interface Order {
   id: number;
@@ -274,7 +275,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex justify-between text-sm text-gray-600">
                           <span>{formatDate(order.date)}</span>
-                          <span>${order.price.toFixed(2)}</span>
+                          <span>{formatCurrency(order.price)}</span>
                         </div>
                       </div>
                     ))}
@@ -311,7 +312,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex justify-between text-sm text-gray-600">
                           <span>{formatDate(order.date)}</span>
-                          <span>${order.price.toFixed(2)}</span>
+                          <span>{formatCurrency(order.price)}</span>
                         </div>
                       </div>
                     ))}

@@ -6,6 +6,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { formatCurrency } from '@/utils/currency';
+import '@/style/pricing.css';
 
 interface DigitalProductPageProps {
   params: {
@@ -100,6 +102,26 @@ const DigitalProductPage: React.FC<DigitalProductPageProps> = ({ params }) => {
     const hashValue = productId || sellerName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     // Ensure it's between 1 and 10 (we have 10 avatar images)
     return (hashValue % 10) + 1;
+  };
+
+  // Function to render the styled price
+  const renderStyledPrice = (price: number, originalPrice?: number | null) => {
+    const discountPercentage = originalPrice && originalPrice > price 
+      ? Math.round(((originalPrice - price) / originalPrice) * 100) 
+      : null;
+    
+    return (
+      <div className="price-container">
+        <span className="price-amount">₱{price.toFixed(0)}</span>
+        <span className="price-plan">/lifetime</span>
+        {originalPrice && originalPrice > price && (
+          <span className="price-original">₱{originalPrice.toFixed(0)}</span>
+        )}
+        {discountPercentage && discountPercentage >= 10 && (
+          <span className="discount-badge">-{discountPercentage}%</span>
+        )}
+      </div>
+    );
   };
 
   if (loading) {
@@ -246,7 +268,9 @@ const DigitalProductPage: React.FC<DigitalProductPageProps> = ({ params }) => {
               
               <div className="product-price mb-4">
                 <span className="price-label">Price:</span>
-                <span className="price-value">${product.price.toFixed(2)}</span>
+                <span className="price-value">
+                  {renderStyledPrice(product.price, product.original_price)}
+                </span>
               </div>
               
               <div className="product-description mb-4">

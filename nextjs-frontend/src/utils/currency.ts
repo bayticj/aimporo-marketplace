@@ -56,7 +56,7 @@ export const formatCurrency = (
   // For styled format with HTML (for the new design)
   if (useStyledFormat) {
     // Replace ₱ with $ if needed
-    const currencySymbol = useDollarSign ? '$' : 'P';
+    const currencySymbol = useDollarSign ? '$' : '₱';
     const priceValue = formatted.replace(/^[₱$]\s*/, '').replace(/,/g, '');
     
     // Determine the plan text (digital products are always lifetime)
@@ -79,10 +79,10 @@ export const formatCurrency = (
     return styledPrice;
   }
   
-  // For simple format (P799/plan style)
+  // For simple format (₱799/plan style)
   if (useSimpleFormat) {
-    // Replace ₱ with P or $ based on option
-    const currencySymbol = useDollarSign ? '$' : 'P';
+    // Replace ₱ with ₱ or $ based on option
+    const currencySymbol = useDollarSign ? '$' : '₱';
     formatted = currencySymbol + formatted.replace(/^[₱$]\s*/, '').replace(/,/g, '');
     
     // Digital products are always lifetime

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class DigitalProduct extends Model
 {
@@ -21,7 +22,12 @@ class DigitalProduct extends Model
         'user_id',
         'title',
         'description',
+        'short_description',
         'price',
+        'original_price',
+        'pricing_model',
+        'discount_percentage',
+        'discount_valid_until',
         'file_path',
         'file_name',
         'file_size',
@@ -39,6 +45,9 @@ class DigitalProduct extends Model
      */
     protected $casts = [
         'price' => 'decimal:2',
+        'original_price' => 'decimal:2',
+        'discount_percentage' => 'decimal:2',
+        'discount_valid_until' => 'datetime',
         'is_featured' => 'boolean',
     ];
 
@@ -64,6 +73,14 @@ class DigitalProduct extends Model
     public function purchases(): HasMany
     {
         return $this->hasMany(DigitalProductPurchase::class);
+    }
+
+    /**
+     * Get the pricing plans for the digital product.
+     */
+    public function pricingPlans(): MorphMany
+    {
+        return $this->morphMany(PricingPlan::class, 'priceable');
     }
 
     /**
@@ -96,5 +113,31 @@ class DigitalProduct extends Model
     public function getFullPreviewPathAttribute(): ?string
     {
         return $this->preview_path ? storage_path('app/' . $this->preview_path) : null;
+    }
+
+    /**
+     * Calculate the discounted price.
+     *
+     * @return float
+     */
+    public function getDiscountedPriceAttribute(): float
+    {
+        if ($this->discount_percentage && $this->discount_valid_until && $this->discount_valid_until->isFuture()) {
+            return $this->price * (1 - ($this->discount_percentage / 100));
+        }
+
+        return $this->price;
+    }
+
+    /**
+     * Check if the product has an active discount.
+     *
+     * @return bool
+     */
+    public function getHasActiveDiscountAttribute(): bool
+    {
+        return $this->discount_percentage && 
+               $this->discount_valid_until && 
+               $this->discount_valid_until->isFuture();
     }
 } 

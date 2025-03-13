@@ -300,6 +300,15 @@ export const mockMessageService = {
     });
   },
   
+  getConversation: (orderId: string) => {
+    return new Promise<{ conversation: Conversation | null }>((resolve) => {
+      setTimeout(() => {
+        const conversation = mockConversations.find(c => c.order_id === orderId) || null;
+        resolve({ conversation });
+      }, 300); // Faster response time for better UX
+    });
+  },
+  
   getOrderMessages: (orderId: string) => {
     return new Promise<{ messages: Message[] }>((resolve) => {
       setTimeout(() => {
@@ -385,6 +394,75 @@ export const mockMessageService = {
           count += conversation.unread_count;
         });
         resolve({ unread_count: count });
+      }, 500); // Simulate network delay
+    });
+  },
+  
+  markConversationAsRead: (orderId: string) => {
+    return new Promise<{ success: boolean; unread_count: number }>((resolve) => {
+      setTimeout(() => {
+        // Find the conversation
+        const conversation = mockConversations.find(c => c.order_id === orderId);
+        if (!conversation) {
+          resolve({ success: false, unread_count: 0 });
+          return;
+        }
+        
+        // Mark all messages in this conversation as read
+        const messages = mockMessages[orderId] || [];
+        let markedCount = 0;
+        
+        messages.forEach(message => {
+          if (!message.is_read && message.recipient_id === '1') {
+            message.is_read = true;
+            message.updated_at = new Date().toISOString();
+            markedCount++;
+          }
+        });
+        
+        // Update the conversation's unread count
+        conversation.unread_count = 0;
+        
+        // Calculate the new total unread count
+        let totalUnreadCount = 0;
+        mockConversations.forEach(c => {
+          totalUnreadCount += c.unread_count;
+        });
+        
+        resolve({ success: true, unread_count: totalUnreadCount });
+      }, 300); // Faster response time for better UX
+    });
+  },
+  
+  getUnreadMessages: () => {
+    return new Promise<{ unread_messages: Array<{
+      conversation: Conversation,
+      message: Message
+    }> }>((resolve) => {
+      setTimeout(() => {
+        const unreadMessages: Array<{
+          conversation: Conversation,
+          message: Message
+        }> = [];
+        
+        mockConversations.forEach(conversation => {
+          if (conversation.unread_count > 0) {
+            const messages = mockMessages[conversation.order_id] || [];
+            // Get the most recent unread messages
+            const unreadMessagesForConversation = messages
+              .filter(m => !m.is_read && m.recipient_id === '1')
+              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            
+            if (unreadMessagesForConversation.length > 0) {
+              unreadMessages.push({
+                conversation,
+                message: unreadMessagesForConversation[0] // Get the most recent unread message
+              });
+            }
+          }
+        });
+        
+        resolve({ unread_messages: unreadMessages });
       }, 500); // Simulate network delay
     });
   }

@@ -6,7 +6,9 @@ export interface DigitalProduct {
   user_id: number;
   title: string;
   description: string;
+  short_description?: string | null;
   price: number;
+  original_price?: number | null;
   file_path: string;
   file_name: string;
   file_size: string;
@@ -93,7 +95,17 @@ export const getDigitalProducts = async (params?: any) => {
   try {
     const queryParams = params ? new URLSearchParams(params).toString() : '';
     const url = `/digital-products${queryParams ? `?${queryParams}` : ''}`;
-    return await fetchWithAuth<DigitalProductsResponse>(url);
+    const response = await fetchWithAuth<DigitalProductsResponse>(url);
+    
+    // Ensure all digital products have "Instant" delivery
+    if (response.success && response.data && response.data.data) {
+      response.data.data = response.data.data.map(product => ({
+        ...product,
+        delivery: "Instant"
+      }));
+    }
+    
+    return response;
   } catch (error) {
     console.error('Error fetching digital products:', error);
     throw error;

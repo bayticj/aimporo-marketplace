@@ -59,11 +59,13 @@ body {
 
 .header-nav {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1.5rem;
-  position: relative;
+  align-items: center;
+  padding: 0 24px;
   height: 70px;
+  position: relative;
+  flex-wrap: nowrap;
+  min-height: 60px;
 }
 
 .navbar-header-mobile {
@@ -92,12 +94,11 @@ body {
 }
 
 .header-navbar-rht {
-  display: flex !important;
-  align-items: center !important;
-  z-index: 20 !important;
-  position: relative !important;
-  width: 80px !important;
-  justify-content: flex-end !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .mobile-nav-btn {
@@ -475,21 +476,13 @@ html, body {
 
 .categories-nav ul {
   display: flex;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  height: 48px;
-  justify-content: center; /* Center the categories */
+  flex-wrap: nowrap;
+  padding: 0 24px;
 }
 
 .categories-nav li {
-  display: flex;
-  align-items: center;
-  margin-right: 2.5rem;
-}
-
-.categories-nav li:last-child {
-  margin-right: 0;
+  flex-shrink: 0;
+  margin-right: 24px;
 }
 
 .categories-nav a {
@@ -508,14 +501,31 @@ html, body {
 
 /* Mobile menu styles */
 .mobile-menu-wrapper {
-  display: none;
   background-color: #fff;
-  padding: 1rem;
+  padding: 20px;
   border-top: 1px solid #f0f0f0;
+  display: none; /* Hide by default */
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(-10px);
+  width: 100%;
+  margin: 0;
+  border-radius: 0 0 0 0;
 }
 
+/* Show mobile menu when active */
 .mobile-menu-wrapper.active {
   display: block;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .mobile-menu {
@@ -525,13 +535,68 @@ html, body {
 }
 
 .mobile-menu li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .mobile-menu a {
   display: block;
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
   color: #4a5568;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  font-size: 16px;
+}
+
+.mobile-menu a:hover {
+  color: #FF6900;
+}
+
+.mobile-menu button {
+  transition: color 0.2s ease;
+}
+
+/* Mobile menu auth buttons */
+.mobile-menu .border-t {
+  border-color: rgba(229, 231, 235, 0.8);
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.mobile-menu .flex-col a {
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 1rem;
+}
+
+.mobile-menu .flex-col a:first-child {
+  border: 1px solid #FF6900;
+  color: #FF6900;
+}
+
+.mobile-menu .flex-col a:first-child:hover {
+  background-color: #FFF5EB;
+}
+
+.mobile-menu .flex-col a:last-child {
+  background-color: #FF6900;
+  color: white;
+  font-weight: 600;
+}
+
+.mobile-menu .flex-col a:last-child:hover {
+  background-color: #E05E00;
+}
+
+/* Mobile menu search input */
+.mobile-menu-wrapper input::placeholder {
+  color: #6B7280;
+}
+
+.mobile-menu-wrapper input {
+  color: #374151;
   font-weight: 500;
 }
 
@@ -1188,8 +1253,9 @@ html, body {
 
 /* Gig Cards Slider Specific Styles */
 .gig-cards-slider {
-  margin: 0 -8px;
-  padding-bottom: 60px;
+  overflow: visible;
+  margin: 0;
+  padding-left: 10px; /* Keep original padding */
 }
 
 .gig-cards-slider .slick-track {
@@ -1234,19 +1300,23 @@ html, body {
 }
 
 .custom-arrow-btn {
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: #343a40;
-  padding: 0;
+  border: none;
+  transition: all 0.3s ease;
+  color: #333; /* Darker color for the arrow */
+}
+
+.custom-arrow-btn svg {
+  stroke: #333; /* Darker stroke for the SVG */
+  stroke-width: 2.5; /* Slightly thicker stroke */
 }
 
 .custom-arrow-btn:hover {
@@ -1292,10 +1362,12 @@ html, body {
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
+  color: #444; /* Darker text for inactive tabs */
 }
 
 .filter-tabs button:hover {
   background-color: rgba(255, 255, 255, 0.8);
+  color: #222; /* Even darker on hover */
 }
 
 .filter-tabs button.active {
@@ -3162,3 +3234,396 @@ main {
   }
 }
 
+/* Mobile-specific styles for gig cards slider */
+@media (max-width: 768px) {
+  .gig-cards-slider {
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .gig-cards-slider .slick-track {
+    display: flex;
+    padding: 0;
+    margin: 0 auto; /* Center the track */
+    gap: 0;
+  }
+  
+  /* Adjust the width of all slides */
+  .gig-cards-slider .slick-slide {
+    opacity: 0.7;
+    transform: scale(0.85);
+    transition: all 0.3s ease;
+    padding: 0;
+    width: 100% !important; /* Force consistent width */
+  }
+  
+  /* Style for the active card (centered) */
+  .gig-cards-slider .slick-slide.slick-current {
+    opacity: 1;
+    transform: scale(1);
+    z-index: 10;
+  }
+  
+  /* Style for non-centered active cards (partially visible on sides) */
+  .gig-cards-slider .slick-slide.slick-active:not(.slick-current) {
+    opacity: 0.8;
+    transform: scale(0.9);
+  }
+  
+  /* Ensure proper spacing between cards */
+  .gig-card-wrapper {
+    padding: 0 5px;
+    width: 100%;
+  }
+  
+  /* Adjust card height and ensure proper scaling */
+  .gig-card-wrapper .gigs-card {
+    height: 95%;
+    transform-origin: center center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Ensure the list container allows for proper centering */
+  .gig-cards-slider .slick-list {
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0;
+  }
+  
+  .gig-cards-slider .slick-slide:not(.slick-active) {
+    pointer-events: none;
+  }
+  
+  /* Ensure the container allows for proper overflow */
+  .slider-container {
+    position: relative;
+    overflow: visible !important;
+    padding: 0;
+  }
+  
+  /* Hide navigation arrows on mobile */
+  .slider-arrow {
+    display: none !important;
+  }
+  
+  /* Ensure proper centering with centerMode */
+  .slick-slide.slick-center {
+    z-index: 10;
+  }
+}
+
+/* Additional slider container styles */
+@media (min-width: 769px) {
+  .slider-container {
+    overflow: hidden;
+  }
+}
+
+/* Adjust card height by about 5% */
+.gig-card-wrapper .gigs-card {
+  height: 95%; /* Reduce height by 5% */
+  transform-origin: top center; /* Scale from top */
+}
+
+@media (max-width: 768px) {
+  .gig-card-wrapper .gigs-card {
+    height: 95%; /* Reduce height by 5% */
+    max-height: 95%; /* Also set max-height */
+    transform-origin: top center; /* Scale from top */
+  }
+  
+  /* Adjust image height */
+  .gig-card-wrapper .gigs-img {
+    height: 95%;
+    max-height: 95%;
+  }
+  
+  /* Adjust content height */
+  .gig-card-wrapper .gigs-content {
+    padding-bottom: 0.75rem; /* Slightly reduce bottom padding */
+  }
+}
+
+/* Desktop-only controls */
+.desktop-only-controls {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .desktop-only-controls {
+    display: none !important;
+  }
+}
+
+/* Additional slider container styles */
+@media (min-width: 769px) {
+  .slider-container {
+    overflow: hidden;
+  }
+  
+  .slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    color: #333; /* Darker color for the arrow */
+  }
+  
+  .slider-arrow svg {
+    stroke: #333; /* Darker stroke for the SVG */
+    stroke-width: 2.5; /* Slightly thicker stroke */
+  }
+  
+  .slider-arrow.prev-arrow {
+    left: 10px;
+  }
+  
+  .slider-arrow.next-arrow {
+    right: 10px;
+  }
+}
+
+/* Auth button styles with improved responsiveness */
+.auth-button-signin {
+  background-color: #FFF5EB;
+  color: #FF6900;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 14px;
+  min-width: 60px;
+  max-width: 75px;
+  height: 32px;
+  text-decoration: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.auth-button-signin:hover {
+  background-color: #FFE8D4;
+}
+
+.auth-button-signup {
+  background-color: #FF6900;
+  color: white;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 14px;
+  min-width: 85px;
+  max-width: 100px;
+  height: 32px;
+  text-decoration: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.auth-button-signup:hover {
+  background-color: #E05E00;
+}
+
+/* Responsive auth button styles */
+@media (max-width: 1200px) {
+  .auth-button-signin, .auth-button-signup {
+    padding: 5px 8px;
+    font-size: 13px;
+  }
+  
+  .auth-button-signin {
+    min-width: 55px;
+    max-width: 65px;
+    height: 30px;
+  }
+  
+  .auth-button-signup {
+    min-width: 80px;
+    max-width: 90px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 992px) {
+  .auth-button-signin, .auth-button-signup {
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+  
+  .auth-button-signin {
+    min-width: 50px;
+    max-width: 60px;
+    height: 28px;
+  }
+  
+  .auth-button-signup {
+    min-width: 75px;
+    max-width: 80px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 850px) and (min-width: 769px) {
+  .auth-button-signin, .auth-button-signup {
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+  
+  .auth-button-signin {
+    min-width: 55px;
+    max-width: 60px;
+    height: 30px;
+  }
+  
+  .auth-button-signup {
+    min-width: 75px;
+    max-width: 80px;
+    height: 30px;
+  }
+}
+
+/* Ensure buttons don't break layout when zoomed in */
+@media (min-resolution: 1.25dppx) {
+  .auth-button-signin, .auth-button-signup {
+    flex-shrink: 0;
+  }
+}
+
+/* Mobile auth button styles */
+@media (max-width: 768px) {
+  .auth-button-signin, .auth-button-signup {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+  
+  .auth-button-signin {
+    min-width: 70px;
+    max-width: 80px;
+    height: 32px;
+  }
+  
+  .auth-button-signup {
+    min-width: 90px;
+    max-width: 110px;
+    height: 32px;
+  }
+}
+
+/* Ensure buttons don't break layout when zoomed in on mobile */
+@media (max-width: 768px) and (min-resolution: 1.5dppx) {
+  .auth-button-signin {
+    min-width: 60px;
+    max-width: 70px;
+    font-size: 13px;
+  }
+  
+  .auth-button-signup {
+    min-width: 80px;
+    max-width: 90px;
+    font-size: 13px;
+  }
+}
+
+/* Additional styles for high-resolution displays and zoomed views */
+@media (min-width: 769px) and (min-resolution: 1.25dppx) {
+  .header-nav {
+    padding: 0 15px;
+  }
+  
+  .header-search-wrapper {
+    margin: 0 10px;
+  }
+  
+  .header-navbar-rht {
+    gap: 5px;
+  }
+  
+  .auth-button-signin {
+    min-width: 55px;
+    max-width: 60px;
+    font-size: 12px;
+    padding: 4px 6px;
+    height: 28px;
+  }
+  
+  .auth-button-signup {
+    min-width: 75px;
+    max-width: 80px;
+    font-size: 12px;
+    padding: 4px 6px;
+    height: 28px;
+  }
+}
+
+/* Media query to hide search field at 969px and smaller */
+@media (max-width: 969px) {
+  .header-search-wrapper {
+    display: none !important;
+  }
+}
+
+/* Ensure mobile search icon is visible at appropriate breakpoints */
+.mobile-search-icon {
+  display: none;
+}
+
+@media (max-width: 969px) {
+  .mobile-search-icon {
+    display: flex !important;
+  }
+}
+
+/* Ensure mobile search icon is visible at appropriate breakpoints */
+.mobile-search-icon {
+  display: none;
+}
+
+.mobile-search-container {
+  display: none;
+}
+
+@media (max-width: 969px) {
+  .mobile-search-icon {
+    display: flex !important;
+  }
+  
+  .mobile-search-container {
+    display: block !important;
+  }
+}
+
+@media (min-width: 970px) {
+  .mobile-search-container {
+    display: none !important;
+  }
+}
+
+/* Adjust spacing between auth buttons */
+.mr-\[10px\] {
+  margin-right: 0px !important;
+}

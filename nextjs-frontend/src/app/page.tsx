@@ -6,6 +6,8 @@ import Slider from 'react-slick';
 import GigCard from '../components/GigCard';
 import SlideableGigCards from '../components/SlideableGigCards';
 import { useRouter } from 'next/navigation';
+import CategoryCard from '../components/CategoryCard';
+import TestimonialCard from '../components/TestimonialCard';
 
 // Add AOS type declaration
 declare global {
@@ -1334,8 +1336,13 @@ export default function Home() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-10">
             {/* Digital Marketing */}
-            <div className="category-box" data-aos="fade-up" data-aos-delay="100">
-              <div className="category-icon-wrapper">
+            <CategoryCard 
+              title="Digital Marketing"
+              count={100}
+              description="SEO, Social Media, Email Marketing, and more"
+              category="digital-marketing"
+              delay={100}
+              icon={
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 6.65685 16.3431 8 18 8Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M6 15C7.65685 15 9 13.6569 9 12C9 10.3431 7.65685 9 6 9C4.34315 9 3 10.3431 3 12C3 13.6569 4.34315 15 6 15Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1343,117 +1350,144 @@ export default function Home() {
                   <path d="M8.59 13.51L15.42 17.49" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M15.41 6.51L8.59 10.49" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </div>
-              <h3 className="category-title">Digital Marketing</h3>
-              <p className="category-count">100 Services</p>
-            </div>
+              }
+            />
             
             {/* Programming & Tech */}
-            <div className="category-box" data-aos="fade-up" data-aos-delay="150">
-              <div className="category-icon-wrapper">
+            <CategoryCard 
+              title="Programming & Tech"
+              count={200}
+              description="Web Development, Mobile Apps, AI Solutions, and more"
+              category="programming-tech"
+              delay={150}
+              icon={
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M16 18L22 12L16 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M8 6L2 12L8 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </div>
-              <h3 className="category-title">Programming & Tech</h3>
-              <p className="category-count">200 Services</p>
-            </div>
+              }
+            />
             
             {/* Writing Translation */}
-            <div className="category-box" data-aos="fade-up" data-aos-delay="200">
-              <div className="category-icon-wrapper">
+            <CategoryCard 
+              title="Writing Translation"
+              count={180}
+              description="Content Writing, Translation, Copywriting, and more"
+              category="writing-translation"
+              delay={200}
+              icon={
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 19L19 12L22 15L15 22L12 19Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M18 13L16.5 5.5L2 2L5.5 16.5L13 18L18 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M2 2L9.586 9.586" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M11 13C12.1046 13 13 12.1046 13 11C13 9.89543 12.1046 9 11 9C9.89543 9 9 9.89543 9 11C9 12.1046 9.89543 13 11 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </div>
-              <h3 className="category-title">Writing Translation</h3>
-              <p className="category-count">180 Services</p>
-            </div>
+              }
+            />
             
             {/* Photography */}
-            <div className="category-box" data-aos="fade-up" data-aos-delay="250">
-              <div className="category-icon-wrapper">
+            <CategoryCard 
+              title="Photography"
+              count={230}
+              description="Product Photography, Portraits, Event Coverage, and more"
+              category="photography"
+              delay={250}
+              icon={
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </div>
-              <h3 className="category-title">Photography</h3>
-              <p className="category-count">230 Services</p>
-            </div>
+              }
+            />
             
             {/* Artificial Intelligence */}
-            <div className="category-box" data-aos="fade-up" data-aos-delay="300">
-              <div className="category-icon-wrapper">
+            <CategoryCard 
+              title="Artificial Intelligence"
+              count={310}
+              description="Machine Learning, AI Integration, Chatbots, and more"
+              category="artificial-intelligence"
+              delay={300}
+              icon={
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M2 17L12 22L22 17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M2 12L12 17L22 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </div>
-              <h3 className="category-title">Artificial Intelligence</h3>
-              <p className="category-count">310 Services</p>
-            </div>
+              }
+            />
             
             {/* Music & Audio */}
-            <div className="category-box" data-aos="fade-up" data-aos-delay="350">
-              <div className="category-icon-wrapper">
+            <CategoryCard 
+              title="Music & Audio"
+              count={270}
+              description="Voice Over, Music Production, Sound Effects, and more"
+              category="music-audio"
+              delay={350}
+              icon={
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 18V5L21 3V16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M6 21C7.65685 21 9 19.6569 9 18C9 16.3431 7.65685 15 6 15C4.34315 15 3 16.3431 3 18C3 19.6569 4.34315 21 6 21Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M18 19C19.6569 19 21 17.6569 21 16C21 14.3431 19.6569 13 18 13C16.3431 13 15 14.3431 15 16C15 17.6569 16.3431 19 18 19Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </div>
-              <h3 className="category-title">Music & Audio</h3>
-              <p className="category-count">270 Services</p>
-            </div>
+              }
+            />
             
             {/* Design */}
-            <div className="category-box" data-aos="fade-up" data-aos-delay="400">
-              <div className="category-icon-wrapper">
+            <CategoryCard 
+              title="Design"
+              count={450}
+              description="Graphic Design, UI/UX, Logo Design, and more"
+              category="design"
+              delay={400}
+              icon={
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 19L19 12L22 15L15 22L12 19Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M18 13L16.5 5.5L2 2L5.5 16.5L13 18L18 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M2 2L9.586 9.586" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M11 13C12.1046 13 13 12.1046 13 11C13 9.89543 12.1046 9 11 9C9.89543 9 9 9.89543 9 11C9 12.1046 9.89543 13 11 13Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </div>
-              <h3 className="category-title">Design</h3>
-              <p className="category-count">450 Services</p>
-            </div>
+              }
+            />
             
             {/* Business */}
-            <div className="category-box" data-aos="fade-up" data-aos-delay="450">
-              <div className="category-icon-wrapper">
+            <CategoryCard 
+              title="Business"
+              count={330}
+              description="Business Planning, Financial Analysis, Consulting, and more"
+              category="business"
+              delay={450}
+              icon={
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M20 7H4C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M16 21V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </div>
-              <h3 className="category-title">Business</h3>
-              <p className="category-count">330 Services</p>
-            </div>
+              }
+            />
             
             {/* Marketing & Sales */}
-            <div className="category-box" data-aos="fade-up" data-aos-delay="500">
-              <div className="category-icon-wrapper">
+            <CategoryCard 
+              title="Marketing & Sales"
+              count={250}
+              description="Lead Generation, Sales Strategy, Marketing Plans, and more"
+              category="marketing-sales"
+              delay={500}
+              icon={
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M18 20V10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M12 20V4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M6 20V14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </div>
-              <h3 className="category-title">Marketing & Sales</h3>
-              <p className="category-count">250 Services</p>
-            </div>
+              }
+            />
             
             {/* Social Media */}
-            <div className="category-box" data-aos="fade-up" data-aos-delay="550">
-              <div className="category-icon-wrapper">
+            <CategoryCard 
+              title="Social Media"
+              count={180}
+              description="Social Media Management, Content Creation, Strategy, and more"
+              category="social-media"
+              delay={550}
+              icon={
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 6.65685 16.3431 8 18 8Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M6 15C7.65685 15 9 13.6569 9 12C9 10.3431 7.65685 9 6 9C4.34315 9 3 10.3431 3 12C3 13.6569 4.34315 15 6 15Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1461,10 +1495,8 @@ export default function Home() {
                   <path d="M8.59 13.51L15.42 17.49" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M15.41 6.51L8.59 10.49" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </div>
-              <h3 className="category-title">Social Media</h3>
-              <p className="category-count">180 Services</p>
-            </div>
+              }
+            />
           </div>
           
           <div className="absolute -bottom-10 -left-10 z-0">
@@ -1476,115 +1508,189 @@ export default function Home() {
       </section>
 
       {/* Testimonials section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="relative mb-12 text-center">
+      <section className="py-16 testimonials-section">
+        <div className="container mx-auto px-4 relative">
+          {/* Animated background elements */}
+          <div className="absolute top-10 left-10 opacity-20 animate-pulse">
+            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="30" cy="30" r="30" fill="#FF6900" fillOpacity="0.3"/>
+            </svg>
+          </div>
+          <div className="absolute bottom-20 right-10 opacity-20" style={{animation: 'float-element 15s infinite alternate ease-in-out'}}>
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="80" height="80" rx="20" fill="#FF6900" fillOpacity="0.2"/>
+            </svg>
+          </div>
+          
+          <div className="relative mb-12 text-center" data-aos="fade-up">
             <div className="absolute left-1/4 -top-6">
               <div className="h-4 w-4 rounded-full bg-orange-500"></div>
             </div>
             <div className="absolute right-1/3 -top-10">
               <div className="h-8 w-8 rounded-full border-2 border-orange-300"></div>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+              <span className="relative inline-block">
               Why People Love <span className="text-orange-500">with</span> DreamGigs
+                <span className="absolute -bottom-2 left-0 w-24 h-1 bg-orange-500"></span>
+              </span>
             </h2>
-            <div className="w-24 h-1 bg-orange-500 mx-auto mt-4"></div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Testimonial Card 1 */}
-            <div className="testimonial-card">
-              <div className="text-orange-500 text-4xl font-serif mb-4">"</div>
-              <h3 className="text-xl font-bold mb-4 text-gray-800">Great <span className="text-orange-500">Work</span></h3>
-              <p className="text-gray-700 mb-6">
-                "The best part about this service is the variety of skills available. I've hired designers, writers, and developers, all in one place."
-              </p>
-              <div className="testimonial-rating">
-                      {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" />
-                  </svg>
-                      ))}
-                    </div>
-              <div className="testimonial-user">
-                <img 
-                  src="/assets/img/profiles/avatar-1.jpg" 
-                  alt="Gloria Weber" 
-                  className="w-12 h-12 rounded-full mr-4"
-                />
-                <div>
-                  <h4 className="font-medium text-gray-800">Gloria Weber</h4>
-                  <p className="text-sm text-gray-600">United States</p>
-                </div>
-              </div>
+            <p className="text-gray-600 max-w-2xl mx-auto mt-4">
+              Hear what our clients and freelancers have to say about their experience with our platform
+            </p>
             </div>
             
-            {/* Testimonial Card 2 */}
-            <div className="testimonial-card">
-              <div className="text-orange-500 text-4xl font-serif mb-4">"</div>
-              <h3 className="text-xl font-bold mb-4 text-gray-800">Seamless <span className="text-orange-500">Experience</span></h3>
-              <p className="text-gray-700 mb-6">
-                "I've completed several gigs on this site, and the experience has been seamless every time. Great for both freelancers and clients!"
-              </p>
-              <div className="testimonial-rating">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" />
-                  </svg>
-                ))}
-                      </div>
-              <div className="testimonial-user">
-                <img 
-                  src="/assets/img/profiles/avatar-2.jpg" 
-                  alt="John Cramer" 
-                  className="w-12 h-12 rounded-full mr-4"
-                />
-                      <div>
-                  <h4 className="font-medium text-gray-800">John Cramer</h4>
-                  <p className="text-sm text-gray-600">UK</p>
-                      </div>
-                    </div>
-                  </div>
+          {(() => {
+            // Testimonial data
+            const testimonials = [
+              {
+                quote: "The best part about this service is the variety of skills available. I've hired designers, writers, and developers, all in one place.",
+                title: "Great",
+                highlightedWord: "Work",
+                author: {
+                  name: "Gloria Weber",
+                  location: "United States",
+                  avatar: "/assets/img/profiles/avatar-1.jpg"
+                }
+              },
+              {
+                quote: "I've completed several gigs on this site, and the experience has been seamless every time. Great for both freelancers and clients!",
+                title: "Seamless",
+                highlightedWord: "Experience",
+                author: {
+                  name: "John Cramer",
+                  location: "UK",
+                  avatar: "/assets/img/profiles/avatar-2.jpg"
+                }
+              },
+              {
+                quote: "Finding the right freelancer for my project has never been easier. The platform is user-friendly, and the quality of talent is exceptional.",
+                title: "Great",
+                highlightedWord: "Work",
+                author: {
+                  name: "Mary Marquez",
+                  location: "United States",
+                  avatar: "/assets/img/profiles/avatar-3.jpg"
+                }
+              },
+              {
+                quote: "The platform's matching algorithm is incredibly accurate. I found the perfect developer for my project within hours.",
+                title: "Perfect",
+                highlightedWord: "Match",
+                author: {
+                  name: "David Chen",
+                  location: "Canada",
+                  avatar: "/assets/img/profiles/avatar-4.jpg"
+                }
+              },
+              {
+                quote: "As a freelancer, this platform has transformed my business. The payment protection and project management tools are outstanding.",
+                title: "Business",
+                highlightedWord: "Growth",
+                author: {
+                  name: "Sarah Johnson",
+                  location: "Australia",
+                  avatar: "/assets/img/profiles/avatar-5.jpg"
+                }
+              }
+            ];
             
-            {/* Testimonial Card 3 */}
-            <div className="testimonial-card">
-              <div className="text-orange-500 text-4xl font-serif mb-4">"</div>
-              <h3 className="text-xl font-bold mb-4 text-gray-800">Great <span className="text-orange-500">Work</span></h3>
-              <p className="text-gray-700 mb-6">
-                "Finding the right freelancer for my project has never been easier. The platform is user-friendly, and the quality of talent is exceptional."
-              </p>
-              <div className="testimonial-rating">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" />
-                  </svg>
-                ))}
-              </div>
-              <div className="testimonial-user">
-                <img 
-                  src="/assets/img/profiles/avatar-3.jpg" 
-                  alt="Mary Marquez" 
-                  className="w-12 h-12 rounded-full mr-4"
-                />
-                <div>
-                  <h4 className="font-medium text-gray-800">Mary Marquez</h4>
-                  <p className="text-sm text-gray-600">United States</p>
-                </div>
-              </div>
+            // State for current testimonial index
+            const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
+            const [isAnimating, setIsAnimating] = useState(false);
+            const [direction, setDirection] = useState('next');
+            
+            // Calculate visible testimonials (3 at a time)
+            const visibleTestimonials = [];
+            for (let i = 0; i < 3; i++) {
+              const index = (currentTestimonialIndex + i) % testimonials.length;
+              visibleTestimonials.push({
+                ...testimonials[index],
+                delay: i * 100 + 100
+              });
+            }
+            
+            // Navigation functions
+            const handlePrevClick = () => {
+              if (isAnimating) return;
+              
+              setDirection('prev');
+              setIsAnimating(true);
+              
+              // Wait for animation to complete before changing the set
+              setTimeout(() => {
+                setCurrentTestimonialIndex((prevIndex) => 
+                  (prevIndex - 1 + testimonials.length) % testimonials.length
+                );
+                setIsAnimating(false);
+              }, 500); // Match this with the CSS transition duration
+            };
+            
+            const handleNextClick = () => {
+              if (isAnimating) return;
+              
+              setDirection('next');
+              setIsAnimating(true);
+              
+              // Wait for animation to complete before changing the set
+              setTimeout(() => {
+                setCurrentTestimonialIndex((prevIndex) => 
+                  (prevIndex + 1) % testimonials.length
+                );
+                setIsAnimating(false);
+              }, 500); // Match this with the CSS transition duration
+            };
+            
+            return (
+              <>
+                <div 
+                  className={`testimonial-slider ${isAnimating ? `sliding-${direction}` : ''}`}
+                  aria-live="polite"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 testimonial-grid">
+                    {visibleTestimonials.map((testimonial, index) => (
+                      <TestimonialCard 
+                        key={`testimonial-${currentTestimonialIndex}-${index}`}
+                        quote={testimonial.quote}
+                        title={testimonial.title}
+                        highlightedWord={testimonial.highlightedWord}
+                        author={testimonial.author}
+                        delay={testimonial.delay}
+                      />
+                    ))}
             </div>
           </div>
           
-          <div className="flex justify-center mt-8 gap-4">
-            <button className="testimonial-nav-btn">
+                <div className="flex justify-center mt-12 gap-4" data-aos="fade-up" data-aos-delay="400">
+                  <button 
+                    className="testimonial-nav-btn" 
+                    aria-label="Previous testimonial"
+                    onClick={handlePrevClick}
+                    disabled={isAnimating}
+                  >
               <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 8 14" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M7 1L1 7L7 13"></path>
               </svg>
             </button>
-            <button className="testimonial-nav-btn">
+                  <button 
+                    className="testimonial-nav-btn" 
+                    aria-label="Next testimonial"
+                    onClick={handleNextClick}
+                    disabled={isAnimating}
+                  >
               <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 8 14" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M1 13L7 7L1 1"></path>
               </svg>
             </button>
+                </div>
+              </>
+            );
+          })()}
+          
+          <div className="absolute -bottom-10 -right-10 z-0">
+            <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" opacity="0.05">
+              <path d="M100 0L200 100L100 200L0 100L100 0Z" fill="#FF6900"/>
+            </svg>
           </div>
         </div>
       </section>

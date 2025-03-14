@@ -13,6 +13,7 @@ import SoftwareProductCard from '@/components/SoftwareProductCard';
 import PageBanner from '@/components/PageBanner';
 import Pagination from '@/components/Pagination';
 import DebugDescriptionDisplay from '@/components/DebugDescriptionDisplay';
+import CategoryDropdown from '@/components/ui/CategoryDropdown';
 
 // Define interfaces for different product types
 interface Gig {
@@ -140,6 +141,9 @@ export default function MarketplacePage() {
   const [sortBy, setSortBy] = useState('newest');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [categorySearchTerm, setCategorySearchTerm] = useState('');
   const itemsPerPage = 12;
   
   const searchParams = useSearchParams();
@@ -166,6 +170,21 @@ export default function MarketplacePage() {
     // Fetch products
     fetchAllProducts(search, type, [minPrice, maxPrice], sort, page);
   }, [searchParams]);
+  
+  // Handle click outside to close category dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showCategoryDropdown && !target.closest('.category-dropdown-container')) {
+        setShowCategoryDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCategoryDropdown]);
   
   // Load favorites from localStorage
   const loadFavorites = () => {
@@ -514,15 +533,61 @@ export default function MarketplacePage() {
     router.push(`/marketplace?${newParams.toString()}`);
   };
   
-  // Reset all filters
+  // Handle reset
   const handleReset = () => {
     setSearchTerm('');
     setProductType('all');
     setPriceRange([0, 1000]);
     setSortBy('newest');
     setCurrentPage(1);
+    setSelectedCategories([]);
     router.push('/marketplace');
   };
+  
+  // Category data
+  const categories = [
+    { id: 'programming', name: 'Programming & Coding' },
+    { id: 'data_science', name: 'Data Science & Analysis' },
+    { id: 'databases', name: 'Databases' },
+    { id: 'mobile_app', name: 'Mobile App Development' },
+    { id: 'email_template', name: 'Email Template Development' },
+    { id: 'cms', name: 'CMS Development' },
+    { id: 'web_development', name: 'Web Development' },
+    { id: 'ui_ux', name: 'UI/UX Design' },
+    { id: 'graphic_design', name: 'Graphic Design' },
+    { id: 'digital_marketing', name: 'Digital Marketing' },
+    { id: 'seo', name: 'SEO Optimization' },
+    { id: 'content_writing', name: 'Content Writing' },
+  ];
+  
+  // Handle category selection
+  const handleCategoryToggle = (categoryId: string) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(categoryId)) {
+        return prev.filter(id => id !== categoryId);
+      } else {
+        return [...prev, categoryId];
+      }
+    });
+  };
+  
+  // Reset category selection
+  const resetCategories = () => {
+    setSelectedCategories([]);
+    setCategorySearchTerm('');
+  };
+  
+  // Apply category filter
+  const applyCategories = () => {
+    setShowCategoryDropdown(false);
+    // Here you would typically update URL params or filter products
+    // For now, we'll just close the dropdown
+  };
+  
+  // Filter categories by search term
+  const filteredCategories = categories.filter(category => 
+    category.name.toLowerCase().includes(categorySearchTerm.toLowerCase())
+  );
   
   // Mock data functions
   const getMockGigs = (): Gig[] => {
@@ -819,7 +884,7 @@ export default function MarketplacePage() {
         delivery: "Instant",
         name: "SEO Analytics Tool",
         slug: "seo-analytics-tool",
-        description: "Analyze your website's SEO performance with comprehensive tracking and reporting tools. Monitor keyword rankings, backlinks, site speed, and competitor analysis. Get actionable insights and recommendations to improve your search engine visibility.",
+        description: "Analyze your website\'s SEO performance with comprehensive tracking and reporting tools. Monitor keyword rankings, backlinks, site speed, and competitor analysis. Get actionable insights and recommendations to improve your search engine visibility.",
         short_description: "Comprehensive SEO performance tracking and reporting.\nMonitor keywords, backlinks, and competitor analysis.\nActionable insights to improve search visibility.",
         logo_path: "/path/to/seo-analytics-logo.png",
         screenshots: ["/path/to/seo-analytics-screenshot-1.jpg", "/path/to/seo-analytics-screenshot-2.jpg"],
@@ -1009,8 +1074,81 @@ export default function MarketplacePage() {
           </form>
           
           {/* Filter Controls */}
-          <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex flex-wrap gap-4 items-center justify-between">
             <div className="flex flex-wrap gap-2">
+              <div className="relative category-dropdown-container">
+                <button 
+                  onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                  className="flex items-center space-x-1 bg-white px-4 py-2 rounded-lg border shadow-sm hover:bg-gray-50"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                  </svg>
+                  <span>Categories {selectedCategories.length > 0 && `(${selectedCategories.length})`}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                
+                {showCategoryDropdown && (
+                  <div className="absolute z-10 mt-2 w-64 bg-white rounded-lg shadow-lg p-4 border category-dropdown-container">
+                    <div className="mb-2">
+                      <input
+                        type="text"
+                        placeholder="Search Category"
+                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                        value={categorySearchTerm}
+                        onChange={(e) => setCategorySearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <div className="max-h-60 overflow-y-auto">
+                      <div className="space-y-2">
+                        {filteredCategories.map(category => (
+                          <label key={category.id} className="flex items-center space-x-2 cursor-pointer">
+                            <input 
+                              type="checkbox" 
+                              className="form-checkbox h-4 w-4 text-orange-500" 
+                              checked={selectedCategories.includes(category.id)}
+                              onChange={() => handleCategoryToggle(category.id)}
+                            />
+                            <span className="text-gray-700">{category.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                      {categories.length > filteredCategories.length && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <button 
+                            className="text-orange-500 hover:text-orange-600 text-sm font-medium"
+                            onClick={() => setCategorySearchTerm('')}
+                          >
+                            Show All Categories
+                          </button>
+                        </div>
+                      )}
+                      {filteredCategories.length === 0 && (
+                        <div className="py-2 text-center text-gray-500">
+                          No categories found
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
+                      <button 
+                        className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+                        onClick={resetCategories}
+                      >
+                        Reset
+                      </button>
+                      <button 
+                        className="bg-orange-500 text-white px-4 py-1 rounded-md text-sm font-medium hover:bg-orange-600"
+                        onClick={applyCategories}
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
               <button
                 onClick={() => handleTypeChange('all')}
                 className={`px-4 py-2 rounded-full ${productType === 'all' 
@@ -1045,8 +1183,6 @@ export default function MarketplacePage() {
               </button>
             </div>
             
-            <div className="flex-grow"></div>
-            
             <div className="flex items-center gap-2">
               <label className="text-gray-700">Sort by:</label>
               <select
@@ -1059,18 +1195,18 @@ export default function MarketplacePage() {
                 <option value="price_high">Price: High to Low</option>
                 <option value="rating">Rating</option>
               </select>
+              
+              <button
+                onClick={handleReset}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Reset Filters
+              </button>
             </div>
-            
-            <button
-              onClick={handleReset}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
-            >
-              Reset Filters
-            </button>
           </div>
           
           {/* Price Range Filter */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mt-4">
             <span className="text-gray-700">Price Range:</span>
             <div className="flex items-center gap-2">
               <input

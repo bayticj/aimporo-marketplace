@@ -26,6 +26,8 @@ interface GigData {
   is_digital_product?: boolean;
   description?: string;
   short_description?: string;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
 interface SlideableGigCardsProps {
@@ -302,9 +304,9 @@ const SlideableGigCards: React.FC<SlideableGigCardsProps> = ({
                     featured={gig.featured}
                     hot={gig.hot}
                     delivery={gig.delivery}
-                    isFavorite={favorites[index]}
-                    onToggleFavorite={() => toggleFavorite(index)}
-                    pricing_model={isServices ? 'delivery' : gig.pricing_model}
+                    isFavorite={gig.isFavorite || favorites[index]}
+                    onToggleFavorite={gig.onToggleFavorite || (() => toggleFavorite(index))}
+                    pricing_model={gig.pricing_model}
                     is_service={gig.is_service || isServices}
                     is_digital_product={gig.is_digital_product || isDigitalProducts}
                     description={gig.description}

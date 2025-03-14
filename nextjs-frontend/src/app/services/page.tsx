@@ -55,7 +55,7 @@ const Services = () => {
     {
       id: 6,
       title: 'SEO Optimization',
-      description: "Search engine optimization to improve your website's visibility and ranking.",
+      description: "Search engine optimization to improve your website\'s visibility and ranking.",
       image: '/assets/img/services/service-06.jpg',
       price: 'From $249',
       rating: 4.7,

@@ -328,12 +328,12 @@ const GigCard: React.FC<GigCardProps> = ({
       
       <div className="gigs-content p-4">
         <div className="flex items-center mb-2">
-          <span className="badge flex items-center text-xs text-gray-600">
+          <span className="badge flex items-center text-xs text-gray-700">
             <span className="badge-dot w-2 h-2 bg-orange-500 rounded-full mr-1.5"></span>
             {badge}
           </span>
           {location && (
-            <span className="location text-xs text-gray-500 ml-3 flex items-center">
+            <span className="location text-xs text-gray-700 ml-3 flex items-center">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
                 <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="currentColor" />
               </svg>
@@ -350,7 +350,7 @@ const GigCard: React.FC<GigCardProps> = ({
         </div>
         
         {/* Enhanced short description display with better spacing */}
-        <div className="text-sm text-gray-600 mb-3">
+        <div className="text-sm text-gray-700 mb-3">
           {short_description ? (
             <div className="py-0">
               {short_description.split('\n').map((line, index) => (
@@ -386,13 +386,13 @@ const GigCard: React.FC<GigCardProps> = ({
             </div>
             <span className="flex items-center">
               <span className="font-medium text-sm text-gray-800 font-semibold">{rating.toFixed(1)}</span> 
-              <span className="text-gray-500 text-sm ml-1">({reviews} Reviews)</span>
+              <span className="text-gray-700 text-sm ml-1">({reviews} Reviews)</span>
             </span>
           </div>
         </div>
         
         <div className="flex items-center justify-between mt-2">
-          <div className="text-xs text-gray-500 flex items-center">
+          <div className="text-xs text-gray-700 flex items-center">
             <span className="seller-name font-medium">{seller}</span>
             <span className={`seller-level ml-2 text-xs px-1.5 py-0.5 rounded text-white ${
               rating >= 4.8 ? 'bg-purple-600' : 
@@ -407,7 +407,7 @@ const GigCard: React.FC<GigCardProps> = ({
         
         <div className="border-t border-gray-100 pt-3 mt-2">
           <div className="gigs-card-footer flex items-center justify-between">
-            <div className="delivery flex items-center text-gray-600 text-sm">
+            <div className="delivery flex items-center text-gray-700 text-sm">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={`mr-1 ${type === 'software' || type === 'digital' || delivery === "Instant" ? "text-green-500" : "text-red-500"}`}>
                 <path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM16.2 16.2L11 13V7H12.5V12.2L17 14.9L16.2 16.2Z" fill="currentColor" />
               </svg>

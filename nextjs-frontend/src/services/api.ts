@@ -68,6 +68,7 @@ export const gigService = {
       ...options
     } 
   }),
+  getCategoryCounts: () => api.get('/gigs/categories/counts'),
 };
 
 // Order services

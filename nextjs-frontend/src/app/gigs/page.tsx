@@ -1797,7 +1797,7 @@ export default function GigsPage() {
             <div className="flex items-center space-x-2">
               <span className="text-gray-700">Sort By:</span>
               <select
-                className="appearance-none bg-white pl-4 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="appearance-none bg-white pl-4 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-gray-700"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               >

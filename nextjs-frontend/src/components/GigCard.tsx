@@ -70,9 +70,6 @@ const GigCard: React.FC<GigCardProps> = ({
   description,
   short_description,
 }) => {
-  // State to track if pricing tiers popup is shown
-  const [showTiers, setShowTiers] = useState(false);
-  
   // State to track which image is currently displayed
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -253,7 +250,7 @@ const GigCard: React.FC<GigCardProps> = ({
   const currentImage = randomImages[currentImageIndex % randomImages.length];
 
   return (
-    <div className={`gigs-card relative group ${status === 'draft' ? 'opacity-70' : ''} hover:shadow-lg transition-shadow duration-300`}>
+    <div className={`gigs-card relative group ${status === 'draft' ? 'opacity-70' : ''} hover:shadow-md transition-shadow duration-300`}>
       {status === 'draft' && (
         <div className="absolute top-2 right-2 z-10 bg-gray-800 text-white text-xs px-2 py-1 rounded">
           Draft
@@ -428,128 +425,6 @@ const GigCard: React.FC<GigCardProps> = ({
                         pricing_tiers?.basic?.original_price || original_price
                       )}
                     </h5>
-                  )}
-                  <button 
-                    className="text-xs text-orange-600 hover:text-orange-700 ml-1"
-                    onClick={() => setShowTiers(!showTiers)}
-                  >
-                    {showTiers ? 'Hide' : 'View'} tiers
-                  </button>
-                  
-                  {/* Pricing tiers popup */}
-                  {showTiers && (
-                    <div className="absolute bottom-full right-0 mb-2 w-64 bg-white shadow-lg rounded-lg z-20 p-3">
-                      <div className="text-right mb-2">
-                        <button 
-                          className="text-gray-500 hover:text-gray-700"
-                          onClick={() => setShowTiers(false)}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                      
-                      {/* Basic tier */}
-                      {pricing_tiers?.basic?.price && (
-                        <div className="mb-3 pb-3 border-b">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-medium">{pricing_tiers.basic.title || 'Basic'}</span>
-                            <span className="font-bold">
-                              {renderStyledPrice(
-                                pricing_tiers.basic.price, 
-                                getPricingModelDisplay(pricing_tiers.basic),
-                                pricing_tiers.basic.original_price
-                              )}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-600 mb-1">
-                            Delivery in {pricing_tiers.basic.delivery_time} days
-                          </p>
-                          {pricing_tiers.basic.features?.length > 0 && (
-                            <ul className="text-xs text-gray-600">
-                              {pricing_tiers.basic.features.slice(0, 2).map((feature, i) => (
-                                <li key={i} className="flex items-start">
-                                  <span className="text-green-500 mr-1">✓</span> {feature}
-                                </li>
-                              ))}
-                              {pricing_tiers.basic.features.length > 2 && (
-                                <li className="text-gray-500">+{pricing_tiers.basic.features.length - 2} more</li>
-                              )}
-                            </ul>
-                          )}
-                        </div>
-                      )}
-                      
-                      {/* Standard tier */}
-                      {pricing_tiers?.standard?.price && (
-                        <div className="mb-3 pb-3 border-b">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-medium">{pricing_tiers.standard.title || 'Standard'}</span>
-                            <span className="font-bold">
-                              {renderStyledPrice(
-                                pricing_tiers.standard.price, 
-                                getPricingModelDisplay(pricing_tiers.standard),
-                                pricing_tiers.standard.original_price
-                              )}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-600 mb-1">
-                            Delivery in {pricing_tiers.standard.delivery_time} days
-                          </p>
-                          {pricing_tiers.standard.features?.length > 0 && (
-                            <ul className="text-xs text-gray-600">
-                              {pricing_tiers.standard.features.slice(0, 2).map((feature, i) => (
-                                <li key={i} className="flex items-start">
-                                  <span className="text-green-500 mr-1">✓</span> {feature}
-                                </li>
-                              ))}
-                              {pricing_tiers.standard.features.length > 2 && (
-                                <li className="text-gray-500">+{pricing_tiers.standard.features.length - 2} more</li>
-                              )}
-                            </ul>
-                          )}
-                        </div>
-                      )}
-                      
-                      {/* Premium tier */}
-                      {pricing_tiers?.premium?.price && (
-                        <div className="mb-3">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-medium">{pricing_tiers.premium.title || 'Premium'}</span>
-                            <span className="font-bold">
-                              {renderStyledPrice(
-                                pricing_tiers.premium.price, 
-                                getPricingModelDisplay(pricing_tiers.premium),
-                                pricing_tiers.premium.original_price
-                              )}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-600 mb-1">
-                            Delivery in {pricing_tiers.premium.delivery_time} days
-                          </p>
-                          {pricing_tiers.premium.features?.length > 0 && (
-                            <ul className="text-xs text-gray-600">
-                              {pricing_tiers.premium.features.slice(0, 2).map((feature, i) => (
-                                <li key={i} className="flex items-start">
-                                  <span className="text-green-500 mr-1">✓</span> {feature}
-                                </li>
-                              ))}
-                              {pricing_tiers.premium.features.length > 2 && (
-                                <li className="text-gray-500">+{pricing_tiers.premium.features.length - 2} more</li>
-                              )}
-                            </ul>
-                          )}
-                        </div>
-                      )}
-                      
-                      <div className="mt-3 text-center">
-                        <Link 
-                          href={`/gigs/${id}`}
-                          className="text-sm text-orange-600 hover:text-orange-700 font-medium"
-                        >
-                          View Details
-                        </Link>
-                      </div>
-                    </div>
                   )}
                 </div>
               ) : (

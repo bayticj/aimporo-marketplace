@@ -40,6 +40,7 @@ export interface SoftwareProductParams {
   per_page?: number;
   search?: string;
   partner_id?: number | string;
+  category?: string;
   sort_price?: 'asc' | 'desc';
   sort_by?: string;
   sort_order?: 'asc' | 'desc';

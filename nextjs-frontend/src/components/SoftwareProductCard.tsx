@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { formatCurrency } from '@/utils/currency';
 import ShortDescriptionDisplay from './ShortDescriptionDisplay';
+import '@/style/pricing.css';
 
 interface SoftwarePlan {
   id: number;
@@ -49,6 +50,7 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
   
   // State to track which image is currently displayed
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   
   // Add error handling for images
   const [logoError, setLogoError] = useState(false);
@@ -121,7 +123,7 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
     if (hasYearlyPlan) return 'year';
     if (hasMonthlyPlan) return 'month';
     
-    return null;
+    return 'lifetime';
   };
 
   // Use real images instead of placeholders
@@ -154,164 +156,152 @@ const SoftwareProductCard: React.FC<SoftwareProductCardProps> = ({
   const randomImages = getRandomProductImages();
   const screenshotSrc = randomImages[currentImageIndex % randomImages.length];
 
-  return (
-    <div className={`gigs-card relative group ${!is_active ? 'opacity-70' : ''} hover:shadow-lg transition-shadow duration-300`}>
-      {!is_active && (
-        <div className="absolute top-2 right-2 z-10 bg-gray-800 text-white text-xs px-2 py-1 rounded">
-          Inactive
+  // Function to render the styled price
+  const renderStyledPrice = (price: number, pricingModel: string) => {
+    return (
+      <div className="price-container">
+        <div style={{ display: 'flex', alignItems: 'baseline' }}>
+          <span className="price-amount">₱{price.toFixed(0)}</span>
+          <span className="price-plan">/{pricingModel}</span>
         </div>
-      )}
-      <div className="gigs-img relative">
-        <Link href={`/software/${slug}`}>
-          <div className="relative h-[200px] w-full overflow-hidden rounded-t-lg">
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-red-500/20"></div>
-            <Image 
-              src={screenshotSrc} 
-              alt={name} 
-              fill
-              style={{ 
-                objectFit: 'cover',
-                objectPosition: 'center'
-              }}
-              className="transition-all duration-300 group-hover:scale-105"
-              onError={handleScreenshotError}
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            
-            {/* Image navigation controls - only show if multiple images */}
-            {screenshots.length > 1 && (
-              <>
-                <button 
-                  onClick={prevImage}
-                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M15 18l-6-6 6-6" />
-                  </svg>
-                </button>
-                <button 
-                  onClick={nextImage}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
-                </button>
-                
-                {/* Image pagination dots */}
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
-                  {screenshots.map((_, index) => (
-                    <div 
-                      key={index} 
-                      className={`w-1.5 h-1.5 rounded-full ${index === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        </Link>
-        <div className="gigs-badges">
-          {hasLifetimePlan && (
-            <span className="featured">
-              <svg className="mr-1" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-              </svg>
-              Lifetime
-            </span>
-          )}
-          
-          {/* Version badge */}
-          <span className="version bg-blue-600">
-            v{version}
-          </span>
-        </div>
-        <div className="gig-actions">
-          <button className="action-btn share-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 5.12548 15.0077 5.24917 15.0227 5.37061L8.08261 9.84066C7.54305 9.32015 6.80891 9 6 9C4.34315 9 3 10.3431 3 12C3 13.6569 4.34315 15 6 15C6.80891 15 7.54305 14.6798 8.08261 14.1593L15.0227 18.6294C15.0077 18.7508 15 18.8745 15 19C15 20.6569 16.3431 22 18 22C19.6569 22 21 20.6569 21 19C21 17.3431 19.6569 16 18 16C17.1911 16 16.457 16.3202 15.9174 16.8407L8.97733 12.3706C8.99229 12.2492 9 12.1255 9 12C9 11.8745 8.99229 11.7508 8.97733 11.6294L15.9174 7.15934C16.457 7.67985 17.1911 8 18 8Z" fill="currentColor" />
-            </svg>
-          </button>
-          <button 
-            className={`action-btn fav-btn ${isFavorite ? 'active' : ''}`}
-            onClick={() => onToggleFavorite(id)}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill={isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-          </button>
-        </div>
-        <div className="seller-avatar">
-          <Image 
-            src={logoSrc} 
-            alt={partner_name}
-            width={44}
-            height={44}
-            className="rounded-full"
-            onError={handleLogoError}
-          />
-          <div className="avatar-fallback">
-            {partner_name.charAt(0).toUpperCase()}
-          </div>
-        </div>
-
       </div>
-      <div className="gigs-content">
-        <div className="gigs-info">
-          <div className="flex items-center justify-between">
-            <span className="badge">
-              <span className="badge-dot"></span>
-              Software
+    );
+  };
+
+  return (
+    <div 
+      className="gig-card-wrapper"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="gigs-card relative group hover:shadow-lg transition-shadow duration-300">
+        {!is_active && (
+          <div className="absolute top-2 right-2 z-10 bg-gray-800 text-white text-xs px-2 py-1 rounded">
+            Inactive
+          </div>
+        )}
+        <div className="gigs-img relative">
+          <Link href={`/software/${slug}`}>
+            <div className="relative h-[200px] w-full overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-red-500/20"></div>
+              <Image 
+                src={screenshotSrc} 
+                alt={name} 
+                fill
+                style={{ 
+                  objectFit: 'cover',
+                  objectPosition: 'center'
+                }}
+                className="transition-all duration-300 group-hover:scale-105"
+                onError={handleScreenshotError}
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              {/* Image navigation controls - only show if multiple images */}
+              {screenshots.length > 1 && (
+                <>
+                  <button 
+                    onClick={prevImage}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                  </button>
+                  <button 
+                    onClick={nextImage}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </button>
+                  
+                  {/* Image pagination dots */}
+                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+                    {screenshots.map((_, index) => (
+                      <div 
+                        key={index} 
+                        className={`w-1.5 h-1.5 rounded-full ${index === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </Link>
+          <div className="gigs-badges absolute top-2 left-2 flex flex-wrap gap-1">
+            {hasLifetimePlan && (
+              <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full flex items-center">
+                <svg className="mr-1" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                </svg>
+                Lifetime
+              </span>
+            )}
+            
+            {/* Version badge */}
+            <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+              v{version}
             </span>
-            <span className="plans-count text-xs text-gray-500 flex items-center">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
-                <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z" fill="currentColor" />
+          </div>
+          <div className="absolute top-2 right-2 flex space-x-1">
+            <button 
+              className={`bg-white rounded-full p-1.5 shadow-md hover:bg-gray-100 transition-colors ${isFavorite ? 'text-red-500' : 'text-gray-400'}`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleFavorite(id);
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill={isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
-              {plans.length} {plans.length === 1 ? 'Plan' : 'Plans'}
-            </span>
+            </button>
+          </div>
+          <div className="absolute -bottom-5 left-4">
+            <div className="bg-white rounded-full p-1 shadow-md border border-gray-200">
+              <Image 
+                src={logoSrc} 
+                alt={partner_name}
+                width={40}
+                height={40}
+                className="rounded-full"
+                onError={handleLogoError}
+              />
+            </div>
           </div>
         </div>
-        <div className="gigs-title">
-          <h3 className="mb-0">
-            <Link href={`/software/${slug}`} className="hover:text-orange-600 transition-colors">
-              {name}
-            </Link>
-          </h3>
-        </div>
-        
-        {/* Professional short description display */}
-        <div className="text-sm text-gray-600 mb-3">
-          {short_description ? (
-            typeof short_description === 'string' && short_description.includes('\n') ? (
-              <div className="py-0">
-                {short_description.split('\n').map((line, index) => (
-                  <p key={index} className="line-clamp-1 mb-0">{line}</p>
-                ))}
-              </div>
-            ) : (
-              <p className="line-clamp-3 py-0">{short_description}</p>
-            )
-          ) : description ? (
-            <p className="line-clamp-3 py-0">{description.substring(0, 100)}</p>
-          ) : (
-            <p className="py-0">No description available</p>
-          )}
-        </div>
-        
-        <div className="flex items-center justify-between mt-1">
-          <div className="seller-info text-sm text-gray-600">
-            <span>By {partner_name}</span>
+        <div className="gigs-content p-4 pt-6">
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <span className="text-xs text-gray-500 block mb-1">{partner_name}</span>
+              <Link href={`/software/${slug}`} className="hover:text-orange-500 transition-colors">
+                <h3 className="text-base font-semibold line-clamp-2 min-h-[48px]">{name}</h3>
+              </Link>
+            </div>
           </div>
-          <div className="price-info">
-            <span className="price-prefix text-xs text-gray-500">Starting at</span>
-            <span className="price text-lg font-bold text-orange-600">
-              {formatCurrency(startingPrice, { 
-                pricingModel: getPricingModel(),
-                isDigitalProduct: hasLifetimePlan,
-                useSimpleFormat: true
-              })}
-            </span>
+          
+          <div className="mb-3">
+            <ShortDescriptionDisplay 
+              shortDescription={short_description} 
+              description={description} 
+            />
+          </div>
+          
+          <div className="flex justify-between items-center mt-4">
+            <div className="flex items-center">
+              <span className="text-orange-500 font-semibold">
+                {renderStyledPrice(startingPrice, getPricingModel())}
+              </span>
+            </div>
+            <div className="flex items-center text-xs text-gray-500">
+              <svg className="mr-1" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Instant Delivery
+            </div>
           </div>
         </div>
       </div>

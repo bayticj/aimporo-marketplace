@@ -250,7 +250,7 @@ const GigCard: React.FC<GigCardProps> = ({
   const currentImage = randomImages[currentImageIndex % randomImages.length];
 
   return (
-    <div className={`gigs-card relative group ${status === 'draft' ? 'opacity-70' : ''} hover:shadow-md transition-shadow duration-300`}>
+    <div className={`gigs-card relative group ${status === 'draft' ? 'opacity-70' : ''} hover:shadow-lg transition-shadow duration-300`}>
       {status === 'draft' && (
         <div className="absolute top-2 right-2 z-10 bg-gray-800 text-white text-xs px-2 py-1 rounded">
           Draft

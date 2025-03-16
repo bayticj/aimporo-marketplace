@@ -994,6 +994,16 @@ const SoftwareProductsPage = () => {
               )}
             </div>
             
+            {/* Show More button - Only visible when filters are collapsed */}
+            {!showAllFilters && (
+              <button 
+                className="text-orange-500 font-medium hover:text-orange-600"
+                onClick={() => setShowAllFilters(true)}
+              >
+                Show More
+              </button>
+            )}
+            
             {/* Additional filters that show/hide based on showAllFilters state */}
             {showAllFilters && (
               <>
@@ -1144,213 +1154,210 @@ const SoftwareProductsPage = () => {
                     </div>
                   )}
                 </div>
+                
+                {/* Show Less button - Only visible when filters are expanded */}
+                <button 
+                  className="text-orange-500 font-medium hover:text-orange-600"
+                  onClick={() => setShowAllFilters(false)}
+                >
+                  Show Less
+                </button>
               </>
             )}
           </div>
           
-          <div className="flex items-center gap-4">
-            {/* Show More/Less button - Moved to the right side */}
-            <button 
-              className="text-orange-500 font-medium hover:text-orange-600"
-              onClick={() => setShowAllFilters(!showAllFilters)}
-            >
-              {showAllFilters ? 'Show Less' : 'Show More'}
-            </button>
-            
-            {/* Sort By Dropdown - Right side */}
-            <div className="flex items-center space-x-2 mt-3 md:mt-0">
-              <span className="text-gray-700 whitespace-nowrap">Sort By:</span>
-              <div className="relative">
-                <select
-                  value={sort || 'featured'}
-                  onChange={(e) => handleSortChange(e.target.value)}
-                  className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-gray-700 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                >
-                  <option value="featured">New Arrivals</option>
-                  <option value="newest">Featured</option>
-                  <option value="price_low">Price: Low to High</option>
-                  <option value="price_high">Price: High to Low</option>
-                  <option value="top_rated">Top Rated</option>
-                  <option value="most_popular">Most Popular</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                  <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </div>
+          {/* Sort By Dropdown - Right side */}
+          <div className="flex items-center space-x-2 mt-3 md:mt-0">
+            <span className="text-gray-700 whitespace-nowrap">Sort By:</span>
+            <div className="relative">
+              <select
+                value={sort || 'featured'}
+                onChange={(e) => handleSortChange(e.target.value)}
+                className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-gray-700 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+              >
+                <option value="featured">New Arrivals</option>
+                <option value="newest">Featured</option>
+                <option value="price_low">Price: Low to High</option>
+                <option value="price_high">Price: High to Low</option>
+                <option value="top_rated">Top Rated</option>
+                <option value="most_popular">Most Popular</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
       
       <div className="container mx-auto px-4">
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Filters Sidebar */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Filters</h3>
-            
-            {/* Search */}
-            <div className="mb-6">
-              <form onSubmit={handleSearch}>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="search"
-                    placeholder="Search software..."
-                    defaultValue={search || ''}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-orange-500"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="11" cy="11" r="8" />
-                      <path d="M21 21l-4.35-4.35" />
-                    </svg>
-                  </button>
-                </div>
-              </form>
-            </div>
-            
-            {/* Partners Filter */}
-            <div className="mb-6">
-              <h4 className="font-medium mb-2">Partners</h4>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id="all-partners"
-                    name="partner"
-                    checked={!partner}
-                    onChange={() => handlePartnerChange(null)}
-                    className="h-4 w-4 text-orange-600 focus:ring-orange-500"
-                  />
-                  <label htmlFor="all-partners" className="ml-2 text-sm text-gray-700">
-                    All Partners
-                  </label>
-                </div>
-                
-                {partners.map((p) => (
-                  <div key={p.id} className="flex items-center">
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Filters Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold mb-4">Filters</h3>
+              
+              {/* Search */}
+              <div className="mb-6">
+                <form onSubmit={handleSearch}>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="search"
+                      placeholder="Search software..."
+                      defaultValue={search || ''}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                    />
+                    <button
+                      type="submit"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-orange-500"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="M21 21l-4.35-4.35" />
+                      </svg>
+                    </button>
+                  </div>
+                </form>
+              </div>
+              
+              {/* Partners Filter */}
+              <div className="mb-6">
+                <h4 className="font-medium mb-2">Partners</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center">
                     <input
                       type="radio"
-                      id={`partner-${p.id}`}
+                      id="all-partners"
                       name="partner"
-                      checked={partner === p.id.toString()}
-                      onChange={() => handlePartnerChange(p.id.toString())}
+                      checked={!partner}
+                      onChange={() => handlePartnerChange(null)}
                       className="h-4 w-4 text-orange-600 focus:ring-orange-500"
                     />
-                    <label htmlFor={`partner-${p.id}`} className="ml-2 text-sm text-gray-700">
-                      {p.name}
+                    <label htmlFor="all-partners" className="ml-2 text-sm text-gray-700">
+                      All Partners
                     </label>
+                  </div>
+                  
+                  {partners.map((p) => (
+                    <div key={p.id} className="flex items-center">
+                      <input
+                        type="radio"
+                        id={`partner-${p.id}`}
+                        name="partner"
+                        checked={partner === p.id.toString()}
+                        onChange={() => handlePartnerChange(p.id.toString())}
+                        className="h-4 w-4 text-orange-600 focus:ring-orange-500"
+                      />
+                      <label htmlFor={`partner-${p.id}`} className="ml-2 text-sm text-gray-700">
+                        {p.name}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Lifetime Option */}
+              <div className="mb-6">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="lifetime"
+                    checked={hasLifetime}
+                    onChange={handleLifetimeToggle}
+                    className="h-4 w-4 text-orange-600 focus:ring-orange-500"
+                  />
+                  <label htmlFor="lifetime" className="ml-2 text-sm text-gray-700">
+                    Lifetime Plans Only
+                  </label>
+                </div>
+              </div>
+              
+              {/* Reset Filters */}
+              <button
+                onClick={() => router.push('/software')}
+                className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Reset Filters
+              </button>
+            </div>
+          </div>
+          
+          {/* Products Grid */}
+          <div className="lg:col-span-3">
+            {/* Results Header */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">
+                {loading ? 'Loading...' : `${products.length} Software Products`}
+              </h2>
+            </div>
+            
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
+                {error}
+              </div>
+            )}
+            
+            {/* Loading State */}
+            {loading && (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+              </div>
+            )}
+            
+            {/* No Results */}
+            {!loading && products.length === 0 && (
+              <div className="bg-gray-100 p-8 rounded-lg text-center">
+                <h3 className="text-lg font-semibold mb-2">No software products found</h3>
+                <p className="text-gray-600 mb-4">Try adjusting your filters or search terms</p>
+                <button
+                  onClick={() => router.push('/software')}
+                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
+            
+            {/* Products Grid */}
+            {!loading && products.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {products.map((product) => (
+                  <div key={product.id} className="relative gig-card-wrapper">
+                    <SoftwareProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      slug={product.slug}
+                      description={product.description}
+                      short_description={product.short_description}
+                      logo_path={product.logo_path}
+                      screenshots={product.screenshots}
+                      version={product.version}
+                      partner_name={product.partner_name}
+                      is_active={product.is_active}
+                      plans={product.plans}
+                      isFavorite={favorites.includes(product.id)}
+                      onToggleFavorite={handleToggleFavorite}
+                    />
                   </div>
                 ))}
               </div>
-            </div>
+            )}
             
-            {/* Lifetime Option */}
-            <div className="mb-6">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="lifetime"
-                  checked={hasLifetime}
-                  onChange={handleLifetimeToggle}
-                  className="h-4 w-4 text-orange-600 focus:ring-orange-500"
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-8">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
                 />
-                <label htmlFor="lifetime" className="ml-2 text-sm text-gray-700">
-                  Lifetime Plans Only
-                </label>
               </div>
-            </div>
-            
-            {/* Reset Filters */}
-            <button
-              onClick={() => router.push('/software')}
-              className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Reset Filters
-            </button>
-          </div>
-        </div>
-        
-        {/* Products Grid */}
-        <div className="lg:col-span-3">
-          {/* Results Header */}
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">
-              {loading ? 'Loading...' : `${products.length} Software Products`}
-            </h2>
-          </div>
-          
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
-              {error}
-            </div>
-          )}
-          
-          {/* Loading State */}
-          {loading && (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-            </div>
-          )}
-          
-          {/* No Results */}
-          {!loading && products.length === 0 && (
-            <div className="bg-gray-100 p-8 rounded-lg text-center">
-              <h3 className="text-lg font-semibold mb-2">No software products found</h3>
-              <p className="text-gray-600 mb-4">Try adjusting your filters or search terms</p>
-              <button
-                onClick={() => router.push('/software')}
-                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-              >
-                Clear Filters
-              </button>
-            </div>
-          )}
-          
-          {/* Products Grid */}
-          {!loading && products.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                  <div key={product.id} className="relative gig-card-wrapper">
-                <SoftwareProductCard
-                  key={product.id}
-                  id={product.id}
-                  name={product.name}
-                  slug={product.slug}
-                  description={product.description}
-                  short_description={product.short_description}
-                  logo_path={product.logo_path}
-                  screenshots={product.screenshots}
-                  version={product.version}
-                  partner_name={product.partner_name}
-                  is_active={product.is_active}
-                  plans={product.plans}
-                  isFavorite={favorites.includes(product.id)}
-                  onToggleFavorite={handleToggleFavorite}
-                />
-                  </div>
-              ))}
-            </div>
-          )}
-          
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="mt-8">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
-            </div>
-          )}
+            )}
           </div>
         </div>
       </div>

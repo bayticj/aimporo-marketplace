@@ -1029,19 +1029,19 @@ const DigitalProductsPage = () => {
       const status = i % 20 === 0 ? statusOptions[0] : statusOptions[Math.floor(Math.random() * statusOptions.length)];
       
       return {
-      id: i + 1,
+        id: i + 1,
         user_id: Math.floor(Math.random() * 10) + 1,
         title: categoryTitles[titleIndex],
         description: descriptions[categoryId as keyof typeof descriptions] || descriptions['software'],
         short_description: descriptions[categoryId as keyof typeof descriptions]?.substring(0, 100) + '...' || descriptions['software'].substring(0, 100) + '...',
         price: price,
         original_price: originalPrice,
-      file_path: '/path/to/file.zip',
+        file_path: '/path/to/file.zip',
         file_name: `${categoryId.toLowerCase()}-product-${i + 1}.zip`,
         file_size: `${Math.floor(Math.random() * 100) + 1} MB`,
-      file_type: 'application/zip',
-      preview_path: null,
-      download_limit: null,
+        file_type: 'application/zip',
+        preview_path: null,
+        download_limit: null,
         is_featured: i % 10 === 0, // Every 10th product is featured
         hot: i % 15 === 0, // Every 15th product is hot
         status: status,
@@ -1049,9 +1049,9 @@ const DigitalProductsPage = () => {
         updated_at: new Date().toISOString().split('T')[0],
         rating: rating,
         reviews: reviews,
-        delivery: ['1 day', '2 days', '3 days', 'Instant'][Math.floor(Math.random() * 4)],
+        delivery: 'Instant', // Always Instant for digital products
         location: ['New York', 'London', 'Tokyo', 'Berlin', 'Sydney', 'Paris', 'Toronto', 'Singapore'][Math.floor(Math.random() * 8)],
-      user: {
+        user: {
           id: Math.floor(Math.random() * 10) + 1,
           name: ['CreativeStudio', 'DigitalCrafters', 'TechSolutions', 'DesignMasters', 'CodeExperts', 'MediaPros', 'ArtisanDigital', 'InnovateDesign', 'PremiumAssets', 'EliteCreators'][Math.floor(Math.random() * 10)],
           email: 'creator@example.com'
@@ -1739,12 +1739,13 @@ const DigitalProductsPage = () => {
           ) : products.length > 0 ? (
             products.map((product, index) => (
               <div key={`${product.id}-${index}`} className="relative digital-product-card-wrapper">
-                      <DigitalProductCard
-                        product={product}
-                        isFavorite={favorites.includes(product.id)}
-                        onToggleFavorite={handleToggleFavorite}
-                      />
-                    </div>
+                <DigitalProductCard
+                  product={product}
+                  isFavorite={favorites.includes(product.id)}
+                  onToggleFavorite={handleToggleFavorite}
+                  original_price={product.original_price || undefined}
+                />
+              </div>
             ))
           ) : (
             <div className="col-span-3 py-10 text-center">

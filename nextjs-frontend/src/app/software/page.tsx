@@ -51,6 +51,10 @@ const SoftwareProductsPage = () => {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+  const loaderRef = React.useRef<HTMLDivElement>(null);
+  const itemsPerPage = 12;
   
   // Popular categories state
   const [currentCategoryPage, setCurrentCategoryPage] = useState(0);
@@ -90,6 +94,115 @@ const SoftwareProductsPage = () => {
   const reviewsRef = useRef<HTMLDivElement>(null);
   const sellerDetailsRef = useRef<HTMLDivElement>(null);
   
+  // Setup intersection observer for infinite scroll
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      const [entry] = entries;
+      if (entry.isIntersecting && hasMore && !isLoadingMore) {
+        loadMoreProducts();
+      }
+    }, options);
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
+      }
+    };
+  }, [hasMore, isLoadingMore, products]);
+  
+  // Function to load more products
+  const loadMoreProducts = async () => {
+    if (isLoadingMore || !hasMore) return;
+    
+    setIsLoadingMore(true);
+    const nextPage = currentPage + 1;
+    
+    try {
+      const params: any = {
+        page: nextPage,
+        per_page: itemsPerPage,
+      };
+      
+      if (partner) {
+        params.partner_id = partner;
+      }
+      
+      if (category) {
+        params.category = category;
+      }
+      
+      if (search) {
+        params.search = search;
+      }
+      
+      if (sort) {
+        const [sortBy, sortOrder] = sort.split('-');
+        params.sort_by = sortBy;
+        params.sort_order = sortOrder;
+      }
+      
+      if (hasLifetime) {
+        params.has_lifetime = true;
+      }
+      
+      try {
+        const response = await getSoftwareProducts(params);
+        
+        if (response.data) {
+          const newProducts = response.data;
+          
+          if (newProducts.length === 0) {
+            setHasMore(false);
+          } else {
+            setProducts(prevProducts => [...prevProducts, ...newProducts]);
+            setCurrentPage(nextPage);
+            
+            // Initialize favorites for new products
+            const savedFavorites = localStorage.getItem('favoriteSoftwareProducts');
+            if (savedFavorites) {
+              setFavorites(JSON.parse(savedFavorites));
+            }
+            
+            // If we got fewer products than the page size, there are no more to load
+            if (newProducts.length < itemsPerPage) {
+              setHasMore(false);
+            }
+          }
+        } else {
+          throw new Error('API response not successful');
+        }
+      } catch (err) {
+        console.error('Error fetching more software products:', err);
+        
+        // Use mock data as fallback
+        const mockProducts = getMockSoftwareProducts();
+        
+        if (mockProducts.length === 0) {
+          setHasMore(false);
+        } else {
+          setProducts(prevProducts => [...prevProducts, ...mockProducts]);
+          setCurrentPage(nextPage);
+        }
+      } finally {
+        setIsLoadingMore(false);
+      }
+    } catch (error) {
+      console.error('Error in loadMoreProducts:', error);
+      setIsLoadingMore(false);
+      setHasMore(false);
+    }
+  };
+  
   useEffect(() => {
     // Load favorites from localStorage
     const savedFavorites = localStorage.getItem('favoriteSoftwareProducts');
@@ -120,11 +233,13 @@ const SoftwareProductsPage = () => {
     const fetchProducts = async () => {
       setLoading(true);
       setError(null);
+      setHasMore(true);
+      setCurrentPage(1);
       
       try {
         const response = await getSoftwareProducts({
-          page: page,
-          per_page: 12,
+          page: 1,
+          per_page: itemsPerPage,
           search: search || undefined,
           partner_id: partner || undefined,
           category: category || undefined,
@@ -135,7 +250,12 @@ const SoftwareProductsPage = () => {
         
         setProducts(response.data);
         setTotalPages(response.last_page);
-        setCurrentPage(response.current_page);
+        setCurrentPage(1);
+        
+        // If we got fewer products than the page size, there are no more to load
+        if (response.data.length < itemsPerPage) {
+          setHasMore(false);
+        }
       } catch (err: any) {
         console.error('Error fetching software products:', err);
         setError(err.message || 'Failed to load software products. Please try again later.');
@@ -144,14 +264,17 @@ const SoftwareProductsPage = () => {
         const mockData = getMockSoftwareProducts();
         setProducts(mockData);
         setTotalPages(3);
-        setCurrentPage(page);
+        setCurrentPage(1);
+        
+        // For mock data, always set hasMore to false after first page
+        setHasMore(false);
       } finally {
         setLoading(false);
       }
     };
     
     fetchProducts();
-  }, [page, search, partner, sort, hasLifetime, category]);
+  }, [search, partner, sort, hasLifetime, category]);
   
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -439,7 +562,7 @@ const SoftwareProductsPage = () => {
       params.delete('min_price');
     }
     
-    if (maxPrice < 10000) {
+    if (maxPrice < 100000) {
       params.set('max_price', maxPrice.toString());
     } else {
       params.delete('max_price');
@@ -451,7 +574,7 @@ const SoftwareProductsPage = () => {
 
   const resetPriceFilter = () => {
     setMinPrice(0);
-    setMaxPrice(10000);
+    setMaxPrice(100000);
   };
 
   // Get filtered categories based on search term
@@ -634,553 +757,465 @@ const SoftwareProductsPage = () => {
   }, [showCategoryDropdown, showLicenseDropdown, showPriceDropdown, showReviewsDropdown, showSellerDetailsDropdown]);
 
   return (
-    <div className="software-page bg-gray-50 min-h-screen pb-16">
+    <div className="bg-white">
       <style jsx global>{softwareCardStyles}</style>
       
-      {/* Page Header - Breadcrumb */}
-      <div className="bg-white border-b">
-    <div className="container mx-auto px-4 py-8">
+      {/* Breadcrumb Navigation */}
+      <div className="bg-white border-b py-4">
+        <div className="container mx-auto px-4">
           <div className="flex items-center text-sm">
             <Link href="/" className="text-gray-700 hover:text-orange-500">
               Home
             </Link>
             <span className="mx-2 text-gray-700">›</span>
-            <Link href="/software" className="text-gray-700 hover:text-orange-500">
-              Software Products
-            </Link>
-            {category && (
-              <>
-                <span className="mx-2 text-gray-700">›</span>
-                <span className="text-gray-800 font-medium">
-                  {softwareCategories.find(c => c.id === category)?.name || 'Category'}
-                </span>
-              </>
-            )}
-            {partner && (
-              <>
-                <span className="mx-2 text-gray-700">›</span>
-                <span className="text-gray-800 font-medium">
-                  {partners.find(p => p.id.toString() === partner)?.name || 'Partner'}
-                </span>
-              </>
-            )}
+            <span className="text-gray-800">Software Products</span>
           </div>
         </div>
       </div>
-
-      {/* Page Header */}
-      <div className="bg-gray-100 py-8 border-b">
+      
+      {/* Browse Software Products Header */}
+      <div className="bg-gray-100 py-8">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold text-gray-800">
-            Browse {category ? 
-              softwareCategories.find(c => c.id === category)?.name || 'Software Products' : 
-              'Software Products'} <span className="text-orange-500">
-                " {products.length > 0 ? products.length : 5} Products "
-              </span>
+            Browse Software Products <span className="text-orange-500">" {products.length} Products "</span>
           </h1>
         </div>
       </div>
-
-      {/* Hero Banner */}
-      <div className="relative bg-gradient-to-r from-gray-900 to-gray-800 py-16 mb-8">
+      
+      {/* Hero Section */}
+      <div className="relative bg-[#0f172a] py-16 overflow-hidden">
         <div className="absolute top-0 right-0 w-1/3 h-full overflow-hidden">
           <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-l from-orange-500 to-blue-600 rounded-bl-[100px]"></div>
         </div>
         <div className="container mx-auto px-4 text-center text-white relative z-10">
-          <h2 className="text-4xl font-bold mb-4">
-            {category ? 
-              softwareCategories.find(c => c.id === category)?.name || 'Software Products' : 
-              'Software Products'}
-          </h2>
-          <p className="text-lg max-w-2xl mx-auto">
-            {category ? 
-              getCategoryDescription(category) : 
-              'Discover premium software solutions for your business and personal needs. Our curated collection offers the best tools to enhance your productivity.'}
+          <h2 className="text-4xl font-bold mb-4">Software Products</h2>
+          <p className="text-xl max-w-2xl mx-auto">
+            Discover premium software solutions created by talented professionals.
+            Download instantly and use in your projects.
           </p>
         </div>
       </div>
       
-      {/* Trending Categories */}
-      <div className="container mx-auto px-4 mb-12">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">
-            Trending Categories {category ? 
-              `in ${softwareCategories.find(c => c.id === category)?.name || 'Software'}` : 
-              'on Software Products'}
-          </h2>
-          <div className="flex space-x-2">
-            <button 
-              className="bg-white rounded-full p-2 shadow-md hover:bg-gray-100"
-              aria-label="Previous categories"
-              onClick={handlePrevCategories}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button 
-              className="bg-white rounded-full p-2 shadow-md hover:bg-gray-100"
-              aria-label="Next categories"
-              onClick={handleNextCategories}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {loadingCategories ? (
-            // Loading skeleton for categories
-            Array.from({ length: 4 }).map((_, index) => (
-              <div key={`skeleton-${index}`} className="bg-white rounded-lg shadow-md p-6 flex items-center justify-between animate-pulse">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-gray-200 rounded-lg mr-4"></div>
-                  <div>
-                    <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-16"></div>
-                  </div>
-                </div>
-                <div className="w-5 h-5 bg-gray-200 rounded"></div>
-              </div>
-            ))
-          ) : (
-            currentCategories.map((cat) => (
-              <div
-                key={cat.id}
-                className={`bg-white rounded-lg shadow-md p-6 flex items-center justify-between hover:shadow-lg transition-shadow cursor-pointer ${
-                  category === cat.id ? 'ring-2 ring-orange-500' : ''
-                }`}
-                onClick={() => handleCategoryClick(cat.id)}
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        {/* Popular Categories */}
+        <div className="mb-10">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Trending Categories on Software Products</h2>
+            <div className="flex space-x-2">
+              <button
+                onClick={handlePrevCategories}
+                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100"
               >
-                <div className="flex items-center">
-                  <div className={`w-12 h-12 flex items-center justify-center ${
-                    category === cat.id ? 'bg-orange-500 text-white' : 'bg-orange-100'
-                  } rounded-lg mr-4`}>
-                    {cat.icon}
-                  </div>
-                  <div>
-                    <h3 className={`font-semibold ${
-                      category === cat.id ? 'text-orange-500' : 'text-gray-800'
-                    }`}>{cat.name}</h3>
-                    <p className="text-sm text-gray-700">({cat.count} Products)</p>
-                  </div>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ${
-                  category === cat.id ? 'text-orange-500' : 'text-gray-400'
-                }`} viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-              </div>
-            ))
+              </button>
+              <button
+                onClick={handleNextCategories}
+                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          {loadingCategories ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {softwareCategories
+                .slice(
+                  currentCategoryPage * categoriesPerPage,
+                  (currentCategoryPage + 1) * categoriesPerPage
+                )
+                .map((cat) => (
+                  <div
+                    key={cat.id}
+                    onClick={() => handleCategoryClick(cat.id)}
+                    className="bg-white rounded-lg shadow-md cursor-pointer transition-all duration-300 hover:shadow-lg"
+                  >
+                    <div className="flex items-center p-4">
+                      <div className="w-14 h-14 flex items-center justify-center bg-orange-100 rounded-lg text-orange-500">
+                        {cat.icon}
+                      </div>
+                      <div className="ml-4">
+                        <h3 className="text-base font-semibold text-gray-800">{cat.name}</h3>
+                        <p className="text-sm text-gray-500">({cat.count} Products)</p>
+                      </div>
+                      <div className="ml-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
           )}
         </div>
-      </div>
-      
-      {/* Filter Bar */}
-      <div className="container mx-auto px-4 mb-8">
-        <div className="flex flex-wrap gap-3 items-center justify-between">
-          <div className="flex flex-wrap gap-3 items-center">
-            {/* Categories Dropdown - Always visible */}
-            <div ref={categoryRef} className="relative">
+        
+        {/* Filter Bar */}
+        <div className="flex flex-wrap items-center justify-between mb-8">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Categories Filter */}
+            <div className="relative" ref={categoryRef}>
               <button 
                 onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                className="flex items-center space-x-1 bg-white px-4 py-2 rounded-lg border shadow-sm hover:bg-gray-50"
+                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
                 </svg>
-                <span className="text-gray-700">Categories {selectedCategories.length > 0 && `(${selectedCategories.length})`}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                <span className="text-gray-700">Categories</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               
               {showCategoryDropdown && (
-                <div className="absolute z-50 mt-2 w-64 bg-white rounded-lg shadow-lg p-4 border category-dropdown-container">
-                  <div className="mb-2">
-                    <input
-                      type="text"
-                      placeholder="Search Category"
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                      value={categorySearchTerm}
-                      onChange={(e) => setCategorySearchTerm(e.target.value)}
-                    />
-                  </div>
-                  <div className="max-h-60 overflow-y-auto">
-                    <div className="space-y-2">
-                      {filteredCategories.map(category => (
-                        <label key={category.id} className="flex items-center justify-between cursor-pointer">
-                          <div className="flex items-center space-x-2">
-                            <input 
-                              type="checkbox" 
-                              className="form-checkbox h-4 w-4 text-orange-500" 
-                              checked={selectedCategories.includes(category.id)}
-                              onChange={() => handleCategoryToggle(category.id)}
-                            />
-                            <span className="text-gray-700">{category.name}</span>
-                          </div>
-                          <span className="text-gray-700 text-sm">({category.count})</span>
-                        </label>
+                <div className="absolute z-10 mt-2 w-72 bg-white rounded-md shadow-lg">
+                  <div className="p-4">
+                    <div className="mb-4">
+                      <input
+                        type="text"
+                        placeholder="Search categories"
+                        value={categorySearchTerm}
+                        onChange={(e) => setCategorySearchTerm(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                    
+                    <div className="max-h-60 overflow-y-auto mb-4">
+                      {filteredCategories.map((cat) => (
+                        <div key={cat.id} className="flex items-center mb-2">
+                          <input
+                            type="checkbox"
+                            id={`cat-${cat.id}`}
+                            checked={selectedCategories.includes(cat.id)}
+                            onChange={() => handleCategoryToggle(cat.id)}
+                            className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor={`cat-${cat.id}`} className="ml-2 text-sm text-gray-700">
+                            {cat.name} <span className="text-gray-500">({cat.count})</span>
+                          </label>
+                        </div>
                       ))}
                     </div>
-                    {softwareCategories.length > filteredCategories.length && (
-                      <div className="mt-3 pt-3 border-t border-gray-200">
-                        <button 
-                          className="text-orange-500 hover:text-orange-600 text-sm font-medium"
-                          onClick={() => setCategorySearchTerm('')}
-                        >
-                          Show All Categories
-                        </button>
-                      </div>
-                    )}
-                    {filteredCategories.length === 0 && (
-                      <div className="py-2 text-center text-gray-700">
-                        No categories found
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
-                    <button 
-                      className="text-gray-700 hover:text-gray-800 text-sm font-medium"
-                      onClick={resetCategories}
-                    >
-                      Reset
-                    </button>
-                    <button 
-                      className="bg-orange-500 text-white px-4 py-1 rounded-md text-sm font-medium hover:bg-orange-600"
-                      onClick={applyCategories}
-                    >
-                      Apply
-                    </button>
+                    
+                    <div className="flex justify-between">
+                      <button
+                        onClick={resetCategories}
+                        className="text-sm text-gray-600 hover:text-gray-900"
+                      >
+                        Reset
+                      </button>
+                      <button
+                        onClick={applyCategories}
+                        className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 text-sm"
+                      >
+                        Apply
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
             
-            {/* License Type Filter - Always visible */}
-            <div ref={licenseRef} className="relative">
-              <button
+            {/* License Type Filter */}
+            <div className="relative" ref={licenseRef}>
+              <button 
                 onClick={() => setShowLicenseDropdown(!showLicenseDropdown)}
-                className="flex items-center space-x-1 bg-white px-4 py-2 rounded-lg border shadow-sm hover:bg-gray-50"
+                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
                 <span className="text-gray-700">License Type</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               
               {showLicenseDropdown && (
-                <div className="absolute left-0 z-50 mt-2 w-72 bg-white rounded-lg shadow-lg p-4 border">
-                  <div className="space-y-3">
-                    {licenseOptions.map(license => (
-                      <div key={license.id} className="flex items-center justify-between">
-                        <label className="flex items-center space-x-3 cursor-pointer">
+                <div className="absolute z-10 mt-2 w-72 bg-white rounded-md shadow-lg">
+                  <div className="p-4">
+                    <div className="max-h-60 overflow-y-auto mb-4">
+                      {licenseOptions.map((option) => (
+                        <div key={option.id} className="flex items-center mb-2">
                           <input
                             type="checkbox"
-                            className="form-checkbox h-5 w-5 text-orange-500 rounded"
-                            checked={selectedLicenses.includes(license.id)}
-                            onChange={() => handleLicenseToggle(license.id)}
+                            id={`license-${option.id}`}
+                            checked={selectedLicenses.includes(option.id)}
+                            onChange={() => handleLicenseToggle(option.id)}
+                            className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
                           />
-                          <span className="text-gray-700">{license.name}</span>
-                        </label>
-                        <span className="text-gray-700 text-sm">({license.count})</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex justify-between mt-6 pt-3 border-t border-gray-200">
-                    <button
-                      className="text-gray-700 hover:text-gray-800 text-sm font-medium"
-                      onClick={resetLicenses}
-                    >
-                      Reset
-                    </button>
-                    <button
-                      className="bg-orange-500 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-orange-600"
-                      onClick={applyLicenses}
-                    >
-                      Apply
-                    </button>
+                          <label htmlFor={`license-${option.id}`} className="ml-2 text-sm text-gray-700">
+                            {option.name} <span className="text-gray-500">({option.count})</span>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="flex justify-between">
+                      <button
+                        onClick={resetLicenses}
+                        className="text-sm text-gray-600 hover:text-gray-900"
+                      >
+                        Reset
+                      </button>
+                      <button
+                        onClick={applyLicenses}
+                        className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 text-sm"
+                      >
+                        Apply
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
             
-            {/* Budget Filter - Always visible */}
-            <div ref={priceRef} className="relative">
-              <button
+            {/* Budget Filter */}
+            <div className="relative" ref={priceRef}>
+              <button 
                 onClick={() => setShowPriceDropdown(!showPriceDropdown)}
-                className="flex items-center space-x-1 bg-white px-4 py-2 rounded-lg border shadow-sm hover:bg-gray-50"
+                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span className="text-gray-700">Budget</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               
               {showPriceDropdown && (
-                <div className="absolute left-0 z-50 mt-2 w-80 bg-white rounded-lg shadow-lg p-6 border budget-dropdown-container">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">PRICE</h3>
-                  <div className="mb-6">
-                    <div className="relative h-1 bg-gray-200 rounded-full mb-6">
-                      <div 
-                        className="absolute h-1 bg-orange-500 rounded-full"
-                        style={{ 
-                          left: `${(minPrice / 10000) * 100}%`, 
-                          right: `${100 - (maxPrice / 10000) * 100}%` 
-                        }}
-                      ></div>
-                      <div 
-                        className="absolute w-6 h-6 bg-gray-800 rounded-full -mt-2.5 -ml-3 cursor-pointer flex items-center justify-center"
-                        style={{ left: `${(minPrice / 10000) * 100}%` }}
-                      >
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                <div className="absolute z-10 mt-2 w-72 bg-white rounded-md shadow-lg">
+                  <div className="p-4">
+                    <div className="mb-4">
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-gray-700">Min Price: ₱{minPrice}</span>
+                        <span className="text-sm text-gray-700">Max Price: ₱{maxPrice}</span>
                       </div>
-                      <div 
-                        className="absolute w-6 h-6 bg-gray-800 rounded-full -mt-2.5 -ml-3 cursor-pointer flex items-center justify-center"
-                        style={{ left: `${(maxPrice / 10000) * 100}%` }}
-                      >
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      <div className="relative pt-5 px-2">
+                        <input
+                          type="range"
+                          min="0"
+                          max="100000"
+                          step="1000"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(parseInt(e.target.value))}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                        <input
+                          type="range"
+                          min="0"
+                          max="100000"
+                          step="1000"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(parseInt(e.target.value))}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-4"
+                        />
                       </div>
                     </div>
                     
-                    <div className="flex justify-between items-center">
-                      <div className="w-[45%] bg-gray-100 rounded-full p-3 flex items-center">
-                        <span className="text-gray-700 mr-1">₱</span>
-                        <input 
-                          type="number" 
-                          className="w-full bg-transparent focus:outline-none text-gray-700 text-right" 
-                          value={minPrice}
-                          onChange={(e) => {
-                            const value = parseInt(e.target.value);
-                            if (!isNaN(value) && value >= 0 && value <= maxPrice) {
-                              setMinPrice(value);
-                            }
-                          }}
-                        />
-                      </div>
-                      <span className="text-gray-700 mx-2">to</span>
-                      <div className="w-[45%] bg-gray-100 rounded-full p-3 flex items-center">
-                        <span className="text-gray-700 mr-1">₱</span>
-                        <input 
-                          type="number" 
-                          className="w-full bg-transparent focus:outline-none text-gray-700 text-right" 
-                          value={maxPrice}
-                          onChange={(e) => {
-                            const value = parseInt(e.target.value);
-                            if (!isNaN(value) && value >= minPrice && value <= 100000) {
-                              setMaxPrice(value);
-                            }
-                          }}
-                        />
-                      </div>
+                    <div className="flex justify-between">
+                      <button
+                        onClick={resetPriceFilter}
+                        className="text-sm text-gray-600 hover:text-gray-900"
+                      >
+                        Reset
+                      </button>
+                      <button
+                        onClick={applyPriceFilter}
+                        className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 text-sm"
+                      >
+                        Apply
+                      </button>
                     </div>
                   </div>
-                  
-                  <button 
-                    className="w-full bg-orange-500 text-white py-3 rounded-full font-medium hover:bg-orange-600 transition-colors"
-                    onClick={applyPriceFilter}
-                  >
-                    Apply
-                  </button>
                 </div>
               )}
             </div>
             
-            {/* Show More button - Only visible when filters are collapsed */}
-            {!showAllFilters && (
-              <button 
-                className="text-orange-500 font-medium hover:text-orange-600"
-                onClick={() => setShowAllFilters(true)}
-              >
-                Show More
-              </button>
-            )}
-            
-            {/* Additional filters that show/hide based on showAllFilters state */}
+            {/* Reviews Filter - Only visible when showAllFilters is true */}
             {showAllFilters && (
-              <>
-                {/* Reviews Filter - Only visible when Show More is clicked */}
-                <div ref={reviewsRef} className="relative w-full md:w-auto mt-3 md:mt-0">
-                  <button
-                    onClick={() => setShowReviewsDropdown(!showReviewsDropdown)}
-                    className="flex items-center space-x-1 bg-white px-4 py-2 rounded-lg border shadow-sm hover:bg-gray-50 w-full md:w-auto"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.07 3.292c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span className="text-gray-700">Reviews</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  
-                  {showReviewsDropdown && (
-                    <div className="absolute left-0 z-50 mt-2 w-72 bg-white rounded-lg shadow-lg p-4 border">
-                      <div className="space-y-3">
-                        {ratingOptions.map(option => (
-                          <label key={option.value} className="flex items-center space-x-3 cursor-pointer">
+              <div className="relative" ref={reviewsRef}>
+                <button 
+                  onClick={() => setShowReviewsDropdown(!showReviewsDropdown)}
+                  className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.07 3.292c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <span className="text-gray-700">Reviews</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {showReviewsDropdown && (
+                  <div className="absolute z-10 mt-2 w-72 bg-white rounded-md shadow-lg">
+                    <div className="p-4">
+                      <div className="max-h-60 overflow-y-auto mb-4">
+                        {ratingOptions.map((option) => (
+                          <div key={option.value} className="flex items-center mb-2">
                             <input
                               type="checkbox"
-                              className="form-checkbox h-5 w-5 text-orange-500 rounded" 
+                              id={`rating-${option.value}`}
                               checked={selectedRatings.includes(option.value)}
                               onChange={() => handleRatingToggle(option.value)}
+                              className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
                             />
-                            <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <svg 
-                                  key={i} 
-                                  xmlns="http://www.w3.org/2000/svg" 
-                                  className={`h-5 w-5 ${i < option.stars ? 'text-yellow-400' : 'text-gray-300'}`} 
-                                  viewBox="0 0 20 20" 
-                                  fill="currentColor"
-                                >
-                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.784-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                              ))}
-                              <span className="ml-2 text-gray-700 font-medium">({option.label})</span>
-                            </div>
-                          </label>
+                            <label htmlFor={`rating-${option.value}`} className="ml-2 text-sm text-gray-700 flex items-center">
+                              {option.label}
+                              <div className="flex ml-2">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <svg
+                                    key={i}
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className={`h-4 w-4 ${i < option.stars ? 'text-yellow-400' : 'text-gray-300'}`}
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                  </svg>
+                                ))}
+                              </div>
+                            </label>
+                          </div>
                         ))}
                       </div>
-                      <div className="flex justify-between mt-6 pt-3 border-t border-gray-200">
+                      
+                      <div className="flex justify-between">
                         <button
-                          className="text-gray-700 hover:text-gray-800 text-sm font-medium"
                           onClick={resetRatings}
+                          className="text-sm text-gray-600 hover:text-gray-900"
                         >
                           Reset
                         </button>
                         <button
-                          className="bg-orange-500 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-orange-600"
                           onClick={applyRatings}
+                          className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 text-sm"
                         >
                           Apply
                         </button>
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Seller Details Filter - Only visible when showAllFilters is true */}
+            {showAllFilters && (
+              <div className="relative" ref={sellerDetailsRef}>
+                <button 
+                  onClick={() => setShowSellerDetailsDropdown(!showSellerDetailsDropdown)}
+                  className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span className="text-gray-700">Seller Details</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
                 
-                {/* Seller Details Filter - Only visible when Show More is clicked */}
-                <div ref={sellerDetailsRef} className="relative w-full md:w-auto mt-3 md:mt-0">
-                  <button 
-                    onClick={() => setShowSellerDetailsDropdown(!showSellerDetailsDropdown)}
-                    className="flex items-center space-x-1 bg-white px-4 py-2 rounded-lg border shadow-sm hover:bg-gray-50 w-full md:w-auto"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    <span className="text-gray-700">Seller Details {selectedSellerLevels.length > 0 && `(${selectedSellerLevels.length})`}</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  
-                  {showSellerDetailsDropdown && (
-                    <div className="absolute left-0 z-50 mt-2 w-72 bg-white rounded-lg shadow-lg p-4 border seller-details-dropdown-container">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Seller Level</h3>
-                      <div className="space-y-3 mb-4">
-                        {sellerLevelOptions.map(level => (
-                          <div key={level.id} className="flex items-center justify-between">
-                            <label className="flex items-center space-x-3 cursor-pointer">
-                              <input 
-                                type="checkbox" 
-                                className="form-checkbox h-5 w-5 text-orange-500 rounded" 
-                                checked={selectedSellerLevels.includes(level.id)}
-                                onChange={() => handleSellerLevelToggle(level.id)}
+                {showSellerDetailsDropdown && (
+                  <div className="absolute z-10 mt-2 w-72 bg-white rounded-md shadow-lg">
+                    <div className="p-4">
+                      <div className="mb-4">
+                        <h4 className="font-medium text-gray-900 mb-2">Seller Level</h4>
+                        <div className="max-h-40 overflow-y-auto">
+                          {sellerLevelOptions.map((option) => (
+                            <div key={option.id} className="flex items-center mb-2">
+                              <input
+                                type="checkbox"
+                                id={`seller-${option.id}`}
+                                checked={selectedSellerLevels.includes(option.id)}
+                                onChange={() => handleSellerLevelToggle(option.id)}
+                                className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
                               />
-                              <span className="text-gray-700">{level.name}</span>
-                            </label>
-                            <span className="text-gray-700 text-sm">({level.count})</span>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div className="pt-4 border-t border-gray-200">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Online Status</h3>
-                        <div className="space-y-3 mb-4">
-                          <div className="flex items-center justify-between">
-                            <label className="flex items-center space-x-3 cursor-pointer">
-                              <input 
-                                type="checkbox" 
-                                className="form-checkbox h-5 w-5 text-orange-500 rounded" 
-                              />
-                              <span className="text-gray-700">Online Sellers</span>
-                            </label>
-                            <span className="text-gray-700 text-sm">({onlineSellersCount.toLocaleString()})</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="pt-4 border-t border-gray-200">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Languages</h3>
-                        <div className="space-y-3 mb-4">
-                          {languageOptions.map(language => (
-                            <div key={language.id} className="flex items-center justify-between">
-                              <label className="flex items-center space-x-3 cursor-pointer">
-                                <input 
-                                  type="checkbox" 
-                                  className="form-checkbox h-5 w-5 text-orange-500 rounded" 
-                                />
-                                <span className="text-gray-700">{language.name}</span>
+                              <label htmlFor={`seller-${option.id}`} className="ml-2 text-sm text-gray-700">
+                                {option.name} <span className="text-gray-500">({option.count})</span>
                               </label>
-                              <span className="text-gray-700 text-sm">({language.count.toLocaleString()})</span>
                             </div>
                           ))}
                         </div>
                       </div>
                       
-                      <div className="flex justify-between mt-6 pt-3 border-t border-gray-200">
-                        <button 
-                          className="text-gray-700 hover:text-gray-800 text-sm font-medium"
+                      <div className="mb-4">
+                        <h4 className="font-medium text-gray-900 mb-2">Online Status</h4>
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id="online-sellers"
+                            className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="online-sellers" className="ml-2 text-sm text-gray-700">
+                            Online Sellers <span className="text-gray-500">({onlineSellersCount})</span>
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <button
                           onClick={resetSellerLevels}
+                          className="text-sm text-gray-600 hover:text-gray-900"
                         >
                           Reset
                         </button>
-                        <button 
-                            className="bg-orange-500 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-orange-600"
-                            onClick={applySellerLevels}
-                          >
-                            Apply
+                        <button
+                          onClick={applySellerLevels}
+                          className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 text-sm"
+                        >
+                          Apply
                         </button>
                       </div>
                     </div>
-                  )}
-                </div>
-                
-                {/* Show Less button - Only visible when filters are expanded */}
-                <button 
-                  className="text-orange-500 font-medium hover:text-orange-600"
-                  onClick={() => setShowAllFilters(false)}
-                >
-                  Show Less
-                </button>
-              </>
+                  </div>
+                )}
+              </div>
             )}
+            
+            {/* Show More/Less Button */}
+            <button 
+              onClick={() => setShowAllFilters(!showAllFilters)}
+              className="text-orange-500 font-medium hover:text-orange-600"
+            >
+              {showAllFilters ? "Show Less" : "Show More"}
+            </button>
           </div>
           
-          {/* Sort By Dropdown - Right side */}
-          <div className="flex items-center space-x-2 mt-3 md:mt-0">
-            <span className="text-gray-700 whitespace-nowrap">Sort By:</span>
+          {/* Sort By */}
+          <div className="flex items-center ml-auto mt-0">
+            <span className="text-gray-700 mr-2">Sort By:</span>
             <div className="relative">
               <select
-                value={sort || 'featured'}
+                value={sort || 'created_at-desc'}
                 onChange={(e) => handleSortChange(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-gray-700 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                className="appearance-none bg-white border border-gray-300 rounded-md pl-4 pr-10 py-2 text-gray-700 focus:outline-none focus:ring-1 focus:ring-orange-500"
               >
-                <option value="featured">New Arrivals</option>
-                <option value="newest">Featured</option>
-                <option value="price_low">Price: Low to High</option>
-                <option value="price_high">Price: High to Low</option>
-                <option value="top_rated">Top Rated</option>
-                <option value="most_popular">Most Popular</option>
+                <option value="created_at-desc">New Arrivals</option>
+                <option value="created_at-asc">Oldest</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="name-asc">Name: A to Z</option>
+                <option value="name-desc">Name: Z to A</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -1190,175 +1225,86 @@ const SoftwareProductsPage = () => {
             </div>
           </div>
         </div>
-      </div>
-      
-      <div className="container mx-auto px-4">
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Filters Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-4">Filters</h3>
-              
-              {/* Search */}
-              <div className="mb-6">
-                <form onSubmit={handleSearch}>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      name="search"
-                      placeholder="Search software..."
-                      defaultValue={search || ''}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
-                    />
-                    <button
-                      type="submit"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-orange-500"
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="M21 21l-4.35-4.35" />
-                      </svg>
-                    </button>
+        
+        {/* Software Products Grid */}
+        <div className="container mx-auto px-4 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {loading && products.length === 0 ? (
+              // Loading skeleton
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="bg-white rounded-lg shadow-md p-4 animate-pulse">
+                  <div className="w-full h-48 bg-gray-200 rounded-lg mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                  <div className="flex justify-between items-center">
+                    <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+                    <div className="h-8 bg-gray-200 rounded w-1/4"></div>
                   </div>
-                </form>
-              </div>
-              
-              {/* Partners Filter */}
-              <div className="mb-6">
-                <h4 className="font-medium mb-2">Partners</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      id="all-partners"
-                      name="partner"
-                      checked={!partner}
-                      onChange={() => handlePartnerChange(null)}
-                      className="h-4 w-4 text-orange-600 focus:ring-orange-500"
-                    />
-                    <label htmlFor="all-partners" className="ml-2 text-sm text-gray-700">
-                      All Partners
-                    </label>
-                  </div>
-                  
-                  {partners.map((p) => (
-                    <div key={p.id} className="flex items-center">
-                      <input
-                        type="radio"
-                        id={`partner-${p.id}`}
-                        name="partner"
-                        checked={partner === p.id.toString()}
-                        onChange={() => handlePartnerChange(p.id.toString())}
-                        className="h-4 w-4 text-orange-600 focus:ring-orange-500"
-                      />
-                      <label htmlFor={`partner-${p.id}`} className="ml-2 text-sm text-gray-700">
-                        {p.name}
-                      </label>
-                    </div>
-                  ))}
                 </div>
-              </div>
-              
-              {/* Lifetime Option */}
-              <div className="mb-6">
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="lifetime"
-                    checked={hasLifetime}
-                    onChange={handleLifetimeToggle}
-                    className="h-4 w-4 text-orange-600 focus:ring-orange-500"
+              ))
+            ) : products.length > 0 ? (
+              products.map((product, index) => (
+                <div key={`${product.id}-${index}`} className="relative">
+                  <SoftwareProductCard
+                    id={product.id}
+                    name={product.name}
+                    slug={product.slug}
+                    description={product.description}
+                    short_description={product.short_description}
+                    logo_path={product.logo_path}
+                    screenshots={product.screenshots}
+                    version={product.version}
+                    partner_name={product.partner_name}
+                    is_active={product.is_active}
+                    plans={product.plans}
+                    isFavorite={favorites.includes(product.id)}
+                    onToggleFavorite={handleToggleFavorite}
+                    rating={4.5} // Add mock rating for now
+                    reviews={25} // Add mock reviews for now
                   />
-                  <label htmlFor="lifetime" className="ml-2 text-sm text-gray-700">
-                    Lifetime Plans Only
-                  </label>
                 </div>
-              </div>
-              
-              {/* Reset Filters */}
-              <button
-                onClick={() => router.push('/software')}
-                className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Reset Filters
-              </button>
-            </div>
-          </div>
-          
-          {/* Products Grid */}
-          <div className="lg:col-span-3">
-            {/* Results Header */}
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">
-                {loading ? 'Loading...' : `${products.length} Software Products`}
-              </h2>
-            </div>
-            
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
-                {error}
-              </div>
-            )}
-            
-            {/* Loading State */}
-            {loading && (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-              </div>
-            )}
-            
-            {/* No Results */}
-            {!loading && products.length === 0 && (
-              <div className="bg-gray-100 p-8 rounded-lg text-center">
-                <h3 className="text-lg font-semibold mb-2">No software products found</h3>
-                <p className="text-gray-600 mb-4">Try adjusting your filters or search terms</p>
+              ))
+            ) : (
+              <div className="col-span-3 py-12 text-center">
+                <div className="mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No software products found</h3>
+                <p className="text-gray-500 mb-6">Try adjusting your search or filter criteria</p>
                 <button
-                  onClick={() => router.push('/software')}
-                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                  onClick={() => {
+                    router.push('/software');
+                  }}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                 >
-                  Clear Filters
+                  Clear all filters
                 </button>
               </div>
             )}
-            
-            {/* Products Grid */}
-            {!loading && products.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.map((product) => (
-                  <div key={product.id} className="relative gig-card-wrapper">
-                    <SoftwareProductCard
-                      key={product.id}
-                      id={product.id}
-                      name={product.name}
-                      slug={product.slug}
-                      description={product.description}
-                      short_description={product.short_description}
-                      logo_path={product.logo_path}
-                      screenshots={product.screenshots}
-                      version={product.version}
-                      partner_name={product.partner_name}
-                      is_active={product.is_active}
-                      plans={product.plans}
-                      isFavorite={favorites.includes(product.id)}
-                      onToggleFavorite={handleToggleFavorite}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-8">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
-              </div>
-            )}
           </div>
+          
+          {/* Infinite Scroll Loader */}
+          {hasMore && products.length > 0 && (
+            <div ref={loaderRef} className="flex justify-center mt-10">
+              <div className="flex items-center space-x-2">
+                {isLoadingMore ? (
+                  <>
+                    <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </>
+                ) : (
+                  <div className="inline-flex items-center justify-center">
+                    <div className="h-px bg-gray-300 w-12 mr-3"></div>
+                    <p className="text-gray-500 font-medium">Scroll for more products</p>
+                    <div className="h-px bg-gray-300 w-12 ml-3"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

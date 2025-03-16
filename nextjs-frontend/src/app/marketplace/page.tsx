@@ -88,6 +88,7 @@ interface DigitalProduct {
   status: 'draft' | 'published' | 'archived';
   created_at: string;
   updated_at: string;
+  original_price?: number;
 }
 
 // Simplified SoftwareProduct interface for our marketplace
@@ -683,7 +684,8 @@ export default function MarketplacePage() {
         is_featured: true,
         status: "published",
         created_at: "2024-04-01T10:00:00",
-        updated_at: "2024-04-01T10:00:00"
+        updated_at: "2024-04-01T10:00:00",
+        original_price: 29
       },
       {
         id: 2,
@@ -709,7 +711,8 @@ export default function MarketplacePage() {
         is_featured: false,
         status: "published",
         created_at: "2024-04-02T11:00:00",
-        updated_at: "2024-04-02T11:00:00"
+        updated_at: "2024-04-02T11:00:00",
+        original_price: 39
       },
       {
         id: 3,
@@ -735,6 +738,7 @@ export default function MarketplacePage() {
         is_featured: true,
         status: "published",
         created_at: "2024-04-03T12:00:00",
+        updated_at: "2024-04-03T12:00:00",
         updated_at: "2024-04-03T12:00:00"
       },
       {
@@ -1307,6 +1311,7 @@ export default function MarketplacePage() {
                       product={digitalProduct}
                       isFavorite={isFavorite}
                       onToggleFavorite={() => toggleFavorite(product, index)}
+                      original_price={digitalProduct.original_price || undefined}
                     />
                   </div>
                 );

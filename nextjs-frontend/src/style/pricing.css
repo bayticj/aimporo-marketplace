@@ -36,17 +36,16 @@
 /* Badge for discount percentage */
 .discount-badge {
   position: absolute;
-  top: -10px;
-  right: -15px;
-  background-color: #ef4444;
+  top: -20px;
+  right: 0;
+  background-color: #FF5722;
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 10px;
-  transform: rotate(5deg);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
   display: block !important; /* Force display */
+  opacity: 1 !important; /* Ensure visibility */
 }
 
 /* Responsive adjustments */
@@ -66,7 +65,7 @@
   .discount-badge {
     font-size: 0.65rem;
     padding: 1px 4px;
-    top: -8px;
-    right: -10px;
+    top: -15px;
+    right: 0;
   }
 } 

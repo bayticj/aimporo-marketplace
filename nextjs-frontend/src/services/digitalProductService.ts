@@ -25,6 +25,17 @@ export interface DigitalProduct {
     email: string;
   };
   categories?: DigitalProductCategory[];
+  // Additional properties needed for GigCard compatibility
+  rating?: number;
+  reviews?: number;
+  images?: string[];
+  seller?: string;
+  location?: string;
+  badge?: string;
+  featured?: boolean;
+  hot?: boolean;
+  delivery?: string;
+  type?: 'digital';
 }
 
 export interface DigitalProductCategory {

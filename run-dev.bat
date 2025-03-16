@@ -1,2 +1,5 @@
-@echo off
-cd nextjs-frontend && npm run dev 
+powershell
+-ExecutionPolicy
+Bypass
+-File
+start.ps1

@@ -994,7 +994,7 @@ const SoftwareProductsPage = () => {
               )}
             </div>
             
-            {/* Show More/Less button */}
+            {/* Show More/Less button - Moved to the end of the visible filters */}
             <button 
               className="text-orange-500 font-medium hover:text-orange-600"
               onClick={() => setShowAllFilters(!showAllFilters)}

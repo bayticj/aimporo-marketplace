@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
-import { gigService, orderService } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
+import { gigService } from '@/services/api';
+import ProductDetailsLayout from '@/components/ProductDetailsLayout';
+import ServicePricingCard from '@/components/ServicePricingCard';
+import ProductReviews from '@/components/ProductReviews';
 
 interface Gig {
   id: number;
@@ -51,7 +53,6 @@ export default function GigDetailPage() {
   const [orderLoading, setOrderLoading] = useState<boolean>(false);
   const [orderError, setOrderError] = useState<string | null>(null);
   const [orderSuccess, setOrderSuccess] = useState<boolean>(false);
-  const [activeImage, setActiveImage] = useState<string>('');
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
   useEffect(() => {
@@ -65,11 +66,6 @@ export default function GigDetailPage() {
         
         const response = await gigService.getGig(Number(id));
         setGig(response.data.gig);
-        if (response.data.gig.thumbnail) {
-          setActiveImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${response.data.gig.thumbnail}`);
-        } else if (response.data.gig.images && response.data.gig.images.length > 0) {
-          setActiveImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${response.data.gig.images[0]}`);
-        }
       } catch (err: any) {
         setError(err.message || 'Failed to fetch gig details');
         // For demo purposes, use sample data if API fails
@@ -104,7 +100,6 @@ export default function GigDetailPage() {
             name: 'Graphic Design'
           }
         });
-        setActiveImage('/assets/img/banner-img.png');
       } finally {
         setLoading(false);
       }
@@ -113,18 +108,17 @@ export default function GigDetailPage() {
     fetchGig();
   }, [params]);
 
-  const handleOrderSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleOrderSubmit = async (packageType: 'basic' | 'standard' | 'premium') => {
     setOrderLoading(true);
     setOrderError(null);
 
     try {
       // Create order data
       const orderData = {
-        gig_id: gig.id,
+        gig_id: gig?.id,
+        package_type: packageType,
         details: orderDetails,
-        quantity: orderQuantity,
-        total_price: gig.price * orderQuantity
+        quantity: orderQuantity
       };
 
       // Send order to API
@@ -158,13 +152,132 @@ export default function GigDetailPage() {
     }
   };
 
-  const handleImageClick = (image: string) => {
-    setActiveImage(image);
-  };
-
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
   };
+
+  // Mock pricing tiers for the service
+  const pricingTiers = {
+    basic: {
+      name: 'Basic',
+      description: 'Basic logo design with 2 revisions and standard file formats.',
+      price: gig ? gig.price : 49.99,
+      originalPrice: gig ? gig.price * 1.2 : 59.99,
+      delivery_time: gig ? `${gig.delivery_time} days` : '2 days',
+      revisions: '2 Revisions',
+      features: [
+        'Logo in PNG format',
+        'Basic design options',
+        'Commercial usage',
+      ]
+    },
+    standard: {
+      name: 'Standard',
+      description: 'Enhanced logo design with more revisions and file formats.',
+      price: gig ? gig.price * 1.5 : 74.99,
+      originalPrice: gig ? gig.price * 1.8 : 89.99,
+      delivery_time: gig ? `${gig.delivery_time - 1 > 0 ? gig.delivery_time - 1 : 1} days` : '1 day',
+      revisions: '5 Revisions',
+      features: [
+        'Logo in PNG, JPG, PDF formats',
+        'Multiple design options',
+        'Commercial usage',
+        'Source files included',
+        'High resolution files'
+      ]
+    },
+    premium: {
+      name: 'Premium',
+      description: 'Premium logo design with unlimited revisions and all file formats.',
+      price: gig ? gig.price * 2 : 99.99,
+      originalPrice: gig ? gig.price * 2.5 : 129.99,
+      delivery_time: gig ? `${gig.delivery_time - 1 > 0 ? gig.delivery_time - 1 : 1} days` : '1 day',
+      revisions: 'Unlimited Revisions',
+      features: [
+        'Logo in all formats',
+        'Unlimited design options',
+        'Commercial usage',
+        'Source files included',
+        'High resolution files',
+        'Social media kit',
+        'Stationery designs',
+        'Priority support'
+      ]
+    }
+  };
+  
+  // Mock reviews for the service
+  const mockReviews = [
+    {
+      id: 1,
+      user: {
+        name: 'John Doe',
+        avatar: '/assets/img/profiles/avatar-2.jpg',
+        country: 'United States'
+      },
+      rating: 5,
+      title: 'Excellent service',
+      comment: 'The designer did an amazing job with our logo. Very professional and responsive. Would highly recommend!',
+      date: '2 weeks ago'
+    },
+    {
+      id: 2,
+      user: {
+        name: 'Mary Smith',
+        avatar: '/assets/img/profiles/avatar-3.jpg',
+        country: 'Canada'
+      },
+      rating: 4.5,
+      comment: 'Great experience working with this seller. They were quick to respond and incorporated all my feedback. The final logo looks great!',
+      date: '1 month ago'
+    },
+    {
+      id: 3,
+      user: {
+        name: 'David Brown',
+        avatar: '/assets/img/profiles/avatar-4.jpg',
+        country: 'United Kingdom'
+      },
+      rating: 5,
+      title: 'Exceeded expectations',
+      comment: 'The designer went above and beyond to create a logo that perfectly represents our brand. The quality of work was exceptional.',
+      date: '2 months ago'
+    }
+  ];
+  
+  // Mock rating breakdown
+  const ratingBreakdown = {
+    five: 85,
+    four: 24,
+    three: 10,
+    two: 3,
+    one: 2
+  };
+  
+  // Mock related services
+  const relatedServices = [
+    {
+      id: 101,
+      slug: 'business-card-design',
+      title: 'Professional Business Card Design',
+      price: 29.99,
+      image: '/assets/img/gigs/gigs-02.jpg'
+    },
+    {
+      id: 102,
+      slug: 'social-media-kit',
+      title: 'Social Media Graphics Package',
+      price: 49.99,
+      image: '/assets/img/gigs/gigs-03.jpg'
+    },
+    {
+      id: 103,
+      slug: 'brand-identity',
+      title: 'Complete Brand Identity Package',
+      price: 149.99,
+      image: '/assets/img/gigs/gigs-04.jpg'
+    }
+  ];
 
   if (loading) {
     return (
@@ -186,217 +299,57 @@ export default function GigDetailPage() {
     );
   }
 
+  // Service features for each package
+  const serviceFeatures = {
+    basic: pricingTiers.basic.features,
+    standard: pricingTiers.standard?.features || [],
+    premium: pricingTiers.premium?.features || []
+  };
+
+  // Pricing section component
+  const PricingSection = (
+    <ServicePricingCard 
+      pricingTiers={pricingTiers}
+      onSelectPackage={handleOrderSubmit}
+    />
+  );
+
+  // Reviews section component
+  const ReviewsSection = (
+    <ProductReviews 
+      reviews={mockReviews}
+      averageRating={gig.average_rating}
+      totalReviews={gig.reviews_count}
+      ratingBreakdown={ratingBreakdown}
+    />
+  );
+
   return (
-    <div className="bg-gray-100 min-h-screen py-12">
-      <div className="container mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          {/* Gig Header */}
-          <div className="p-6 border-b">
-            <div className="flex flex-col md:flex-row justify-between">
-              <div>
-                <h1 className="text-3xl font-bold mb-2">{gig.title}</h1>
-                <div className="flex items-center mb-4">
-                  <div className="flex items-center mr-4">
-                    <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span className="ml-1 text-gray-700">{gig.average_rating.toFixed(1)} ({gig.reviews_count} reviews)</span>
-                  </div>
-                  <div className="text-gray-600">
-                    <span className="bg-orange-100 text-orange-600 text-xs font-medium px-2 py-1 rounded">
-                      {gig.category.name}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-3xl font-bold text-orange-600">${gig.price.toFixed(2)}</p>
-                <p className="text-gray-600">Delivery in {gig.delivery_time} day{gig.delivery_time !== 1 ? 's' : ''}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Gig Content */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-6">
-            <div className="md:col-span-2">
-              {/* Gig Images */}
-              <div className="mb-8">
-                <div className="relative h-96 w-full mb-4 rounded-lg overflow-hidden">
-                  <Image 
-                    src={activeImage} 
-                    alt={gig.title} 
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  {gig.images.slice(1).map((image, index) => (
-                    <div key={index} className="relative h-24 rounded-lg overflow-hidden">
-                      <Image 
-                        src={image} 
-                        alt={`${gig.title} ${index + 2}`} 
-                        fill
-                        style={{ objectFit: 'cover' }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Gig Description */}
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold mb-4">About This Gig</h2>
-                <div className="prose max-w-none">
-                  <p className="text-gray-700">{gig.description}</p>
-                </div>
-              </div>
-
-              {/* Seller Info */}
-              <div className="mb-8 p-6 bg-gray-50 rounded-lg">
-                <h2 className="text-xl font-bold mb-4">About The Seller</h2>
-                <div className="flex items-center mb-4">
-                  <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center text-xl font-bold text-white mr-4">
-                    {gig.user.name.charAt(0)}
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold">{gig.user.name}</h3>
-                    <p className="text-gray-600">{gig.user.profile?.location || gig.location}</p>
-                  </div>
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <div className="mr-4">
-                    <span className="font-medium">Member since:</span> {gig.user.profile?.member_since || 'Jan 2023'}
-                  </div>
-                  <div>
-                    <span className="font-medium">Response time:</span> 1 hour
-                  </div>
-                </div>
-              </div>
-
-              {/* Tags */}
-              <div className="mb-8">
-                <h2 className="text-xl font-bold mb-4">Tags</h2>
-                <div className="flex flex-wrap gap-2">
-                  {gig.tags.map((tag, index) => (
-                    <span key={index} className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Order Box */}
-            <div className="md:col-span-1">
-              <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
-                <h2 className="text-2xl font-bold mb-4">${gig.price}</h2>
-                <p className="text-gray-600 mb-6">
-                  <svg className="w-5 h-5 inline-block mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                  {gig.delivery_time} day{gig.delivery_time !== 1 ? 's' : ''} delivery
-                </p>
-                
-                <div className="space-y-4 mb-6">
-                  <div className="flex items-center">
-                    <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span>High-quality design</span>
-                  </div>
-                  <div className="flex items-center">
-                    <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span>Unlimited revisions</span>
-                  </div>
-                  <div className="flex items-center">
-                    <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span>Commercial use rights</span>
-                  </div>
-                </div>
-                
-                {orderSuccess ? (
-                  <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                    <p className="font-medium">Order placed successfully!</p>
-                    <p className="text-sm mt-1">You can track your order in your dashboard.</p>
-                    <div className="mt-4">
-                      <Link href="/dashboard/orders" className="block w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors text-center">
-                        View Order
-                      </Link>
-                    </div>
-                  </div>
-                ) : (
-                  <form onSubmit={handleOrderSubmit}>
-                    {orderError && (
-                      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        <p>{orderError}</p>
-                      </div>
-                    )}
-                    
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium mb-1">Project Details</label>
-                      <textarea
-                        className="w-full p-2 border border-gray-300 rounded-lg"
-                        rows={4}
-                        placeholder="Describe your project requirements..."
-                        value={orderDetails}
-                        onChange={(e) => setOrderDetails(e.target.value)}
-                        required
-                      ></textarea>
-                    </div>
-                    
-                    <div className="mb-6">
-                      <label className="block text-sm font-medium mb-1">Quantity</label>
-                      <select
-                        className="w-full p-2 border border-gray-300 rounded-lg"
-                        value={orderQuantity}
-                        onChange={(e) => setOrderQuantity(parseInt(e.target.value))}
-                        required
-                      >
-                        {[1, 2, 3, 4, 5].map(num => (
-                          <option key={num} value={num}>{num}</option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    <div className="border-t border-gray-200 pt-4 mb-4">
-                      <div className="flex justify-between mb-2">
-                        <span>Service</span>
-                        <span>${gig.price.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between mb-2">
-                        <span>Quantity</span>
-                        <span>x {orderQuantity}</span>
-                      </div>
-                      <div className="flex justify-between font-bold text-lg">
-                        <span>Total</span>
-                        <span>${(gig.price * orderQuantity).toFixed(2)}</span>
-                      </div>
-                    </div>
-                    
-                    <button
-                      type="submit"
-                      className="w-full bg-orange-600 text-white py-3 rounded-lg font-medium hover:bg-orange-700 transition-colors"
-                      disabled={orderLoading}
-                    >
-                      {orderLoading ? 'Processing...' : `Continue (${(gig.price * orderQuantity).toFixed(2)})`}
-                    </button>
-                  </form>
-                )}
-                
-                <div className="mt-4 text-center">
-                  <button className="text-orange-600 hover:underline">
-                    Contact Seller
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ProductDetailsLayout
+      type="gig"
+      id={gig.id}
+      title={gig.title}
+      images={gig.images}
+      description={gig.description}
+      price={gig.price}
+      discountedPrice={gig.price * 0.8}
+      rating={gig.average_rating}
+      reviewsCount={gig.reviews_count}
+      deliveryTime={`${gig.delivery_time} days`}
+      sellerName={gig.user.name}
+      sellerAvatar={gig.user.profile.avatar}
+      sellerLevel="Level 2 Seller"
+      sellerLocation={gig.user.profile.location}
+      sellerJoinDate={gig.user.profile.member_since}
+      sellerRating={4.7}
+      categoryName={gig.category.name}
+      tags={gig.tags}
+      isFavorite={isFavorite}
+      onToggleFavorite={toggleFavorite}
+      features={serviceFeatures}
+      relatedProducts={relatedServices}
+      reviewsSection={ReviewsSection}
+      pricingSection={PricingSection}
+    />
   );
 } 

@@ -1,32 +1,62 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getDigitalProduct, purchaseDigitalProduct, getPreview, DigitalProduct } from '@/services/digitalProductService';
-import Image from 'next/image';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { formatCurrency } from '@/utils/currency';
-import '@/style/pricing.css';
+import { getDigitalProduct, purchaseDigitalProduct, getPreview } from '@/services/digitalProductService';
+import ProductDetailsLayout from '@/components/ProductDetailsLayout';
+import ProductReviews from '@/components/ProductReviews';
+import { FaDownload, FaFile } from 'react-icons/fa';
 
-interface DigitalProductPageProps {
-  params: {
-    id: string;
+interface DigitalProduct {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  original_price: number | null;
+  preview_path: string;
+  file_path: string;
+  file_type: string;
+  file_size: string;
+  download_limit: number | null;
+  user_id: number;
+  category_id: number;
+  is_featured: boolean;
+  tags: string[];
+  average_rating: number;
+  reviews_count: number;
+  created_at: string;
+  updated_at: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    profile: {
+      avatar: string;
+      bio: string;
+      location: string;
+      member_since: string;
+    }
+  };
+  category: {
+    id: number;
+    name: string;
   };
 }
 
-const DigitalProductPage: React.FC<DigitalProductPageProps> = ({ params }) => {
-  const { id } = params;
-  const [product, setProduct] = useState<DigitalProduct | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [purchasing, setPurchasing] = useState(false);
-  const [purchaseSuccess, setPurchaseSuccess] = useState(false);
-  const [purchaseError, setPurchaseError] = useState<string | null>(null);
-  
+export default function DigitalProductDetailPage() {
+  const params = useParams();
   const router = useRouter();
   const { user } = useAuth();
-  
+  const [product, setProduct] = useState<DigitalProduct | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [purchasing, setPurchasing] = useState<boolean>(false);
+  const [purchaseSuccess, setPurchaseSuccess] = useState<boolean>(false);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+
   // Format file size for display
   const formatFileSize = (sizeInBytes: string) => {
     const size = parseInt(sizeInBytes);
@@ -35,29 +65,67 @@ const DigitalProductPage: React.FC<DigitalProductPageProps> = ({ params }) => {
     if (size < 1024 * 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} MB`;
     return `${(size / (1024 * 1024 * 1024)).toFixed(1)} GB`;
   };
-  
+
   useEffect(() => {
     const fetchProduct = async () => {
-      setLoading(true);
-      setError(null);
-      
       try {
-        const response = await getDigitalProduct(parseInt(id));
+        setLoading(true);
+        const id = params?.id;
+        if (!id) {
+          throw new Error('Product ID is required');
+        }
+        
+        const response = await getDigitalProduct(Number(id));
         setProduct(response.data);
-      } catch (err) {
-        console.error('Error fetching digital product:', err);
-        setError('Failed to load digital product. Please try again later.');
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch digital product details');
+        // For demo purposes, use sample data if API fails
+        setProduct({
+          id: 1,
+          title: 'Premium UI Kit for Web Designers',
+          description: 'A comprehensive UI kit with over 500 components for modern web design. Includes responsive layouts, form elements, navigation components, and more. All components are fully customizable and available in both light and dark modes.',
+          price: 59.99,
+          original_price: 79.99,
+          preview_path: '/assets/img/gigs/gigs-01.jpg',
+          file_path: '/files/ui-kit.zip',
+          file_type: 'application/zip',
+          file_size: '256000000', // 256MB
+          download_limit: null,
+          user_id: 3,
+          category_id: 2,
+          is_featured: true,
+          tags: ['ui-kit', 'design', 'web-design', 'figma'],
+          average_rating: 4.7,
+          reviews_count: 52,
+          created_at: '2023-05-15T00:00:00.000Z',
+          updated_at: '2023-05-15T00:00:00.000Z',
+          user: {
+            id: 3,
+            name: 'DesignMaster',
+            email: 'design@example.com',
+            profile: {
+              avatar: '/assets/img/profiles/avatar-2.jpg',
+              bio: 'UI/UX designer with 8 years of experience creating beautiful digital experiences.',
+              location: 'San Francisco',
+              member_since: '2019-03-15',
+            }
+          },
+          category: {
+            id: 2,
+            name: 'UI Design'
+          }
+        });
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchProduct();
-  }, [id]);
-  
+  }, [params]);
+
   const handlePurchase = async () => {
     if (!user) {
-      router.push(`/login?redirect=/digital-products/${id}`);
+      router.push(`/login?redirect=/digital-products/${params?.id}`);
       return;
     }
     
@@ -65,24 +133,24 @@ const DigitalProductPage: React.FC<DigitalProductPageProps> = ({ params }) => {
     setPurchaseError(null);
     
     try {
-      const response = await purchaseDigitalProduct(parseInt(id));
+      const response = await purchaseDigitalProduct(Number(params?.id));
       setPurchaseSuccess(true);
       
       // Redirect to purchases page after a short delay
       setTimeout(() => {
         router.push('/account/purchases');
       }, 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error purchasing digital product:', err);
-      setPurchaseError('Failed to purchase digital product. Please try again later.');
+      setPurchaseError(err.message || 'Failed to purchase. Please try again later.');
     } finally {
       setPurchasing(false);
     }
   };
-  
+
   const handlePreview = async () => {
     try {
-      const blob = await getPreview(parseInt(id));
+      const blob = await getPreview(Number(params?.id));
       const url = URL.createObjectURL(blob);
       window.open(url, '_blank');
     } catch (err) {
@@ -90,266 +158,228 @@ const DigitalProductPage: React.FC<DigitalProductPageProps> = ({ params }) => {
       alert('Failed to load preview. Please try again later.');
     }
   };
+
+  const toggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+  };
+
+  // Mock reviews for the product
+  const mockReviews = [
+    {
+      id: 1,
+      user: {
+        name: 'Alex Johnson',
+        avatar: '/assets/img/profiles/avatar-5.jpg',
+        country: 'United States'
+      },
+      rating: 5,
+      title: 'Excellent UI Kit',
+      comment: 'This UI kit saved me so much time on my project. The components are well-designed and easy to customize. Highly recommended!',
+      date: '1 week ago'
+    },
+    {
+      id: 2,
+      user: {
+        name: 'Sarah Williams',
+        avatar: '/assets/img/profiles/avatar-6.jpg',
+        country: 'Australia'
+      },
+      rating: 4,
+      comment: 'Great value for money. The components are high quality and the documentation is clear. Would have given 5 stars if there were more dark mode options.',
+      date: '2 weeks ago'
+    },
+    {
+      id: 3,
+      user: {
+        name: 'Michael Chen',
+        avatar: '/assets/img/profiles/avatar-7.jpg',
+        country: 'Singapore'
+      },
+      rating: 5,
+      title: 'Perfect for my startup project',
+      comment: 'I used this UI kit for my startup's MVP and it helped me launch much faster. The design is clean and modern, and the code is well-structured.',
+      date: '1 month ago'
+    }
+  ];
   
-  // Get preview image or placeholder
-  const previewImage = product?.preview_path 
-    ? `${process.env.NEXT_PUBLIC_API_URL}/storage/${product.preview_path}`
-    : '/assets/img/placeholder.jpg';
-
-  // Generate a deterministic avatar number based on the product ID or seller name
-  const getAvatarNumber = (productId: number, sellerName: string) => {
-    // Use the product ID if available, otherwise hash the seller name
-    const hashValue = productId || sellerName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    // Ensure it's between 1 and 10 (we have 10 avatar images)
-    return (hashValue % 10) + 1;
+  // Mock rating breakdown
+  const ratingBreakdown = {
+    five: 35,
+    four: 12,
+    three: 3,
+    two: 1,
+    one: 1
   };
-
-  // Function to render the styled price
-  const renderStyledPrice = (price: number, originalPrice?: number | null) => {
-    const discountPercentage = originalPrice && originalPrice > price 
-      ? Math.round(((originalPrice - price) / originalPrice) * 100) 
-      : null;
-    
-    return (
-      <div className="price-container">
-        <span className="price-amount">₱{price.toFixed(0)}</span>
-        <span className="price-plan">/lifetime</span>
-        {originalPrice && originalPrice > price && (
-          <span className="price-original">₱{originalPrice.toFixed(0)}</span>
-        )}
-        {discountPercentage && discountPercentage >= 10 && (
-          <span className="discount-badge">-{discountPercentage}%</span>
-        )}
-      </div>
-    );
-  };
+  
+  // Mock related products
+  const relatedProducts = [
+    {
+      id: 201,
+      slug: 'admin-dashboard-template',
+      title: 'Admin Dashboard Template',
+      price: 39.99,
+      image: '/assets/img/digital/digital-02.jpg'
+    },
+    {
+      id: 202,
+      slug: 'ecommerce-theme',
+      title: 'E-commerce Website Theme',
+      price: 49.99,
+      image: '/assets/img/digital/digital-03.jpg'
+    },
+    {
+      id: 203,
+      slug: 'icon-pack',
+      title: 'Premium Icon Pack - 2000+ Icons',
+      price: 19.99,
+      image: '/assets/img/digital/digital-04.jpg'
+    }
+  ];
 
   if (loading) {
     return (
-      <div className="content">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-12 text-center py-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
       </div>
     );
   }
-  
+
   if (error || !product) {
     return (
-      <div className="content">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-12">
-              <div className="alert alert-danger" role="alert">
-                {error || 'Product not found'}
-              </div>
-              <div className="text-center mt-4">
-                <Link href="/digital-products" className="btn btn-primary">
-                  Back to Digital Products
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Product</h2>
+        <p className="text-gray-700 mb-6">{error || 'Product not found'}</p>
+        <Link href="/digital-products" className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors">
+          Back to Digital Products
+        </Link>
       </div>
     );
   }
-  
-  // Check if the current user is the owner of the product
-  const isOwner = user && user.id === product.user_id;
 
-  return (
-    <div className="content">
-      <div className="container">
-        {purchaseSuccess && (
-          <div className="row mb-4">
-            <div className="col-md-12">
-              <div className="alert alert-success" role="alert">
-                <h4 className="alert-heading">Purchase Successful!</h4>
-                <p>Thank you for your purchase. You will be redirected to your purchases page shortly.</p>
-              </div>
+  // Generate product preview images (use the same image for demo if needed)
+  const productImages = product.preview_path 
+    ? [product.preview_path, product.preview_path, product.preview_path, product.preview_path]
+    : ['/assets/img/digital/digital-01.jpg', '/assets/img/digital/digital-01.jpg', '/assets/img/digital/digital-01.jpg', '/assets/img/digital/digital-01.jpg'];
+
+  // Product features
+  const productFeatures = {
+    basic: [
+      `File type: ${product.file_type.split('/')[1]?.toUpperCase() || 'FILE'}`,
+      `File size: ${formatFileSize(product.file_size)}`,
+      'Lifetime access',
+      'Commercial usage license',
+      product.download_limit ? `Limited to ${product.download_limit} downloads` : 'Unlimited downloads'
+    ]
+  };
+
+  // Pricing section component
+  const PricingSection = (
+    <div className="bg-white rounded-lg border overflow-hidden">
+      <div className="p-6">
+        {/* Price and Download Info */}
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <div className="flex items-baseline">
+              <span className="text-3xl font-bold text-gray-900">₱{product.price.toFixed(0)}</span>
+              {product.original_price && product.original_price > product.price && (
+                <span className="ml-2 text-lg text-gray-500 line-through">
+                  ₱{product.original_price.toFixed(0)}
+                </span>
+              )}
             </div>
+            {product.original_price && product.original_price > product.price && (
+              <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                {Math.round(((product.original_price - product.price) / product.original_price) * 100)}% OFF
+              </span>
+            )}
+          </div>
+        </div>
+        
+        {/* Description */}
+        <p className="text-gray-700 text-sm mb-6">
+          Instant download after purchase. All files included.
+        </p>
+        
+        {/* Features List */}
+        <div className="mb-6">
+          {productFeatures.basic.map((feature, index) => (
+            <div key={index} className="flex items-center mb-3">
+              <FaDownload className="text-green-500 mr-2" />
+              <span className="text-sm text-gray-700">{feature}</span>
+            </div>
+          ))}
+        </div>
+        
+        {/* Preview Button */}
+        {product.preview_path && (
+          <button
+            onClick={handlePreview}
+            className="w-full py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-md transition duration-200 mb-3"
+          >
+            Preview
+          </button>
+        )}
+        
+        {/* CTA Button */}
+        <button
+          onClick={handlePurchase}
+          disabled={purchasing}
+          className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-md transition duration-200 disabled:bg-orange-400 disabled:cursor-not-allowed"
+        >
+          {purchasing ? 'Processing...' : `Buy Now (₱${product.price.toFixed(0)})`}
+        </button>
+        
+        {purchaseSuccess && (
+          <div className="mt-4 p-3 bg-green-100 text-green-800 rounded-md">
+            Purchase successful! Redirecting to your purchases...
           </div>
         )}
         
         {purchaseError && (
-          <div className="row mb-4">
-            <div className="col-md-12">
-              <div className="alert alert-danger" role="alert">
-                {purchaseError}
-              </div>
-            </div>
+          <div className="mt-4 p-3 bg-red-100 text-red-800 rounded-md">
+            {purchaseError}
           </div>
         )}
-        
-        <div className="row">
-          {/* Product Preview */}
-          <div className="col-lg-6">
-            <div className="product-preview">
-              <div className="product-img">
-                <div className="relative h-96 w-full overflow-hidden rounded-lg">
-                  <Image 
-                    src={previewImage} 
-                    alt={product.title} 
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    className="rounded-lg"
-                  />
-                </div>
-                
-                {product.is_featured && (
-                  <div className="featured-badge">
-                    <span className="badge bg-primary">Featured</span>
-                  </div>
-                )}
-                
-                {product.preview_path && (
-                  <div className="preview-button">
-                    <button 
-                      className="btn btn-outline-primary"
-                      onClick={handlePreview}
-                    >
-                      <i className="fas fa-eye me-2"></i>
-                      Preview
-                    </button>
-                  </div>
-                )}
-              </div>
-              
-              <div className="product-details mt-4">
-                <div className="file-info">
-                  <div className="file-type">
-                    <i className="fas fa-file me-2"></i>
-                    <span>{product.file_type.split('/')[1]?.toUpperCase() || 'FILE'}</span>
-                  </div>
-                  <div className="file-size">
-                    <i className="fas fa-weight-hanging me-2"></i>
-                    <span>{formatFileSize(product.file_size)}</span>
-                  </div>
-                  {product.download_limit && (
-                    <div className="download-limit">
-                      <i className="fas fa-download me-2"></i>
-                      <span>Limited to {product.download_limit} downloads</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Product Info */}
-          <div className="col-lg-6">
-            <div className="product-info">
-              <h1 className="product-title">{product.title}</h1>
-              
-              <div className="seller-info d-flex align-items-center mt-3 mb-4">
-                <div className="seller-avatar me-3">
-                  <Image 
-                    src={`/assets/img/profiles/avatar-${getAvatarNumber(parseInt(params.id), product.user?.name || 'Seller')}.jpg`} 
-                    alt={product.user?.name || 'Seller'}
-                    width={44}
-                    height={44}
-                    className="rounded-circle"
-                  />
-                </div>
-                <div className="seller-details">
-                  <h5 className="seller-name mb-0">
-                    {product.user?.name || 'Unknown Seller'}
-                  </h5>
-                  <span className="seller-type text-muted">Digital Creator</span>
-                </div>
-              </div>
-              
-              <div className="product-price mb-4">
-                <span className="price-label">Price:</span>
-                <span className="price-value">
-                  {renderStyledPrice(product.price, product.original_price)}
-                </span>
-              </div>
-              
-              <div className="product-description mb-4">
-                <h4>Description</h4>
-                <p>{product.description}</p>
-              </div>
-              
-              <div className="product-categories mb-4">
-                <h4>Categories</h4>
-                <div className="categories-list">
-                  {product.categories && product.categories.length > 0 ? (
-                    <div className="d-flex flex-wrap gap-2">
-                      {product.categories.map(category => (
-                        <Link 
-                          key={category.id} 
-                          href={`/digital-products?category=${category.slug}`}
-                          className="badge bg-light text-dark"
-                        >
-                          {category.name}
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-muted">No categories</span>
-                  )}
-                </div>
-              </div>
-              
-              <div className="product-actions">
-                {isOwner ? (
-                  <div className="owner-actions">
-                    <div className="alert alert-info" role="alert">
-                      <i className="fas fa-info-circle me-2"></i>
-                      You are the owner of this digital product.
-                    </div>
-                    <Link 
-                      href={`/account/digital-products/edit/${product.id}`}
-                      className="btn btn-outline-primary me-3"
-                    >
-                      <i className="fas fa-edit me-2"></i>
-                      Edit Product
-                    </Link>
-                    <Link 
-                      href="/account/digital-products"
-                      className="btn btn-outline-secondary"
-                    >
-                      <i className="fas fa-list me-2"></i>
-                      My Products
-                    </Link>
-                  </div>
-                ) : (
-                  <button 
-                    className="btn btn-primary btn-lg"
-                    onClick={handlePurchase}
-                    disabled={purchasing}
-                  >
-                    {purchasing ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fas fa-shopping-cart me-2"></i>
-                        Buy Now
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Related Products */}
-        {/* This would be implemented in a future update */}
       </div>
     </div>
   );
-};
 
-export default DigitalProductPage; 
+  // Reviews section component
+  const ReviewsSection = (
+    <ProductReviews 
+      reviews={mockReviews}
+      averageRating={product.average_rating}
+      totalReviews={product.reviews_count}
+      ratingBreakdown={ratingBreakdown}
+    />
+  );
+
+  return (
+    <ProductDetailsLayout
+      type="digital"
+      id={product.id}
+      title={product.title}
+      images={productImages}
+      description={product.description}
+      price={product.price}
+      discountedPrice={product.original_price || undefined}
+      rating={product.average_rating}
+      reviewsCount={product.reviews_count}
+      deliveryTime="Instant Download"
+      sellerName={product.user.name}
+      sellerAvatar={product.user.profile.avatar}
+      sellerLevel="Pro Seller"
+      sellerLocation={product.user.profile.location}
+      sellerJoinDate={product.user.profile.member_since}
+      sellerRating={4.8}
+      categoryName={product.category.name}
+      tags={product.tags}
+      isFavorite={isFavorite}
+      onToggleFavorite={toggleFavorite}
+      features={productFeatures}
+      relatedProducts={relatedProducts}
+      reviewsSection={ReviewsSection}
+      pricingSection={PricingSection}
+    />
+  );
+} 

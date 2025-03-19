@@ -8,7 +8,7 @@ interface ProductDetailsLayoutProps {
   id: number;
   title: string;
   images: string[];
-  description: string;
+  description: ReactNode;
   price: number;
   discountedPrice?: number;
   rating: number;
@@ -195,7 +195,7 @@ const ProductDetailsLayout: React.FC<ProductDetailsLayoutProps> = ({
                     <div className="mb-8">
                       <h2 className="text-xl font-bold mb-4">Description</h2>
                       <div className="prose max-w-none text-gray-700">
-                        <p>{description}</p>
+                        {description}
                       </div>
                     </div>
                     

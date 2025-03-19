@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { getAuthToken } from '@/utils/auth';
+import { mockGigs, mockDigitalProducts, mockSoftwareProducts } from './mockData';
 
 // Create an axios instance with default config
 const api = axios.create({
@@ -57,8 +58,27 @@ export const authService = {
 
 // Gig services
 export const gigService = {
-  getGigs: (params?: any) => api.get('/gigs', { params }),
-  getGig: (id: number) => api.get(`/gigs/${id}`),
+  getGigs: (params?: any) => {
+    // For demo/development, return mock data
+    if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_MOCK_API === 'true') {
+      return Promise.resolve({
+        data: { gigs: mockGigs, total: mockGigs.length }
+      });
+    }
+    return api.get('/gigs', { params });
+  },
+  getGig: (id: number) => {
+    // For demo/development, return mock data
+    if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_MOCK_API === 'true') {
+      const gig = mockGigs.find(g => g.id === id);
+      if (gig) {
+        return Promise.resolve({ data: { gig } });
+      } else {
+        return Promise.reject(new Error('Gig not found'));
+      }
+    }
+    return api.get(`/gigs/${id}`);
+  },
   createGig: (gigData: any) => api.post('/gigs', gigData),
   updateGig: (id: number, gigData: any) => api.put(`/gigs/${id}`, gigData),
   deleteGig: (id: number) => api.delete(`/gigs/${id}`),

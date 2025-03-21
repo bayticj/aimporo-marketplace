@@ -49,8 +49,41 @@ export default function GigDetailPage() {
   const [activeTab, setActiveTab] = useState<string>('description');
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [selectedPackage, setSelectedPackage] = useState<string>('basic');
+  const [basicDeliveryOption, setBasicDeliveryOption] = useState<string>("1day");
+  const [standardDeliveryOption, setStandardDeliveryOption] = useState<string>("2days");
+  const [premiumDeliveryOption, setPremiumDeliveryOption] = useState<string>("5days");
+  const [showOrderModal, setShowOrderModal] = useState<boolean>(false);
+  const [orderPackage, setOrderPackage] = useState<string>('basic');
   const sidebarRef = useRef<HTMLDivElement>(null);
   const sidebarContainerRef = useRef<HTMLDivElement>(null);
+  // Add useRef for the scrollable container
+  const recentlyViewedRef = useRef<HTMLDivElement>(null);
+  // Add a state for closing animation
+  const [isClosing, setIsClosing] = useState(false);
+
+  // Function to handle opening the order modal
+  const handleOpenOrderModal = (packageType: string) => {
+    setOrderPackage(packageType);
+    setShowOrderModal(true);
+  };
+
+  // Modify the close handler to include animation
+  const handleCloseModal = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setShowOrderModal(false);
+      setIsClosing(false);
+    }, 300); // Match animation duration
+  };
+
+  // CSS for hiding scrollbar
+  const scrollStyle = {
+    scrollbarWidth: 'none' as 'none',
+    msOverflowStyle: 'none' as 'none',
+    '&::-webkit-scrollbar': {
+      display: 'none'
+    }
+  };
 
   useEffect(() => {
     const fetchGig = async () => {
@@ -288,6 +321,19 @@ Contact me today to discuss your project requirements!`,
 
   const discountPercentage = calculateDiscount();
 
+  // Function to handle scrolling
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (recentlyViewedRef.current) {
+      const scrollAmount = 300; // Adjust as needed
+      const currentScroll = recentlyViewedRef.current.scrollLeft;
+      
+      recentlyViewedRef.current.scrollTo({
+        left: direction === 'left' ? currentScroll - scrollAmount : currentScroll + scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -308,6 +354,7 @@ Contact me today to discuss your project requirements!`,
     );
   }
 
+  // Keep the main DIV tag as the outer container and fix the return statement structure
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Banner Section */}
@@ -468,6 +515,276 @@ Contact me today to discuss your project requirements!`,
               </div>
             </div>
 
+            {/* Why Work With Me Section */}
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+              <h2 className="text-xl font-bold mb-4 text-gray-700">Why Work With Me</h2>
+              <div className="prose prose-gray max-w-none text-gray-600">
+                <ul className="space-y-3">
+                  <li className="flex items-start">
+                    <svg className="w-5 h-5 text-orange-500 mt-1 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <strong className="text-gray-700">Expertise & Experience:</strong> With over 5 years of experience in web design, I've worked with clients across various industries to deliver exceptional results.
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <svg className="w-5 h-5 text-orange-500 mt-1 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <strong className="text-gray-700">Clear Communication:</strong> I maintain transparent communication throughout the project, ensuring you're always informed about progress and timelines.
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <svg className="w-5 h-5 text-orange-500 mt-1 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <strong className="text-gray-700">Attention to Detail:</strong> I focus on the small details that make a big difference, from typography to color schemes and visual hierarchy.
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <svg className="w-5 h-5 text-orange-500 mt-1 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <strong className="text-gray-700">Client Satisfaction:</strong> My high rating and positive reviews reflect my commitment to ensuring clients are completely satisfied with the final product.
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <svg className="w-5 h-5 text-orange-500 mt-1 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <strong className="text-gray-700">Post-Delivery Support:</strong> I don't disappear after delivery - I provide ongoing support to ensure your website functions perfectly.
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Checkout My Recent Works Section */}
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+              <h2 className="text-xl font-bold mb-4 text-gray-700">Checkout My Recent Works</h2>
+              <div className="relative overflow-hidden">
+                {/* Portfolio Slider */}
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-gray-700 font-medium">Portfolio Showcase</h3>
+                  <div className="flex space-x-2">
+                    <button className="rounded-full w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-600 hover:bg-gray-100">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button className="rounded-full w-8 h-8 flex items-center justify-center border border-gray-300 text-gray-600 hover:bg-gray-100">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-4">
+                  {/* Portfolio Item 1 */}
+                  <div className="flex-shrink-0 w-64 rounded-lg overflow-hidden shadow-sm border border-gray-200">
+                    <div className="h-40 relative">
+                      <Image 
+                        src="/assets/img/test/Clinic Manager.jpg" 
+                        alt="Portfolio Work 1" 
+                        fill
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </div>
+                    <div className="p-3">
+                      <h4 className="font-medium text-gray-700 mb-1">E-Commerce Website</h4>
+                      <p className="text-sm text-gray-600 line-clamp-2">Modern online store with seamless checkout process and responsive design.</p>
+                    </div>
+                  </div>
+                  
+                  {/* Portfolio Item 2 */}
+                  <div className="flex-shrink-0 w-64 rounded-lg overflow-hidden shadow-sm border border-gray-200">
+                    <div className="h-40 relative">
+                      <Image 
+                        src="/assets/img/test/Attendace Template.png" 
+                        alt="Portfolio Work 2" 
+                        fill
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </div>
+                    <div className="p-3">
+                      <h4 className="font-medium text-gray-700 mb-1">Finance Dashboard</h4>
+                      <p className="text-sm text-gray-600 line-clamp-2">Intuitive admin dashboard for financial analytics and reporting.</p>
+                    </div>
+                  </div>
+                  
+                  {/* Portfolio Item 3 */}
+                  <div className="flex-shrink-0 w-64 rounded-lg overflow-hidden shadow-sm border border-gray-200">
+                    <div className="h-40 relative">
+                      <Image 
+                        src="/assets/img/test/Construction Estimator.png" 
+                        alt="Portfolio Work 3" 
+                        fill
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </div>
+                    <div className="p-3">
+                      <h4 className="font-medium text-gray-700 mb-1">Corporate Website</h4>
+                      <p className="text-sm text-gray-600 line-clamp-2">Professional business website with custom animations and modern UI.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* FAQ Section - Moved from bottom to before reviews */}
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+              <h2 className="text-xl font-bold mb-4 text-gray-700">Frequently Asked Questions</h2>
+              
+              <div className="space-y-4">
+                <details className="border border-gray-200 rounded-xl">
+                  <summary className="p-4 font-medium cursor-pointer focus:outline-none flex justify-between items-center hover:bg-gray-50 rounded-xl text-gray-600">
+                    <span>What do I need to provide to get started?</span>
+                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div className="px-4 pb-4 text-gray-600">
+                    <p>To get started, I'll need your brand guidelines (if available), color preferences, examples of websites you like, and a brief description of your business and target audience. The more information you provide, the better I can tailor the design to your needs.</p>
+                  </div>
+                </details>
+                
+                <details className="border border-gray-200 rounded-xl">
+                  <summary className="p-4 font-medium cursor-pointer focus:outline-none flex justify-between items-center hover:bg-gray-50 rounded-xl text-gray-600">
+                    <span>How many revisions are included?</span>
+                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div className="px-4 pb-4 text-gray-600">
+                    <p>This package includes unlimited revisions until you're 100% satisfied with the design. I want to ensure you get exactly what you need for your project.</p>
+                  </div>
+                </details>
+                
+                <details className="border border-gray-200 rounded-xl">
+                  <summary className="p-4 font-medium cursor-pointer focus:outline-none flex justify-between items-center hover:bg-gray-50 rounded-xl text-gray-600">
+                    <span>What files will I receive?</span>
+                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div className="px-4 pb-4 text-gray-600">
+                    <p>You'll receive all source files (PSD/Figma/Sketch files depending on your preference), optimized JPG/PNG files, and any other assets created during the design process. All files will be properly organized and labeled for easy use.</p>
+                  </div>
+                </details>
+                
+                <details className="border border-gray-200 rounded-xl">
+                  <summary className="p-4 font-medium cursor-pointer focus:outline-none flex justify-between items-center hover:bg-gray-50 rounded-xl text-gray-600">
+                    <span>Do you provide development services too?</span>
+                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div className="px-4 pb-4 text-gray-600">
+                    <p>This service is for design only. However, I do offer website development services as well. Please contact me if you're interested in having your design implemented as a fully functional website.</p>
+                  </div>
+                </details>
+                
+                <details className="border border-gray-200 rounded-xl">
+                  <summary className="p-4 font-medium cursor-pointer focus:outline-none flex justify-between items-center hover:bg-gray-50 rounded-xl text-gray-600">
+                    <span>Can I get a refund if I'm not satisfied?</span>
+                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div className="px-4 pb-4 text-gray-600">
+                    <p>I offer a 100% satisfaction guarantee. If you're not happy with the design and we can't resolve it through revisions, I'll provide a full refund within the first 7 days of delivery.</p>
+                  </div>
+                </details>
+              </div>
+            </div>
+
+            {/* Get to know the seller section */}
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+              <h2 className="text-xl font-bold mb-5 text-gray-700">Get to know Adrian Revolt</h2>
+              
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Seller Avatar & Basic Info */}
+                <div className="md:w-1/3">
+                  <div className="flex flex-col items-center">
+                    <div className="relative mb-3">
+                      <Image 
+                        src="/assets/img/profiles/avatar-1.jpg" 
+                        alt="Adrian Revolt"
+                        width={120}
+                        height={120}
+                        className="rounded-full border-4 border-white shadow-md"
+                      />
+                      <span className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></span>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-800">Adrian Revolt</h3>
+                    <div className="flex items-center mt-1 text-sm">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span className="h-2 w-2 rounded-full bg-green-500 mr-1.5"></span>
+                        Online
+                      </span>
+                    </div>
+                    <div className="flex items-center mt-2">
+                      <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      <span className="ml-1 text-gray-700 font-medium">5.0</span>
+                      <span className="ml-1 text-gray-600">(45 Reviews)</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Seller Details and Bio */}
+                <div className="md:w-2/3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 text-sm">From</span>
+                      <span className="text-gray-700 font-medium">United States</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 text-sm">Member Since</span>
+                      <span className="text-gray-700 font-medium">25 Jan 2024</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 text-sm">Speaks</span>
+                      <span className="text-gray-700 font-medium">English, Portuguese</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 text-sm">Last Project Delivery</span>
+                      <span className="text-gray-700 font-medium">29 Jan 2024</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 text-sm">Avg Response Time</span>
+                      <span className="text-gray-700 font-medium">About 8 hours</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-gray-700 mb-2">About Me</h4>
+                    <p className="text-gray-600">
+                      Hello, Greetings! My name is Adrian, and I am an experienced affiliate marketer and 
+                      website developer. I have over five years experience in digital affiliate marketing &
+                      WordPress website development.
+                    </p>
+                    <button className="text-orange-500 font-medium mt-2 hover:text-orange-600 transition-colors">
+                      Read More
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <button className="w-full md:w-auto py-2.5 px-6 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-colors font-medium">
+                  Contact Me
+                </button>
+              </div>
+            </div>
+
             {/* Reviews Section */}
             <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
               <h2 className="text-xl font-bold mb-4 text-gray-700">Reviews</h2>
@@ -603,6 +920,215 @@ Contact me today to discuss your project requirements!`,
                 </button>
               </div>
             </div>
+
+            {/* Compare Packages Section */}
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+              <h2 className="text-xl font-bold mb-5 text-gray-700">Compare packages</h2>
+              
+              <div className="overflow-x-auto pb-2">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="py-3 px-4 text-left font-medium text-gray-600">Package</th>
+                      <th className="py-3 px-4 text-center font-medium text-gray-600">
+                        <div className="text-xl font-bold text-gray-800">₱{gig.price.toFixed(2)}</div>
+                        <div className="text-gray-700 font-medium">Basic</div>
+                      </th>
+                      <th className="py-3 px-4 text-center font-medium text-gray-600">
+                        <div className="text-xl font-bold text-gray-800">₱{(gig.price * 1.5).toFixed(2)}</div>
+                        <div className="text-gray-700 font-medium">Standard</div>
+                      </th>
+                      <th className="py-3 px-4 text-center font-medium text-gray-600">
+                        <div className="text-xl font-bold text-gray-800">₱{(gig.price * 2).toFixed(2)}</div>
+                        <div className="text-gray-700 font-medium">Premium</div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-gray-200">
+                      <td className="py-4 px-4 text-gray-600">Description</td>
+                      <td className="py-4 px-4 text-gray-600 text-center">
+                        SHOPIFY BUG FIX
+                        <div className="mt-2 text-sm">
+                          Fix 1 simple html, CSS or liquid bug on Shopify.
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-gray-600 text-center">
+                        SHOPIFY CUSTOM CODING
+                        <div className="mt-2 text-sm">
+                          Fix 3 simple HTML, CSS, JS or liquid bugs / Develop 1 custom section.
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-gray-600 text-center">
+                        BUILD SHOPIFY WEBSITE
+                        <div className="mt-2 text-sm">
+                          Premium Theme Customization / Develop 4 custom sections / 1 custom page with custom functionality.
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-200">
+                      <td className="py-4 px-4 text-gray-600">Revisions</td>
+                      <td className="py-4 px-4 text-gray-600 text-center">2</td>
+                      <td className="py-4 px-4 text-gray-600 text-center">5</td>
+                      <td className="py-4 px-4 text-gray-600 text-center">Unlimited</td>
+                    </tr>
+                    <tr className="border-b border-gray-200">
+                      <td className="py-4 px-4 text-gray-600">Delivery Time</td>
+                      <td className="py-4 px-4 text-gray-600 text-center">
+                        <label className="flex items-center justify-center cursor-pointer">
+                          <input
+                            type="radio"
+                            name="basicDelivery"
+                            value="1day"
+                            checked={basicDeliveryOption === "1day"}
+                            onChange={() => setBasicDeliveryOption("1day")}
+                            className="sr-only"
+                          />
+                          <span className={`w-4 h-4 rounded-full border ${basicDeliveryOption === "1day" ? "border-orange-500 bg-orange-500" : "border-gray-400"} inline-block mr-2 hover:border-orange-500`}></span>
+                          1 day
+                        </label>
+                      </td>
+                      <td className="py-4 px-4 text-gray-600 text-center">
+                        <div className="flex flex-col items-center">
+                          <label className="flex items-center mb-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="standardDelivery"
+                              value="2days"
+                              checked={standardDeliveryOption === "2days"}
+                              onChange={() => setStandardDeliveryOption("2days")}
+                              className="sr-only"
+                            />
+                            <span className={`w-4 h-4 rounded-full border ${standardDeliveryOption === "2days" ? "border-orange-500 bg-orange-500" : "border-gray-400"} inline-block mr-2 hover:border-orange-500`}></span>
+                            2 days
+                          </label>
+                          <label className="flex items-center cursor-pointer">
+                            <input
+                              type="radio"
+                              name="standardDelivery"
+                              value="1day"
+                              checked={standardDeliveryOption === "1day"}
+                              onChange={() => setStandardDeliveryOption("1day")}
+                              className="sr-only"
+                            />
+                            <span className={`w-4 h-4 rounded-full border ${standardDeliveryOption === "1day" ? "border-orange-500 bg-orange-500" : "border-gray-400"} inline-block mr-2 hover:border-orange-500`}></span>
+                            1 day (+₱{(30).toFixed(2)})
+                          </label>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-gray-600 text-center">
+                        <div className="flex flex-col items-center">
+                          <label className="flex items-center mb-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="premiumDelivery"
+                              value="5days"
+                              checked={premiumDeliveryOption === "5days"}
+                              onChange={() => setPremiumDeliveryOption("5days")}
+                              className="sr-only"
+                            />
+                            <span className={`w-4 h-4 rounded-full border ${premiumDeliveryOption === "5days" ? "border-orange-500 bg-orange-500" : "border-gray-400"} inline-block mr-2 hover:border-orange-500`}></span>
+                            5 days
+                          </label>
+                          <label className="flex items-center cursor-pointer">
+                            <input
+                              type="radio"
+                              name="premiumDelivery"
+                              value="3days"
+                              checked={premiumDeliveryOption === "3days"}
+                              onChange={() => setPremiumDeliveryOption("3days")}
+                              className="sr-only"
+                            />
+                            <span className={`w-4 h-4 rounded-full border ${premiumDeliveryOption === "3days" ? "border-orange-500 bg-orange-500" : "border-gray-400"} inline-block mr-2 hover:border-orange-500`}></span>
+                            3 days (+₱{(100).toFixed(2)})
+                          </label>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-200">
+                      <td className="py-4 px-4 text-gray-600">Source Code</td>
+                      <td className="py-4 px-4 text-center">
+                        <svg className="w-6 h-6 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <svg className="w-6 h-6 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <svg className="w-6 h-6 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-200">
+                      <td className="py-4 px-4 text-gray-600">Responsive Design</td>
+                      <td className="py-4 px-4 text-center">
+                        <svg className="w-6 h-6 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <svg className="w-6 h-6 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <svg className="w-6 h-6 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-200">
+                      <td className="py-4 px-4 text-gray-600">Premium Support</td>
+                      <td className="py-4 px-4 text-center">
+                        <svg className="w-6 h-6 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <div className="text-gray-600 text-sm">30 days</div>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <div className="text-gray-600 text-sm">60 days</div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-4"></td>
+                      <td className="py-4 px-4 text-center">
+                        <div className="text-xl font-bold text-gray-800 mb-3">₱{gig.price.toFixed(2)}</div>
+                        <button 
+                          onClick={() => handleOpenOrderModal('basic')}
+                          className="w-full h-12 py-2.5 px-6 max-w-[240px] mx-auto rounded-xl text-white bg-orange-600 font-medium hover:bg-orange-700 transition-colors text-lg"
+                        >
+                          Select
+                        </button>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <div className="text-xl font-bold text-gray-800 mb-3">₱{(gig.price * 1.5).toFixed(2)}</div>
+                        <button 
+                          onClick={() => handleOpenOrderModal('standard')}
+                          className="w-full h-12 py-2.5 px-6 max-w-[240px] mx-auto rounded-xl text-white bg-orange-600 font-medium hover:bg-orange-700 transition-colors text-lg"
+                        >
+                          Select
+                        </button>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <div className="text-xl font-bold text-gray-800 mb-3">₱{(gig.price * 2).toFixed(2)}</div>
+                        <button 
+                          onClick={() => handleOpenOrderModal('premium')}
+                          className="w-full h-12 py-2.5 px-6 max-w-[240px] mx-auto rounded-xl text-white bg-orange-600 font-medium hover:bg-orange-700 transition-colors text-lg"
+                        >
+                          Select
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
           
           {/* Right Column - Pricing & Seller Info */}
@@ -727,7 +1253,10 @@ Contact me today to discuss your project requirements!`,
                   </div>
 
                   {/* Buy Button */}
-                  <button className="w-full py-3 bg-orange-600 text-white rounded-xl font-medium hover:bg-orange-700 transition-colors mb-4">
+                  <button 
+                    onClick={() => handleOpenOrderModal(selectedPackage)}
+                    className="w-full py-3 bg-orange-600 text-white rounded-xl font-medium hover:bg-orange-700 transition-colors mb-4"
+                  >
                     Buy this gig
                   </button>
                   
@@ -807,8 +1336,8 @@ Contact me today to discuss your project requirements!`,
         {/* Related Services Section */}
         <div className="mt-12">
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-2">Related Services</h2>
-            <p className="text-gray-600">You might be interested in these services as well</p>
+            <h2 className="text-2xl font-bold mb-2 text-gray-600">Related Services</h2>
+            <p className="text-gray-500">You might be interested in these services as well</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -867,77 +1396,262 @@ Contact me today to discuss your project requirements!`,
             ))}
           </div>
         </div>
-        
-        {/* FAQ Section */}
-        <div className="mt-12 mb-12">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-2">Frequently Asked Questions</h2>
-            <p className="text-gray-600">Got questions? Find your answers here</p>
+
+        {/* Recently Viewed Section */}
+        <div className="mt-16 mb-12">
+          <div className="mb-8 flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold mb-2 text-gray-600">Recently Viewed</h2>
+              <p className="text-gray-500">Services you've browsed recently</p>
+            </div>
+            <div className="flex space-x-2">
+              <button className="rounded-full w-10 h-10 flex items-center justify-center border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors scroll-prev" onClick={() => handleScroll('left')}>
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button className="rounded-full w-10 h-10 flex items-center justify-center border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors scroll-next" onClick={() => handleScroll('right')}>
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </div>
           
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <details className="border-b">
-              <summary className="p-4 font-medium cursor-pointer focus:outline-none flex justify-between items-center hover:bg-gray-50">
-                <span>What do I need to provide to get started?</span>
-                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </summary>
-              <div className="px-4 pb-4 text-gray-700">
-                <p>To get started, I'll need your brand guidelines (if available), color preferences, examples of websites you like, and a brief description of your business and target audience. The more information you provide, the better I can tailor the design to your needs.</p>
-              </div>
-            </details>
-            
-            <details className="border-b">
-              <summary className="p-4 font-medium cursor-pointer focus:outline-none flex justify-between items-center hover:bg-gray-50">
-                <span>How many revisions are included?</span>
-                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </summary>
-              <div className="px-4 pb-4 text-gray-700">
-                <p>This package includes unlimited revisions until you're 100% satisfied with the design. I want to ensure you get exactly what you need for your project.</p>
-              </div>
-            </details>
-            
-            <details className="border-b">
-              <summary className="p-4 font-medium cursor-pointer focus:outline-none flex justify-between items-center hover:bg-gray-50">
-                <span>What files will I receive?</span>
-                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </summary>
-              <div className="px-4 pb-4 text-gray-700">
-                <p>You'll receive all source files (PSD/Figma/Sketch files depending on your preference), optimized JPG/PNG files, and any other assets created during the design process. All files will be properly organized and labeled for easy use.</p>
-              </div>
-            </details>
-            
-            <details className="border-b">
-              <summary className="p-4 font-medium cursor-pointer focus:outline-none flex justify-between items-center hover:bg-gray-50">
-                <span>Do you provide development services too?</span>
-                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </summary>
-              <div className="px-4 pb-4 text-gray-700">
-                <p>This service is for design only. However, I do offer website development services as well. Please contact me if you're interested in having your design implemented as a fully functional website.</p>
-              </div>
-            </details>
-            
-            <details>
-              <summary className="p-4 font-medium cursor-pointer focus:outline-none flex justify-between items-center hover:bg-gray-50">
-                <span>Can I get a refund if I'm not satisfied?</span>
-                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </summary>
-              <div className="px-4 pb-4 text-gray-700">
-                <p>I offer a 100% satisfaction guarantee. If you're not happy with the design and we can't resolve it through revisions, I'll provide a full refund within the first 7 days of delivery.</p>
-              </div>
-            </details>
+          <div 
+            className="overflow-x-auto pb-4 hide-scrollbar" 
+            ref={recentlyViewedRef}
+            style={{ 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none' 
+            }}
+          >
+            <style jsx global>{`
+              .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
+            <div className="flex space-x-6 min-w-max">
+              {/* Recently Viewed Cards */}
+              {[1, 2, 3, 4, 5, 6].map((index) => (
+                <div key={`recent-${index}`} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow w-72 flex-shrink-0">
+                  <div className="relative h-44 w-full">
+                    <Image 
+                      src={`/assets/img/test/${['Construction Estimator.png', 'Attendace Template.png', 'Clinic Manager.jpg', 'Company Payroll System 3.png', 'Class Student Manager.jpg', 'Construction Estimator.png'][index-1]}`} 
+                      alt={`Recently Viewed ${index}`}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-center mb-2">
+                      <div className="w-8 h-8 bg-gray-300 rounded-full overflow-hidden mr-2 flex-shrink-0">
+                        <Image 
+                          src="/assets/img/profiles/avatar-1.jpg"
+                          alt="Seller"
+                          width={32}
+                          height={32}
+                        />
+                      </div>
+                      <span className="text-sm font-medium">Creative Studio</span>
+                    </div>
+                    <h3 className="text-base font-medium mb-2 line-clamp-2">
+                      <Link href={`/gigs/${index+200}`} className="text-gray-800 hover:text-blue-600">
+                        {[
+                          'I will build custom WordPress website',
+                          'I will develop React.js frontend',
+                          'I will create eye-catching banners',
+                          'I will build e-commerce store',
+                          'I will develop mobile app UI',
+                          'I will create SEO-friendly website'
+                        ][index-1]}
+                      </Link>
+                    </h3>
+                    <div className="flex items-center text-orange-400 text-sm mb-2">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      <span className="ml-1 text-gray-600">{(4.2 + index * 0.1).toFixed(1)}</span>
+                      <span className="ml-1 text-gray-500">({(25 + index * 8)} reviews)</span>
+                    </div>
+                    <div className="flex items-center justify-between border-t pt-3 mt-2">
+                      <span className="text-sm text-gray-600 flex items-center">
+                        <svg className="w-4 h-4 text-green-500 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 8V12L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
+                        </svg>
+                        {index} day delivery
+                      </span>
+                      <span className="font-bold text-gray-900">₱{(149 + index * 35).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Order Modal */}
+      {showOrderModal && (
+        <>
+          {/* Modal Overlay */}
+          <div 
+            className="fixed inset-0 z-[1000]" 
+            onClick={handleCloseModal}
+            style={{ backgroundColor: 'rgba(0,0,0,0.25)' }}
+          ></div>
+
+          {/* Modal Panel */}
+          <div className={`fixed inset-y-0 right-0 z-[1001] w-full sm:w-[450px] bg-white overflow-y-auto shadow-xl flex flex-col ${isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'}`}>
+            {/* Add keyframes for the animation */}
+            <style jsx global>{`
+              @keyframes slideInRight {
+                from {
+                  transform: translateX(100%);
+                }
+                to {
+                  transform: translateX(0);
+                }
+              }
+              
+              @keyframes slideOutRight {
+                from {
+                  transform: translateX(0);
+                }
+                to {
+                  transform: translateX(100%);
+                }
+              }
+              
+              .animate-slide-in-right {
+                animation: slideInRight 0.3s ease-out forwards;
+              }
+              
+              .animate-slide-out-right {
+                animation: slideOutRight 0.3s ease-in forwards;
+              }
+            `}</style>
+            
+            {/* Header */}
+            <div className="sticky top-0 bg-white z-10 border-b border-gray-200 flex justify-between items-center px-6 py-4">
+              <h2 className="text-xl font-bold text-gray-800">Order options</h2>
+              <button 
+                onClick={handleCloseModal}
+                className="text-gray-500 hover:text-gray-700 rounded-full p-1 hover:bg-gray-100 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
+              {/* Package Info */}
+              <div className="mb-6 bg-gray-50 p-4 rounded-xl">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-xl font-semibold text-gray-800 capitalize">{orderPackage}</h3>
+                  <span className="text-xl font-bold text-orange-500">
+                    ₱{orderPackage === 'basic' ? (gig?.price || 0).toFixed(2) :
+                       orderPackage === 'standard' ? ((gig?.price || 0) * 1.5).toFixed(2) :
+                       ((gig?.price || 0) * 2).toFixed(2)}
+                  </span>
+                </div>
+                <p className="text-gray-700">{gig?.title}</p>
+              </div>
+              
+              <div className="pt-4 mb-6">
+                <h3 className="text-xl font-semibold text-gray-800 mb-4">How often do you need this order?</h3>
+                
+                {/* Order Type Selection */}
+                <div className="border border-gray-300 rounded-xl mb-6 overflow-hidden shadow-sm">
+                  {/* Single Order Option */}
+                  <div className="p-5 bg-white">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-lg font-medium text-gray-800">Single order</h4>
+                      </div>
+                      <span className="font-semibold text-lg text-orange-500">
+                        ₱{orderPackage === 'basic' ? (gig?.price || 0).toFixed(2) :
+                          orderPackage === 'standard' ? ((gig?.price || 0) * 1.5).toFixed(2) :
+                          ((gig?.price || 0) * 2).toFixed(2)}
+                      </span>
+                    </div>
+                    
+                    {/* Quantity Selector */}
+                    <div className="pt-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Gig Quantity</span>
+                        <div className="flex items-center">
+                          <button 
+                            className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+                            onClick={() => {/* Decrement logic */}}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                          </button>
+                          <span className="mx-4 font-medium">1</span>
+                          <button 
+                            className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+                            onClick={() => {/* Increment logic */}}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <line x1="12" y1="5" x2="12" y2="19"></line>
+                              <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Order Extras */}
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Upgrade your order with extras</h3>
+                  
+                  <div className="border border-gray-300 rounded-xl p-5 mb-4 hover:border-orange-200 transition-colors">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex justify-between">
+                          <h4 className="text-lg font-medium text-gray-800">Speed Optimization <span className="text-gray-500 font-normal text-sm">(+1 day)</span></h4>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" className="sr-only peer" />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                          </label>
+                        </div>
+                        <p className="text-gray-600 mt-1">I will do Shopify speed optimization and boost your store score.</p>
+                        <p className="text-orange-500 font-semibold mt-2">₱35</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Order Total */}
+              <div className="border-t border-gray-200 py-4 mb-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold text-gray-800">Order Total:</h3>
+                  <span className="text-xl font-bold text-orange-500">₱{((gig?.price || 0) * (orderPackage === 'basic' ? 1 : orderPackage === 'standard' ? 1.5 : 2)).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Sticky Continue Button */}
+            <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4 mt-auto z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+              <button 
+                onClick={handleCloseModal}
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-4 rounded-full transition-colors mb-2 shadow-sm"
+              >
+                Continue (₱{((gig?.price || 0) * (orderPackage === 'basic' ? 1 : orderPackage === 'standard' ? 1.5 : 2)).toFixed(2)})
+              </button>
+              <p className="text-center text-gray-500 text-sm">You won't be charged yet</p>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 } 

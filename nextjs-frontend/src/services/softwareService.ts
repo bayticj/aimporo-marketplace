@@ -103,18 +103,123 @@ export const getSoftwareProduct = async (slug: string) => {
     
     return response.data;
   } catch (error) {
-    console.error(`Error fetching software product ${slug}:`, error);
+    console.error('Error fetching software product:', error);
     
-    // Return mock data for development
-    const mockProducts = getMockSoftwareProducts();
-    const mockProduct = mockProducts.find(product => product.slug === slug) || mockProducts[0];
+    // Extract a potential numeric ID from the slug
+    const slugParts = slug.split('-');
+    const potentialId = parseInt(slugParts[slugParts.length - 1]) || parseInt(slug);
+    const mockProductId = !isNaN(potentialId) ? potentialId : 1;
     
-    return {
-      data: {
-        ...mockProduct,
-        delivery: "Instant"
-      }
+    // Generate a comprehensive mock product
+    const mockProduct = {
+      id: mockProductId,
+      name: `Software Product ${mockProductId}`,
+      slug: slug,
+      description: `This is a detailed description for Software Product ${mockProductId}. It includes all the features, specifications, and benefits of using this product.\n\nOur software is designed to help businesses streamline their operations, improve productivity, and reduce costs.\n\nWith our intuitive interface and powerful features, you'll be able to accomplish more in less time.`,
+      short_description: `A comprehensive solution for businesses of all sizes.`,
+      logo_path: `/assets/img/test/software-logo-placeholder.png`,
+      logo: `/assets/img/test/software-logo-placeholder.png`,
+      screenshots: [
+        `/assets/img/test/Class Student Manager.jpg`,
+        `/assets/img/test/Clinic Manager.jpg`,
+        `/assets/img/test/Company Payroll System 3.png`,
+        `/assets/img/test/Dental System.png`
+      ],
+      thumbnail: `/assets/img/test/Class Student Manager.jpg`,
+      version: `${Math.floor(Math.random() * 10)}.${Math.floor(Math.random() * 10)}.${Math.floor(Math.random() * 10)}`,
+      partner_id: 1,
+      partner_name: "Partner Corporation",
+      is_active: true,
+      features: [
+        "User-friendly interface",
+        "Customizable dashboards",
+        "Real-time analytics",
+        "Cloud synchronization",
+        "Mobile app integration",
+        "Automated backups",
+        "24/7 technical support",
+        "Regular updates and improvements"
+      ],
+      system_requirements: "Windows 10/11 or macOS 11+, 8GB RAM, 2GHz processor, 1GB free disk space",
+      plans: [
+        {
+          id: "plan-1",
+          name: "Basic Plan",
+          description: "Perfect for small businesses and startups",
+          price: 49.99,
+          duration_days: 30,
+          features: [
+            "Core features",
+            "Email support",
+            "Up to 5 users",
+            "Basic reporting"
+          ],
+          is_active: true
+        },
+        {
+          id: "plan-2",
+          name: "Pro Plan",
+          description: "Ideal for growing businesses",
+          price: 99.99,
+          duration_days: 30,
+          features: [
+            "All Basic features",
+            "Priority support",
+            "Up to 20 users",
+            "Advanced reporting",
+            "API access"
+          ],
+          is_active: true
+        },
+        {
+          id: "plan-3",
+          name: "Enterprise Lifetime",
+          description: "The complete solution for large organizations",
+          price: 999.99,
+          duration_days: null,
+          features: [
+            "All Pro features",
+            "24/7 premium support",
+            "Unlimited users",
+            "Custom reporting",
+            "Dedicated account manager",
+            "White labeling",
+            "Priority feature requests"
+          ],
+          is_active: true
+        }
+      ],
+      // Add pricing_plans for the UI to use
+      pricing_plans: [
+        {
+          id: "plan-1",
+          name: "Basic Plan",
+          description: "Perfect for small businesses and startups",
+          price: 49.99,
+          billing_cycle: "Monthly"
+        },
+        {
+          id: "plan-2",
+          name: "Pro Plan",
+          description: "Ideal for growing businesses",
+          price: 99.99,
+          billing_cycle: "Monthly"
+        },
+        {
+          id: "plan-3",
+          name: "Enterprise Lifetime",
+          description: "The complete solution for large organizations",
+          price: 999.99,
+          billing_cycle: "Lifetime"
+        }
+      ],
+      created_at: "2023-01-01",
+      updated_at: "2023-01-01",
+      delivery: "Instant"
     };
+    
+    console.log("Returning mock software product:", mockProduct);
+    return mockProduct;
   }
 };
 
